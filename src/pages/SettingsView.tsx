@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Settings, Plus, Trash2, CheckCircle, Database, Shield, Upload } from 'lucide-react';
+import { Settings, Plus, Trash2, CheckCircle, Database, Shield, Upload, Pencil, Check, X } from 'lucide-react';
 import { db } from '../db/database';
 import { currentWeek } from '../utils/programLogic';
 import {
@@ -20,10 +20,13 @@ export function SettingsView() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [settings, setSettings] = useState<SettingsModel | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingProgramId, setDeletingProgramId] = useState<string | null>(null);
   const [storageInfo, setStorageInfo] = useState<any>(null);
   const [persisted, setPersisted] = useState(false);
   const [importMessage, setImportMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
+  const [editingProgramName, setEditingProgramName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { triggerRefresh } = useAppStore();
 
@@ -92,16 +95,23 @@ export function SettingsView() {
     triggerRefresh();
   };
 
-  const handleDeleteProgram = async (programId: string) => {
-    await db.programs.delete(programId);
+  const handleDeleteProgram = (programId: string) => {
+    setDeletingProgramId(programId);
+  };
+
+  const confirmDeleteProgram = async () => {
+    if (!deletingProgramId) return;
+
+    await db.programs.delete(deletingProgramId);
 
     // Delete associated data
-    const templates = await db.workoutTemplates.where('programId').equals(programId).toArray();
+    const templates = await db.workoutTemplates.where('programId').equals(deletingProgramId).toArray();
     for (const template of templates) {
       await db.exerciseTemplates.where('workoutTemplateId').equals(template.id).delete();
       await db.workoutTemplates.delete(template.id);
     }
 
+    setDeletingProgramId(null);
     await loadData();
     triggerRefresh();
   };
@@ -124,6 +134,26 @@ export function SettingsView() {
   const handleUpdateProgramWeeks = async (programId: string, weeks: number) => {
     await db.programs.update(programId, { totalWeeks: Math.max(weeks, 1) });
     await loadData();
+  };
+
+  const handleStartRename = (programId: string, currentName: string) => {
+    setEditingProgramId(programId);
+    setEditingProgramName(currentName);
+  };
+
+  const handleSaveRename = async () => {
+    if (!editingProgramId || !editingProgramName.trim()) return;
+
+    await db.programs.update(editingProgramId, { name: editingProgramName.trim() });
+    setEditingProgramId(null);
+    setEditingProgramName('');
+    await loadData();
+    triggerRefresh();
+  };
+
+  const handleCancelRename = () => {
+    setEditingProgramId(null);
+    setEditingProgramName('');
   };
 
   const handleImportClick = () => {
@@ -323,15 +353,54 @@ export function SettingsView() {
                 return (
                   <div key={program.id} className="bg-white border-2 border-gray-200 rounded-xl p-5 shadow-sm">
                     <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="font-bold text-gray-900 text-lg">{program.name}</h3>
+                      <div className="flex-1">
+                        {editingProgramId === program.id ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={editingProgramName}
+                              onChange={(e) => setEditingProgramName(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSaveRename();
+                                if (e.key === 'Escape') handleCancelRename();
+                              }}
+                              className="input-field flex-1"
+                              autoFocus
+                            />
+                            <button
+                              onClick={handleSaveRename}
+                              className="text-green-600 hover:text-green-700 hover:bg-green-50 p-2 rounded-lg transition-all"
+                              title="Save"
+                            >
+                              <Check className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={handleCancelRename}
+                              className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 p-2 rounded-lg transition-all"
+                              title="Cancel"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-gray-900 text-lg">{program.name}</h3>
+                            <button
+                              onClick={() => handleStartRename(program.id, program.name)}
+                              className="text-gray-500 hover:text-primary-600 hover:bg-primary-50 p-1.5 rounded-lg transition-all"
+                              title="Rename program"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
                         <p className="text-sm text-gray-700 font-medium mt-1">
                           Week <span className="text-primary-600">{week}</span> of <span className="text-primary-600">{program.totalWeeks}</span>
                         </p>
                       </div>
                       <button
                         onClick={() => handleDeleteProgram(program.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all ml-2"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
@@ -465,7 +534,35 @@ export function SettingsView() {
           </div>
         </div>
 
-        {/* Delete Confirmation Modal */}
+        {/* Delete Single Program Confirmation Modal */}
+        {deletingProgramId && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+            <div className="card p-6 max-w-sm w-full bg-white animate-slideUp">
+              <h3 className="text-xl font-bold text-red-700 mb-3">
+                Delete Program?
+              </h3>
+              <p className="text-gray-700 mb-6 font-medium">
+                This will delete "{programs.find(p => p.id === deletingProgramId)?.name}" and all its templates. Your workout history will be preserved.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeletingProgramId(null)}
+                  className="btn-secondary flex-1"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeleteProgram}
+                  className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete All Programs Confirmation Modal */}
         {showDeleteConfirm && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
             <div className="card p-6 max-w-sm w-full bg-white animate-slideUp">
