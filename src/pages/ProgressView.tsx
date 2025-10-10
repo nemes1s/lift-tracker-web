@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TrendingUp, Award, Calendar, Dumbbell, BarChart3 } from 'lucide-react';
+import { TrendingUp, Award, Calendar, Dumbbell, BarChart3, Zap, Flame, Target, Trophy, Activity } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -9,6 +9,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  BarChart,
+  Bar,
 } from 'recharts';
 import {
   getAllExerciseNames,
@@ -17,6 +19,19 @@ import {
   type ExerciseProgressData,
   type ExerciseStats,
 } from '../utils/progressTracking';
+import {
+  getGlobalStats,
+  getWeeklyComparison,
+  getMonthlyVolumeTrend,
+  getRepPRs,
+  getExerciseConsistency,
+  type GlobalStats,
+  type WeeklyComparison,
+  type MonthlyVolume,
+  type RepPR,
+} from '../utils/globalStats';
+import { CollapsibleCard } from '../components/CollapsibleCard';
+import { formatVolume, formatDuration } from '../utils/workoutStats';
 
 export function ProgressView() {
   const [exercises, setExercises] = useState<string[]>([]);
@@ -25,7 +40,16 @@ export function ProgressView() {
   const [stats, setStats] = useState<ExerciseStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Load all exercises
+  // Global stats
+  const [globalStats, setGlobalStats] = useState<GlobalStats | null>(null);
+  const [weeklyComparison, setWeeklyComparison] = useState<WeeklyComparison | null>(null);
+  const [monthlyTrend, setMonthlyTrend] = useState<MonthlyVolume[]>([]);
+
+  // Exercise-specific enhanced metrics
+  const [repPRs, setRepPRs] = useState<RepPR[]>([]);
+  const [consistency, setConsistency] = useState<number | null>(null);
+
+  // Load all exercises and global stats
   useEffect(() => {
     const loadExercises = async () => {
       const names = await getAllExerciseNames();
@@ -35,6 +59,16 @@ export function ProgressView() {
       if (names.length > 0 && !selectedExercise) {
         setSelectedExercise(names[0]);
       }
+
+      // Load global stats
+      const gStats = await getGlobalStats();
+      setGlobalStats(gStats);
+
+      const wComparison = await getWeeklyComparison();
+      setWeeklyComparison(wComparison);
+
+      const mTrend = await getMonthlyVolumeTrend();
+      setMonthlyTrend(mTrend);
 
       setLoading(false);
     };
@@ -48,6 +82,8 @@ export function ProgressView() {
       if (!selectedExercise) {
         setProgressData([]);
         setStats(null);
+        setRepPRs([]);
+        setConsistency(null);
         return;
       }
 
@@ -60,6 +96,14 @@ export function ProgressView() {
       // Get stats
       const exerciseStats = await getExerciseStats(selectedExercise);
       setStats(exerciseStats);
+
+      // Get rep PRs
+      const prs = await getRepPRs(selectedExercise);
+      setRepPRs(prs);
+
+      // Get consistency
+      const consistencyScore = await getExerciseConsistency(selectedExercise);
+      setConsistency(consistencyScore);
 
       setLoading(false);
     };
@@ -93,6 +137,133 @@ export function ProgressView() {
           </div>
         </div>
 
+        {/* Global Overview Stats */}
+        {globalStats && globalStats.totalWorkouts > 0 && (
+          <CollapsibleCard
+            title="Global Overview"
+            icon={<Trophy className="w-6 h-6" />}
+            defaultOpen={true}
+            badge={`${globalStats.totalWorkouts} workouts`}
+          >
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
+              <div className="bg-gradient-to-br from-primary-50 to-white rounded-xl p-4 border-2 border-primary-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="w-5 h-5 text-primary-600" />
+                  <span className="text-xs font-bold text-gray-600 uppercase">Current Streak</span>
+                </div>
+                <p className="text-2xl font-bold text-primary-700">{globalStats.currentStreak} days</p>
+              </div>
+
+              <div className="bg-gradient-to-br from-green-50 to-white rounded-xl p-4 border-2 border-green-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Trophy className="w-5 h-5 text-green-600" />
+                  <span className="text-xs font-bold text-gray-600 uppercase">Longest Streak</span>
+                </div>
+                <p className="text-2xl font-bold text-green-700">{globalStats.longestStreak} days</p>
+              </div>
+
+              <div className="bg-gradient-to-br from-orange-50 to-white rounded-xl p-4 border-2 border-orange-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Activity className="w-5 h-5 text-orange-600" />
+                  <span className="text-xs font-bold text-gray-600 uppercase">Total Volume</span>
+                </div>
+                <p className="text-2xl font-bold text-orange-700">{(globalStats.totalVolume / 1000).toFixed(1)}t</p>
+              </div>
+
+              <div className="bg-gradient-to-br from-red-50 to-white rounded-xl p-4 border-2 border-red-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Flame className="w-5 h-5 text-red-600" />
+                  <span className="text-xs font-bold text-gray-600 uppercase">Total Calories</span>
+                </div>
+                <p className="text-2xl font-bold text-red-700">{formatVolume(globalStats.totalCalories)}</p>
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-4 border-2 border-blue-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Calendar className="w-5 h-5 text-blue-600" />
+                  <span className="text-xs font-bold text-gray-600 uppercase">Avg Duration</span>
+                </div>
+                <p className="text-2xl font-bold text-blue-700">{formatDuration(globalStats.averageDuration)}</p>
+              </div>
+
+              <div className="bg-gradient-to-br from-purple-50 to-white rounded-xl p-4 border-2 border-purple-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Target className="w-5 h-5 text-purple-600" />
+                  <span className="text-xs font-bold text-gray-600 uppercase">Days Training</span>
+                </div>
+                <p className="text-2xl font-bold text-purple-700">{globalStats.daysTraining}</p>
+              </div>
+            </div>
+          </CollapsibleCard>
+        )}
+
+        {/* Weekly Comparison */}
+        {weeklyComparison && weeklyComparison.thisWeekWorkouts > 0 && (
+          <CollapsibleCard
+            title="Weekly Comparison"
+            icon={<BarChart3 className="w-6 h-6" />}
+            defaultOpen={false}
+          >
+            <div className="space-y-4 mt-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-primary-50 rounded-xl p-4">
+                  <p className="text-sm font-bold text-gray-600 mb-1">This Week</p>
+                  <p className="text-2xl font-bold text-primary-700">{weeklyComparison.thisWeekWorkouts} workouts</p>
+                  <p className="text-sm text-gray-600 mt-1">{formatVolume(weeklyComparison.thisWeekVolume)} kg volume</p>
+                </div>
+
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-sm font-bold text-gray-600 mb-1">Last Week</p>
+                  <p className="text-2xl font-bold text-gray-700">{weeklyComparison.lastWeekWorkouts} workouts</p>
+                  <p className="text-sm text-gray-600 mt-1">{formatVolume(weeklyComparison.lastWeekVolume)} kg volume</p>
+                </div>
+              </div>
+
+              {weeklyComparison.lastWeekVolume > 0 && (
+                <div className={`p-4 rounded-xl ${
+                  weeklyComparison.change >= 0 ? 'bg-green-50' : 'bg-red-50'
+                }`}>
+                  <p className="text-sm font-bold text-gray-600 mb-1">Volume Change</p>
+                  <p className={`text-2xl font-bold ${
+                    weeklyComparison.change >= 0 ? 'text-green-700' : 'text-red-700'
+                  }`}>
+                    {weeklyComparison.change >= 0 ? '+' : ''}{weeklyComparison.change.toFixed(1)}%
+                  </p>
+                </div>
+              )}
+            </div>
+          </CollapsibleCard>
+        )}
+
+        {/* Monthly Volume Trend */}
+        {monthlyTrend.length > 0 && monthlyTrend.some(m => m.volume > 0) && (
+          <CollapsibleCard
+            title="Monthly Volume Trend"
+            icon={<TrendingUp className="w-6 h-6" />}
+            defaultOpen={false}
+          >
+            <div className="mt-2">
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={monthlyTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      border: '2px solid #2563eb',
+                      borderRadius: '0.75rem',
+                      fontWeight: 'bold',
+                    }}
+                    formatter={(value: number) => [`${formatVolume(value)} kg`, 'Volume']}
+                  />
+                  <Bar dataKey="volume" fill="#2563eb" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CollapsibleCard>
+        )}
+
         {/* Exercise Selector */}
         {exercises.length > 0 ? (
           <>
@@ -113,9 +284,15 @@ export function ProgressView() {
               </select>
             </div>
 
-            {/* Stats Cards */}
+            {/* Enhanced Exercise Metrics */}
             {stats && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <CollapsibleCard
+                title="Exercise Stats"
+                icon={<Dumbbell className="w-6 h-6" />}
+                defaultOpen={true}
+                badge={stats.workoutCount}
+              >
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                 {/* Max Weight */}
                 <div className="card p-4 bg-white">
                   <div className="flex items-center gap-2 mb-2">
@@ -173,13 +350,63 @@ export function ProgressView() {
                     {stats.firstWorkoutDate.toLocaleDateString()}
                   </p>
                 </div>
+
+                {/* Consistency Score */}
+                {consistency !== null && (
+                  <div className="card p-4 bg-white md:col-span-2">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Target className="w-5 h-5 text-teal-600" />
+                      <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+                        Consistency
+                      </span>
+                    </div>
+                    <p className="text-2xl font-bold text-teal-700">
+                      Every {consistency.toFixed(1)} days
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">Average frequency</p>
+                  </div>
+                )}
               </div>
+              </CollapsibleCard>
+            )}
+
+            {/* Rep PRs */}
+            {repPRs.length > 0 && (
+              <CollapsibleCard
+                title="Rep PRs"
+                icon={<Award className="w-6 h-6" />}
+                defaultOpen={false}
+                badge={repPRs.length}
+              >
+                <div className="space-y-2 mt-2">
+                  {repPRs.map((pr) => (
+                    <div
+                      key={pr.reps}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 hover:border-primary-300 transition-colors"
+                    >
+                      <div>
+                        <span className="font-bold text-gray-900 text-lg">{pr.reps} reps</span>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {pr.date.toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-primary-700">{pr.weight} kg</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CollapsibleCard>
             )}
 
             {/* Weight Progression Chart */}
             {progressData.length > 0 && (
-              <div className="card p-6 bg-white">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Weight Progression</h2>
+              <CollapsibleCard
+                title="Weight Progression"
+                icon={<TrendingUp className="w-6 h-6" />}
+                defaultOpen={true}
+              >
+                <div className="mt-2">
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -233,13 +460,18 @@ export function ProgressView() {
                 <p className="text-xs text-gray-500 mt-4 text-center">
                   Showing best set from each workout session
                 </p>
-              </div>
+                </div>
+              </CollapsibleCard>
             )}
 
             {/* Volume Chart */}
             {progressData.length > 0 && (
-              <div className="card p-6 bg-white">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Volume per Workout</h2>
+              <CollapsibleCard
+                title="Volume per Workout"
+                icon={<BarChart3 className="w-6 h-6" />}
+                defaultOpen={false}
+              >
+                <div className="mt-2">
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -280,7 +512,8 @@ export function ProgressView() {
                 <p className="text-xs text-gray-500 mt-4 text-center">
                   Volume = Weight × Reps (best set per workout)
                 </p>
-              </div>
+                </div>
+              </CollapsibleCard>
             )}
 
             {/* No data message */}
