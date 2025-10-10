@@ -1,4 +1,4 @@
-import type { CSVProgramData, CSVDayData, CSVExerciseData, CSVParseResult } from '../types/csv';
+import type { CSVDayData, CSVExerciseData, CSVParseResult } from '../types/csv';
 
 /**
  * Parse CSV file content into program data structure
