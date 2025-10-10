@@ -23,6 +23,7 @@ export class LiftTrackerDatabase extends Dexie {
   constructor() {
     super('LiftTrackerDB');
 
+    // Version 1: Initial schema
     this.version(1).stores({
       programs: 'id, name, createdAt, startDate',
       workoutTemplates: 'id, programId, dayIndex, weekNumber',
@@ -32,6 +33,11 @@ export class LiftTrackerDatabase extends Dexie {
       setRecords: 'id, exerciseId, timestamp',
       personalRecords: 'id, exerciseName, occurredAt',
       settings: 'id',
+    });
+
+    // Version 2: Add compound index for workoutTemplates queries
+    this.version(2).stores({
+      workoutTemplates: 'id, programId, dayIndex, weekNumber, [programId+weekNumber+dayIndex]',
     });
   }
 }

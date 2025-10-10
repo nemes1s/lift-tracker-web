@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, StopCircle, CheckCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, StopCircle, CheckCircle, Activity, Flame, Zap, Clock } from 'lucide-react';
 import { db } from '../db/database';
 import { previousWorkoutInstances } from '../utils/programLogic';
 import { useAppStore } from '../store/appStore';
 import type { Workout, ExerciseInstance, SetRecord } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
+import { calculateWorkoutStats, formatVolume, formatRPE, formatDuration } from '../utils/workoutStats';
 
 interface WorkoutRunnerProps {
   workout: Workout;
@@ -18,6 +19,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const [repsText, setRepsText] = useState('');
   const [rpeText, setRpeText] = useState('');
   const [previousHistory, setPreviousHistory] = useState<{ workout: Workout; sets: SetRecord[] }[]>([]);
+  const [allExercisesWithSets, setAllExercisesWithSets] = useState<Array<{ sets: SetRecord[] }>>([]);
 
   const { setActiveWorkout, triggerRefresh } = useAppStore();
 
@@ -37,6 +39,23 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     loadExercises();
   }, [workout.id]);
 
+  // Load all sets for all exercises (for stats calculation)
+  const loadAllSets = async () => {
+    if (exercises.length === 0) return;
+
+    const exercisesWithSets = await Promise.all(
+      exercises.map(async (ex) => {
+        const sets = await db.setRecords
+          .where('exerciseId')
+          .equals(ex.id)
+          .sortBy('timestamp');
+        return { sets };
+      })
+    );
+
+    setAllExercisesWithSets(exercisesWithSets);
+  };
+
   // Load sets for current exercise
   useEffect(() => {
     const loadSets = async () => {
@@ -52,6 +71,9 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       // Load previous workout history
       const history = await previousWorkoutInstances(currentExercise.name, 3);
       setPreviousHistory(history);
+
+      // Reload all sets for stats
+      await loadAllSets();
     };
 
     loadSets();
@@ -60,6 +82,11 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     setRepsText('');
     setRpeText('');
   }, [currentExercise]);
+
+  // Initial load of all sets
+  useEffect(() => {
+    loadAllSets();
+  }, [exercises]);
 
   const handleLogSet = async () => {
     if (!currentExercise) return;
@@ -130,6 +157,9 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   if (!currentExercise) {
     return <div className="text-center text-gray-600">No exercises in this workout.</div>;
   }
+
+  // Calculate current workout stats
+  const stats = calculateWorkoutStats(allExercisesWithSets, workout.startedAt);
 
   return (
     <div className="space-y-6">
@@ -248,6 +278,45 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
           </div>
         </div>
       )}
+
+      {/* Live Workout Stats */}
+      <div className="grid grid-cols-2 gap-3">
+        <h4 className="col-span-2 font-bold text-gray-900 text-lg">Workout Stats:</h4>
+        <div className="bg-gradient-to-br from-primary-50 to-white rounded-xl p-3 border-2 border-primary-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-1">
+            <Activity className="w-4 h-4 text-primary-600" />
+            <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Volume</span>
+          </div>
+          <p className="text-xl font-bold text-primary-700">{formatVolume(stats.totalVolume)} kg</p>
+        </div>
+
+        <div className="bg-gradient-to-br from-orange-50 to-white rounded-xl p-3 border-2 border-orange-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-1">
+            <Flame className="w-4 h-4 text-orange-600" />
+            <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Calories</span>
+          </div>
+          <p className="text-xl font-bold text-orange-700">~{stats.estimatedCalories}</p>
+        </div>
+
+        {stats.averageRPE > 0 && (
+          <div className="bg-gradient-to-br from-purple-50 to-white rounded-xl p-3 border-2 border-purple-100 shadow-sm">
+            <div className="flex items-center gap-2 mb-1">
+              <Zap className="w-4 h-4 text-purple-600" />
+              <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Avg RPE</span>
+            </div>
+            <p className="text-xl font-bold text-purple-700">{formatRPE(stats.averageRPE)}</p>
+          </div>
+        )}
+
+        <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-3 border-2 border-blue-100 shadow-sm">
+          <div className="flex items-center gap-2 mb-1">
+            <Clock className="w-4 h-4 text-blue-600" />
+            <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Duration</span>
+          </div>
+          <p className="text-xl font-bold text-blue-700">{formatDuration(stats.duration)}</p>
+        </div>
+      </div>
+
 
       {/* Navigation */}
       <div className="card p-4 bg-white">
