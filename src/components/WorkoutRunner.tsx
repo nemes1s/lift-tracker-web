@@ -251,27 +251,24 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
       {/* Navigation */}
       <div className="card p-4 bg-white">
+          <div className="text-center mb-4">
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider block">Exercise {currentIndex + 1} of {exercises.length}</span>
+          </div>
         <div className="flex items-center justify-between gap-4">
           <button
             onClick={goPrevious}
             disabled={currentIndex === 0}
-            className="btn-secondary flex items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            className="btn-secondary flex flex-1 items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           >
             <ChevronLeft className="w-5 h-5" />
             Previous
           </button>
 
-          <div className="text-center">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider block">Exercise</span>
-            <span className="text-lg font-bold text-primary-700">
-              {currentIndex + 1} of {exercises.length}
-            </span>
-          </div>
 
           <button
             onClick={goNext}
             disabled={currentIndex === exercises.length - 1}
-            className="btn-primary flex items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            className="btn-primary flex flex-1 items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           >
             Next
             <ChevronRight className="w-5 h-5" />
