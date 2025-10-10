@@ -1,5 +1,4 @@
-import { db } from '../db/database';
-import type { ExerciseInstance, SetRecord } from '../types/models';
+import type { SetRecord } from '../types/models';
 import { estimate1RM } from './oneRM';
 import { getExerciseProgress } from './progressTracking';
 
