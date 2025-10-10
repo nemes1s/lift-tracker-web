@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Settings, Plus, Trash2, CheckCircle, Database, Shield, Upload, Pencil, Check, X } from 'lucide-react';
+import { Settings, Plus, Trash2, CheckCircle, Database, Shield, Upload, Pencil, Check, X, Download } from 'lucide-react';
 import { db } from '../db/database';
 import { currentWeek } from '../utils/programLogic';
 import {
@@ -10,6 +10,7 @@ import {
   createProgramFromCSV,
 } from '../utils/programTemplates';
 import { parseCSV, readCSVFile } from '../utils/csvParser';
+import { exportProgramWithProgress, downloadCSV } from '../utils/csvExporter';
 import { useAppStore } from '../store/appStore';
 import type { Program, SettingsModel } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
@@ -27,6 +28,7 @@ export function SettingsView() {
   const [isImporting, setIsImporting] = useState(false);
   const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
   const [editingProgramName, setEditingProgramName] = useState('');
+  const [exportingProgramId, setExportingProgramId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { triggerRefresh } = useAppStore();
 
@@ -216,6 +218,40 @@ export function SettingsView() {
     }
   };
 
+  const handleExportProgram = async (programId: string, programName: string) => {
+    setExportingProgramId(programId);
+
+    try {
+      // Export program with progress data
+      const csvContent = await exportProgramWithProgress(programId);
+
+      // Generate filename
+      const sanitizedName = programName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const filename = `${sanitizedName}_export.csv`;
+
+      // Download CSV
+      downloadCSV(csvContent, filename);
+
+      setImportMessage({
+        type: 'success',
+        text: `Successfully exported "${programName}"`,
+      });
+
+      // Clear message after 3 seconds
+      setTimeout(() => setImportMessage(null), 3000);
+    } catch (error) {
+      setImportMessage({
+        type: 'error',
+        text: `Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      });
+
+      // Clear message after 5 seconds
+      setTimeout(() => setImportMessage(null), 5000);
+    } finally {
+      setExportingProgramId(null);
+    }
+  };
+
   return (
     <div className="h-full overflow-y-auto pb-20">
       <div className="max-w-2xl mx-auto p-6 space-y-6">
@@ -398,12 +434,23 @@ export function SettingsView() {
                           Week <span className="text-primary-600">{week}</span> of <span className="text-primary-600">{program.totalWeeks}</span>
                         </p>
                       </div>
-                      <button
-                        onClick={() => handleDeleteProgram(program.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all ml-2"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
+                      <div className="flex gap-2 ml-2">
+                        <button
+                          onClick={() => handleExportProgram(program.id, program.name)}
+                          disabled={exportingProgramId === program.id}
+                          className="text-primary-600 cursor-pointer hover:text-primary-700 hover:bg-primary-50 p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Export program as CSV"
+                        >
+                          <Download className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProgram(program.id)}
+                          className="text-red-600 cursor-pointer hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all"
+                          title="Delete program"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="space-y-3">
