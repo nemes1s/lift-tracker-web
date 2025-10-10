@@ -1,0 +1,23 @@
+Program Name,Push Pull Legs
+Total Weeks,12
+Day Index,Day Name,Exercise Name,Sets,Reps,Notes
+0,Day 1 - Push,Barbell Bench Press,4,5-8,
+0,Day 1 - Push,Incline Dumbbell Press,3,8-10,
+0,Day 1 - Push,Overhead Press,3,8-10,
+0,Day 1 - Push,Lateral Raise,3,12-15,
+0,Day 1 - Push,Triceps Pushdown,3,10-12,
+0,Day 1 - Push,Overhead Triceps Extension,3,10-12,
+1,Day 2 - Pull,Deadlift,4,5-8,Focus on form
+1,Day 2 - Pull,Pull-Ups,3,6-10,
+1,Day 2 - Pull,Barbell Row,3,8-10,
+1,Day 2 - Pull,Lat Pulldown,3,10-12,
+1,Day 2 - Pull,Face Pulls,3,12-15,
+1,Day 2 - Pull,Barbell Curl,3,10-12,
+1,Day 2 - Pull,Hammer Curl,3,10-12,
+2,Day 3 - Legs,Barbell Squat,4,6-8,
+2,Day 3 - Legs,Romanian Deadlift,3,8-10,
+2,Day 3 - Legs,Leg Press,3,10-12,
+2,Day 3 - Legs,Leg Curl,3,10-12,
+2,Day 3 - Legs,Leg Extension,3,10-12,
+2,Day 3 - Legs,Standing Calf Raise,4,12-15,
+2,Day 3 - Legs,Seated Calf Raise,3,15-20,

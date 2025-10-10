@@ -1,0 +1,216 @@
+import { useEffect, useState } from 'react';
+import { Activity } from 'lucide-react';
+import { useAppStore } from '../store/appStore';
+import { db } from '../db/database';
+import {
+  getActiveProgram,
+  currentWeek,
+  recommendedDay,
+  selectTemplate,
+  instantiateWorkout,
+  findActiveWorkoutForToday,
+} from '../utils/programLogic';
+import { ensureDefaultProgram } from '../utils/programTemplates';
+import type { WorkoutTemplate } from '../types/models';
+import { WorkoutRunner } from '../components/WorkoutRunner';
+
+export function TodayView() {
+  const {
+    activeProgram,
+    setActiveProgram,
+    selectedDayIndex,
+    setSelectedDayIndex,
+    weekNumber,
+    setWeekNumber,
+    activeWorkout,
+    setActiveWorkout,
+    refreshTrigger,
+  } = useAppStore();
+
+  const [template, setTemplate] = useState<WorkoutTemplate | null>(null);
+  const [maxDayIndex, setMaxDayIndex] = useState(4);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const initializeProgram = async () => {
+      setIsLoading(true);
+      try {
+        // Ensure we have at least one program
+        await ensureDefaultProgram();
+
+        // Get the active program
+        const program = await getActiveProgram();
+        if (!program) return;
+
+        setActiveProgram(program);
+
+        // Calculate current week
+        const week = currentWeek(program.startDate, program.totalWeeks);
+        setWeekNumber(week);
+
+        // Get max day index
+        const templates = await db.workoutTemplates
+          .where('programId')
+          .equals(program.id)
+          .toArray();
+
+        const maxIdx = Math.max(...templates.map((t) => t.dayIndex), 0);
+        setMaxDayIndex(maxIdx);
+
+        // Get recommended day
+        const recDay = await recommendedDay(program);
+        setSelectedDayIndex(recDay);
+
+        // Check for active workout
+        const activeW = await findActiveWorkoutForToday();
+        setActiveWorkout(activeW || null);
+      } catch (error) {
+        console.error('Error initializing program:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeProgram();
+  }, [refreshTrigger, setActiveProgram, setSelectedDayIndex, setWeekNumber, setActiveWorkout]);
+
+  useEffect(() => {
+    const loadTemplate = async () => {
+      if (!activeProgram) return;
+
+      const tmpl = await selectTemplate(activeProgram.id, weekNumber, selectedDayIndex);
+      setTemplate(tmpl || null);
+
+      // Update active workout if it matches selected day
+      if (activeWorkout && tmpl && activeWorkout.name !== tmpl.name) {
+        setActiveWorkout(null);
+      } else if (activeWorkout && tmpl && activeWorkout.name === tmpl.name) {
+        setActiveWorkout(activeWorkout);
+      }
+    };
+
+    loadTemplate();
+  }, [activeProgram, weekNumber, selectedDayIndex, activeWorkout, setActiveWorkout]);
+
+  const handleStartWorkout = async () => {
+    if (!template || !activeProgram) return;
+
+    const workout = await instantiateWorkout(template, activeProgram.name);
+    setActiveWorkout(workout);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!activeProgram) {
+    return (
+      <div className="flex items-center justify-center h-full p-6">
+        <div className="text-center">
+          <p className="text-gray-600">No program found. Please create one in Settings.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full overflow-y-auto">
+      <div className="max-w-2xl mx-auto p-6 space-y-6">
+        {/* Program Header */}
+        <div className="card p-6 bg-white">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 bg-primary-600 rounded-2xl shadow-lg">
+              <Activity className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-primary-700">
+                {activeProgram.name}
+              </h1>
+              <p className="text-sm text-gray-500 mt-0.5">Let's crush it today!</p>
+            </div>
+          </div>
+
+          {/* Week Progress */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 mb-5 shadow-inner-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-semibold text-gray-600">Training Week</span>
+              <span className="font-bold text-lg text-primary-700">
+                {weekNumber} of {activeProgram.totalWeeks}
+              </span>
+            </div>
+            <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="absolute h-full bg-primary-600 rounded-full transition-all duration-500"
+                style={{
+                  width: `${(weekNumber / Math.max(activeProgram.totalWeeks, 1)) * 100}%`,
+                }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Recommended Today */}
+          <div className="mb-5">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Recommended Today</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {template?.name || `Day ${selectedDayIndex + 1}`}
+            </p>
+          </div>
+
+          {/* Day Picker */}
+          <div className="grid grid-cols-5 gap-2">
+            {Array.from({ length: maxDayIndex + 1 }, (_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setSelectedDayIndex(idx)}
+                className={`py-3 px-3 rounded-xl font-bold transition-all duration-200 transform ${
+                  selectedDayIndex === idx
+                    ? 'bg-primary-600 text-white shadow-lg scale-105'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 hover:scale-105 shadow-md'
+                }`}
+              >
+                Day {idx + 1}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Workout Section */}
+        {activeWorkout && activeWorkout.name === template?.name ? (
+          <div className="card p-6">
+            <div className="flex items-center gap-3 mb-6 bg-green-50 rounded-xl p-4">
+              <div className="relative">
+                <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                <div className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75"></div>
+              </div>
+              <h2 className="text-lg font-bold text-green-700">Workout in Progress</h2>
+            </div>
+            <WorkoutRunner workout={activeWorkout} />
+          </div>
+        ) : (
+          <div className="card p-6">
+            {template ? (
+              <button
+                onClick={handleStartWorkout}
+                className="btn-primary w-full text-lg flex items-center justify-center gap-3"
+              >
+                <Activity className="w-6 h-6" />
+                Start {template.name}
+              </button>
+            ) : (
+              <p className="text-center text-gray-600 py-4">
+                No workout template for Week {weekNumber}, Day {selectedDayIndex + 1}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
