@@ -240,41 +240,41 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   return (
     <div className="space-y-6">
       {/* Workout Controls */}
-      <div className="card bg-white p-4">
-        <div className="flex items-center gap-3">
-          {!isPaused ? (
-            <button
-              onClick={handlePause}
-              className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              <Pause className="w-5 h-5" />
-              Pause
-            </button>
-          ) : (
-            <button
-              onClick={handleResume}
-              className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              <Play className="w-5 h-5" />
-              Resume
-            </button>
-          )}
-          <button
-            onClick={handleStopWorkout}
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-          >
-            <StopCircle className="w-5 h-5" />
-            Stop
-          </button>
-        </div>
-        {isPaused && (
-          <div className="mt-3 text-center">
-            <p className="text-sm font-bold text-yellow-700 bg-yellow-50 py-2 px-4 rounded-lg inline-flex items-center gap-2">
-              <Pause className="w-4 h-4" />
-              Workout Paused
-            </p>
+      <div className={`card p-4 transition-all duration-200 ${isPaused ? 'bg-yellow-50 border-2 border-yellow-300' : 'bg-white'}`}>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className={`w-3 h-3 rounded-full animate-pulse ${isPaused ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
+              <div className={`absolute inset-0 rounded-full animate-ping opacity-75 ${isPaused ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
+            </div>
+            <h2 className={`text-lg font-bold ${isPaused ? 'text-yellow-700' : 'text-green-700'}`}>
+              {isPaused ? 'Paused' : 'Running'}
+            </h2>
           </div>
-        )}
+          <div className="flex items-center gap-2">
+            {!isPaused ? (
+              <button
+                onClick={handlePause}
+                className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-3 rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <Pause className="w-5 h-5" />
+              </button>
+            ) : (
+              <button
+                onClick={handleResume}
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-3 rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <Play className="w-5 h-5" />
+              </button>
+            )}
+            <button
+              onClick={handleStopWorkout}
+              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <StopCircle className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Exercise Header */}

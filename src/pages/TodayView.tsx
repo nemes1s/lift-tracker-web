@@ -184,13 +184,6 @@ export function TodayView() {
         {/* Workout Section */}
         {activeWorkout && activeWorkout.name === template?.name ? (
           <div className="card p-6">
-            <div className="flex items-center gap-3 mb-6 bg-green-50 rounded-xl p-4">
-              <div className="relative">
-                <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-                <div className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75"></div>
-              </div>
-              <h2 className="text-lg font-bold text-green-700">Workout in Progress</h2>
-            </div>
             <WorkoutRunner workout={activeWorkout} />
           </div>
         ) : (
