@@ -218,7 +218,7 @@ export function WorkoutDetail() {
   }
 
   // Calculate workout statistics
-  const stats = calculateWorkoutStats(exercises, workout.startedAt, workout.endedAt);
+  const stats = calculateWorkoutStats(exercises, workout.startedAt, workout.endedAt, workout.totalPausedMs);
 
   return (
     <div className="h-full overflow-y-auto">

@@ -33,6 +33,7 @@ export interface Workout {
   startedAt: Date;
   endedAt?: Date;
   programNameSnapshot?: string;
+  totalPausedMs?: number; // Total time workout was paused in milliseconds
 }
 
 export interface ExerciseInstance {

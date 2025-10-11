@@ -81,11 +81,13 @@ export function calculateAverageRPE(
 
 /**
  * Calculate workout duration in minutes
+ * @param totalPausedMs - Total time the workout was paused in milliseconds
  */
-export function calculateDuration(startedAt: Date, endedAt?: Date): number {
+export function calculateDuration(startedAt: Date, endedAt?: Date, totalPausedMs?: number): number {
   const end = endedAt || new Date();
   const durationMs = end.getTime() - startedAt.getTime();
-  return Math.round(durationMs / 60000); // Convert to minutes
+  const activeDurationMs = durationMs - (totalPausedMs || 0);
+  return Math.round(activeDurationMs / 60000); // Convert to minutes
 }
 
 /**
@@ -94,10 +96,11 @@ export function calculateDuration(startedAt: Date, endedAt?: Date): number {
 export function calculateWorkoutStats(
   exercises: Array<{ sets: SetRecord[] }>,
   startedAt: Date,
-  endedAt?: Date
+  endedAt?: Date,
+  totalPausedMs?: number
 ): WorkoutStats {
   const totalVolume = calculateTotalVolume(exercises);
-  const duration = calculateDuration(startedAt, endedAt);
+  const duration = calculateDuration(startedAt, endedAt, totalPausedMs);
   const averageRPE = calculateAverageRPE(exercises);
 
   let totalSets = 0;

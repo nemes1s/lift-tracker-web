@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, StopCircle, CheckCircle, Activity, Flame, Zap, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, StopCircle, CheckCircle, Activity, Flame, Zap, Clock, Pause, Play } from 'lucide-react';
 import { db } from '../db/database';
 import { previousWorkoutInstances } from '../utils/programLogic';
 import { useAppStore } from '../store/appStore';
@@ -20,6 +20,12 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const [rpeText, setRpeText] = useState('');
   const [previousHistory, setPreviousHistory] = useState<{ workout: Workout; sets: SetRecord[] }[]>([]);
   const [allExercisesWithSets, setAllExercisesWithSets] = useState<Array<{ sets: SetRecord[] }>>([]);
+
+  // Pause/Resume state
+  const [isPaused, setIsPaused] = useState(false);
+  const [pauseStartTime, setPauseStartTime] = useState<Date | null>(null);
+  const [totalPausedMs, setTotalPausedMs] = useState(workout.totalPausedMs || 0);
+  const [_currentTime, setCurrentTime] = useState(new Date()); // Used to trigger re-renders for live timer
 
   const { setActiveWorkout, triggerRefresh } = useAppStore();
 
@@ -88,6 +94,59 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     loadAllSets();
   }, [exercises]);
 
+  // Live timer - updates every second when not paused
+  useEffect(() => {
+    if (isPaused) return;
+
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isPaused]);
+
+  // Handle pause
+  const handlePause = async () => {
+    setIsPaused(true);
+    setPauseStartTime(new Date());
+  };
+
+  // Handle resume
+  const handleResume = async () => {
+    if (pauseStartTime) {
+      const pausedDuration = new Date().getTime() - pauseStartTime.getTime();
+      const newTotalPausedMs = totalPausedMs + pausedDuration;
+      setTotalPausedMs(newTotalPausedMs);
+
+      // Update database
+      await db.workouts.update(workout.id, { totalPausedMs: newTotalPausedMs });
+    }
+
+    setIsPaused(false);
+    setPauseStartTime(null);
+  };
+
+  // Handle stop (end workout immediately)
+  const handleStopWorkout = async () => {
+    // If paused, update total paused time first
+    if (isPaused && pauseStartTime) {
+      const pausedDuration = new Date().getTime() - pauseStartTime.getTime();
+      const newTotalPausedMs = totalPausedMs + pausedDuration;
+      await db.workouts.update(workout.id, {
+        endedAt: new Date(),
+        totalPausedMs: newTotalPausedMs
+      });
+    } else {
+      await db.workouts.update(workout.id, {
+        endedAt: new Date(),
+        totalPausedMs
+      });
+    }
+
+    setActiveWorkout(null);
+    triggerRefresh();
+  };
+
   const handleLogSet = async () => {
     if (!currentExercise) return;
 
@@ -137,7 +196,21 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   };
 
   const handleFinishWorkout = async () => {
-    await db.workouts.update(workout.id, { endedAt: new Date() });
+    // If paused, update total paused time first
+    if (isPaused && pauseStartTime) {
+      const pausedDuration = new Date().getTime() - pauseStartTime.getTime();
+      const newTotalPausedMs = totalPausedMs + pausedDuration;
+      await db.workouts.update(workout.id, {
+        endedAt: new Date(),
+        totalPausedMs: newTotalPausedMs
+      });
+    } else {
+      await db.workouts.update(workout.id, {
+        endedAt: new Date(),
+        totalPausedMs
+      });
+    }
+
     setActiveWorkout(null);
     triggerRefresh();
   };
@@ -158,11 +231,52 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     return <div className="text-center text-gray-600">No exercises in this workout.</div>;
   }
 
-  // Calculate current workout stats
-  const stats = calculateWorkoutStats(allExercisesWithSets, workout.startedAt);
+  // Calculate current workout stats (accounting for paused time)
+  const currentPausedMs = isPaused && pauseStartTime
+    ? totalPausedMs + (new Date().getTime() - pauseStartTime.getTime())
+    : totalPausedMs;
+  const stats = calculateWorkoutStats(allExercisesWithSets, workout.startedAt, undefined, currentPausedMs);
 
   return (
     <div className="space-y-6">
+      {/* Workout Controls */}
+      <div className="card bg-white p-4">
+        <div className="flex items-center gap-3">
+          {!isPaused ? (
+            <button
+              onClick={handlePause}
+              className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <Pause className="w-5 h-5" />
+              Pause
+            </button>
+          ) : (
+            <button
+              onClick={handleResume}
+              className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <Play className="w-5 h-5" />
+              Resume
+            </button>
+          )}
+          <button
+            onClick={handleStopWorkout}
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          >
+            <StopCircle className="w-5 h-5" />
+            Stop
+          </button>
+        </div>
+        {isPaused && (
+          <div className="mt-3 text-center">
+            <p className="text-sm font-bold text-yellow-700 bg-yellow-50 py-2 px-4 rounded-lg inline-flex items-center gap-2">
+              <Pause className="w-4 h-4" />
+              Workout Paused
+            </p>
+          </div>
+        )}
+      </div>
+
       {/* Exercise Header */}
       <div className="bg-primary-50 rounded-xl p-5">
         <h3 className="text-2xl font-bold text-primary-700">
@@ -349,9 +463,9 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       {currentIndex === exercises.length - 1 && (
         <button
           onClick={handleFinishWorkout}
-          className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
         >
-          <StopCircle className="w-6 h-6" />
+          <CheckCircle className="w-6 h-6" />
           Finish Workout
         </button>
       )}

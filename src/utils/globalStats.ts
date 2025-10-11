@@ -84,7 +84,7 @@ export async function getGlobalStats(): Promise<GlobalStats> {
       })
     );
 
-    const stats = calculateWorkoutStats(exercisesWithSets, workout.startedAt, workout.endedAt);
+    const stats = calculateWorkoutStats(exercisesWithSets, workout.startedAt, workout.endedAt, workout.totalPausedMs);
     totalVolume += stats.totalVolume;
     totalCalories += stats.estimatedCalories;
     totalDuration += stats.duration;
@@ -227,7 +227,7 @@ export async function getWeeklyComparison(): Promise<WeeklyComparison> {
       })
     );
 
-    const stats = calculateWorkoutStats(exercisesWithSets, workout.startedAt, workout.endedAt);
+    const stats = calculateWorkoutStats(exercisesWithSets, workout.startedAt, workout.endedAt, workout.totalPausedMs);
 
     if (workoutDate >= thisWeekStart) {
       thisWeekWorkouts++;
@@ -280,7 +280,7 @@ export async function getMonthlyVolumeTrend(): Promise<MonthlyVolume[]> {
       })
     );
 
-    const stats = calculateWorkoutStats(exercisesWithSets, workout.startedAt, workout.endedAt);
+    const stats = calculateWorkoutStats(exercisesWithSets, workout.startedAt, workout.endedAt, workout.totalPausedMs);
 
     if (!monthlyData.has(monthKey)) {
       monthlyData.set(monthKey, { volume: 0, workouts: 0 });
