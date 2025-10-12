@@ -39,6 +39,9 @@ export class LiftTrackerDatabase extends Dexie {
     this.version(2).stores({
       workoutTemplates: 'id, programId, dayIndex, weekNumber, [programId+weekNumber+dayIndex]',
     });
+
+    // Version 3: Add disclaimer fields to settings (no schema change needed, Dexie handles new fields automatically)
+    this.version(3).stores({});
   }
 }
 

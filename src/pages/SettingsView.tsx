@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import { Settings, Plus, Trash2, CheckCircle, Database, Shield, Upload, Pencil, Check, X, Download } from 'lucide-react';
+import { Settings, Plus, Trash2, CheckCircle, Database, Shield, Upload, Pencil, Check, X, Download, AlertTriangle } from 'lucide-react';
+import { DisclaimerModal } from '../components/DisclaimerModal';
 import { db } from '../db/database';
 import { currentWeek } from '../utils/programLogic';
 import {
@@ -29,6 +30,7 @@ export function SettingsView() {
   const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
   const [editingProgramName, setEditingProgramName] = useState('');
   const [exportingProgramId, setExportingProgramId] = useState<string | null>(null);
+  const [showDisclaimerModal, setShowDisclaimerModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { triggerRefresh } = useAppStore();
 
@@ -252,6 +254,26 @@ export function SettingsView() {
     }
   };
 
+  const handleDisclaimerAccept = async (dontShowAgain: boolean) => {
+    if (!settings) return;
+
+    await db.settings.update(settings.id, {
+      disclaimerAccepted: dontShowAgain,
+      lastDisclaimerShown: new Date(),
+    });
+    setShowDisclaimerModal(false);
+    await loadData();
+  };
+
+  const handleDisclaimerDismiss = async () => {
+    if (!settings) return;
+
+    await db.settings.update(settings.id, {
+      lastDisclaimerShown: new Date(),
+    });
+    setShowDisclaimerModal(false);
+  };
+
   return (
     <div className="h-full overflow-y-auto pb-20">
       <div className="max-w-2xl mx-auto p-6 space-y-6">
@@ -277,6 +299,24 @@ export function SettingsView() {
             Install LiftTracker as an app for offline access, faster loading, and a better experience.
           </p>
           <InstallButton />
+        </div>
+
+        {/* Disclaimer */}
+        <div className="card p-6 bg-white">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle className="w-6 h-6 text-amber-600" />
+            <h2 className="font-bold text-gray-900 text-lg">Disclaimer</h2>
+          </div>
+          <p className="text-sm text-gray-700 mb-4">
+            View important health and safety information about using this fitness tracking app.
+          </p>
+          <button
+            onClick={() => setShowDisclaimerModal(true)}
+            className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-amber-200 hover:border-amber-300"
+          >
+            <AlertTriangle className="w-5 h-5" />
+            View Disclaimer
+          </button>
         </div>
 
         {/* Storage Info */}
@@ -636,6 +676,14 @@ export function SettingsView() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Disclaimer Modal */}
+        {showDisclaimerModal && (
+          <DisclaimerModal
+            onAccept={handleDisclaimerAccept}
+            onDismiss={handleDisclaimerDismiss}
+          />
         )}
       </div>
     </div>

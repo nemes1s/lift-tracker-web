@@ -68,6 +68,8 @@ export interface SettingsModel {
   id: string;
   useEpley: boolean; // else Brzycki
   activeProgramId?: string;
+  disclaimerAccepted?: boolean; // User permanently dismissed disclaimer
+  lastDisclaimerShown?: Date; // Last time disclaimer was shown
 }
 
 // Enum for split days
