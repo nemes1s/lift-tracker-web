@@ -183,20 +183,6 @@ export function CalendarView() {
                                 })}
                               </p>
                             </div>
-                            <div className="text-right flex flex-col items-end gap-2">
-                              {workout.endedAt ? (
-                                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border-2 border-green-200">
-                                  ✓ Completed
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 border-2 border-yellow-200 animate-pulse-slow">
-                                  ⏱ In Progress
-                                </span>
-                              )}
-                              {workout.programNameSnapshot && (
-                                <p className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-lg">{workout.programNameSnapshot}</p>
-                              )}
-                            </div>
                             <div className="flex items-center gap-2 ml-3">
                               <button
                                 onClick={(e) => handleDeleteWorkout(workout.id, e)}
@@ -206,6 +192,20 @@ export function CalendarView() {
                                 <Trash2 className="w-5 h-5" />
                               </button>
                             </div>
+                          </div>
+                          <div className="flex items-center gap-2 mt-4 flex-wrap">
+                            {workout.endedAt ? (
+                              <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border-2 border-green-200">
+                                ✓ Completed
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 border-2 border-yellow-200 animate-pulse-slow">
+                                ⏱ In Progress
+                              </span>
+                            )}
+                            {workout.programNameSnapshot && (
+                              <p className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-lg">{workout.programNameSnapshot}</p>
+                            )}
                           </div>
                         </button>
                       </div>
