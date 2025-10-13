@@ -197,14 +197,16 @@ export function CalendarView() {
                                 <p className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-lg">{workout.programNameSnapshot}</p>
                               )}
                             </div>
+                            <div className="flex items-center gap-2 ml-3">
+                              <button
+                                onClick={(e) => handleDeleteWorkout(workout.id, e)}
+                                className="p-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all"
+                                title="Delete workout"
+                              >
+                                <Trash2 className="w-5 h-5" />
+                              </button>
+                            </div>
                           </div>
-                        </button>
-                        <button
-                          onClick={(e) => handleDeleteWorkout(workout.id, e)}
-                          className="absolute top-3 right-3 p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                          title="Delete workout"
-                        >
-                          <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
                     ))}
