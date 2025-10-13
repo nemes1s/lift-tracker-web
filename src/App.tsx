@@ -6,6 +6,7 @@ import { TodayView } from './pages/TodayView';
 import { CalendarView, WorkoutDetail } from './pages/CalendarView';
 import { ProgressView } from './pages/ProgressView';
 import { SettingsView } from './pages/SettingsView';
+import { ProgramPreviewView } from './pages/ProgramPreviewView';
 import { InstallPrompt } from './components/InstallPrompt';
 import { UpdatePrompt } from './components/UpdatePrompt';
 import { DisclaimerModal } from './components/DisclaimerModal';
@@ -109,6 +110,7 @@ function App() {
           <Route path="workout/:id" element={<WorkoutDetail />} />
           <Route path="progress" element={<ProgressView />} />
           <Route path="settings" element={<SettingsView />} />
+          <Route path="program/preview" element={<ProgramPreviewView />} />
         </Route>
       </Routes>
     </BrowserRouter>

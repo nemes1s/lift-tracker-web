@@ -47,10 +47,6 @@ export function CalendarGrid({
     onDateChange(newDate);
   };
 
-  const formatDateKey = (date: Date): string => {
-    return date.toISOString().split('T')[0];
-  };
-
   const isToday = (day: number): boolean => {
     const today = new Date();
     return (
@@ -70,7 +66,8 @@ export function CalendarGrid({
   };
 
   const hasWorkout = (day: number): boolean => {
-    const dateKey = formatDateKey(new Date(year, month, day));
+    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
     return workoutDates.has(dateKey);
   };
 

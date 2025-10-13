@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import { Settings, Plus, Trash2, CheckCircle, Database, Shield, Upload, Pencil, Check, X, Download, AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Settings, Plus, Trash2, CheckCircle, Database, Shield, Upload, Pencil, Check, X, Download, AlertTriangle, Eye } from 'lucide-react';
 import { DisclaimerModal } from '../components/DisclaimerModal';
 import { db } from '../db/database';
 import { currentWeek } from '../utils/programLogic';
@@ -9,6 +10,11 @@ import {
   createMinimalEffort4Day,
   createUpperLower4Day,
   createProgramFromCSV,
+  generate5DaySplitData,
+  generate3DaySplitData,
+  generateMinimalEffort4DayData,
+  generateUpperLower4DayData,
+  generateProgramFromCSVData,
 } from '../utils/programTemplates';
 import { parseCSV, readCSVFile } from '../utils/csvParser';
 import { exportProgramWithProgress, downloadCSV } from '../utils/csvExporter';
@@ -19,6 +25,7 @@ import { InstallButton } from '../components/InstallPrompt';
 import { isPersisted, getStorageEstimate } from '../utils/persistence';
 
 export function SettingsView() {
+  const navigate = useNavigate();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [settings, setSettings] = useState<SettingsModel | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -62,33 +69,33 @@ export function SettingsView() {
     setSettings(sett);
   };
 
-  const handleCreateProgram = async (type: string) => {
-    let program: Program;
+  const handleCreateProgram = (type: string) => {
+    let programData;
 
     switch (type) {
       case '5day':
-        program = await create5DaySplit();
+        programData = generate5DaySplitData();
         break;
       case '3day':
-        program = await create3DaySplit();
+        programData = generate3DaySplitData();
         break;
       case 'minimal':
-        program = await createMinimalEffort4Day();
+        programData = generateMinimalEffort4DayData();
         break;
       case 'upperlower':
-        program = await createUpperLower4Day();
+        programData = generateUpperLower4DayData();
         break;
       default:
         return;
     }
 
-    // Set as active
-    if (settings) {
-      await db.settings.update(settings.id, { activeProgramId: program.id });
-    }
-
-    await loadData();
-    triggerRefresh();
+    // Navigate to preview screen
+    navigate('/program/preview', {
+      state: {
+        mode: 'preview',
+        programData,
+      },
+    });
   };
 
   const handleSetActive = async (programId: string) => {
@@ -187,32 +194,23 @@ export function SettingsView() {
         return;
       }
 
-      // Create program from parsed data
-      const program = await createProgramFromCSV(parseResult.data);
+      // Generate program data without saving
+      const programData = generateProgramFromCSVData(parseResult.data);
 
-      // Set as active
-      if (settings) {
-        await db.settings.update(settings.id, { activeProgramId: program.id });
-      }
-
-      // Reload data
-      await loadData();
-      triggerRefresh();
-
-      setImportMessage({
-        type: 'success',
-        text: `Successfully imported program "${program.name}"`,
+      // Navigate to preview screen
+      navigate('/program/preview', {
+        state: {
+          mode: 'preview',
+          programData,
+        },
       });
-
-      // Clear message after 5 seconds
-      setTimeout(() => setImportMessage(null), 5000);
     } catch (error) {
       setImportMessage({
         type: 'error',
         text: `Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
-    } finally {
       setIsImporting(false);
+    } finally {
       // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -254,6 +252,15 @@ export function SettingsView() {
     }
   };
 
+  const handleViewProgram = (programId: string) => {
+    navigate('/program/preview', {
+      state: {
+        mode: 'view',
+        programId,
+      },
+    });
+  };
+
   const handleDisclaimerAccept = async (dontShowAgain: boolean) => {
     if (!settings) return;
 
@@ -275,7 +282,7 @@ export function SettingsView() {
   };
 
   return (
-    <div className="h-full overflow-y-auto pb-20">
+    <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="card p-6 bg-white">
@@ -474,23 +481,6 @@ export function SettingsView() {
                           Week <span className="text-primary-600">{week}</span> of <span className="text-primary-600">{program.totalWeeks}</span>
                         </p>
                       </div>
-                      <div className="flex gap-2 ml-2">
-                        <button
-                          onClick={() => handleExportProgram(program.id, program.name)}
-                          disabled={exportingProgramId === program.id}
-                          className="text-primary-600 cursor-pointer hover:text-primary-700 hover:bg-primary-50 p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Export program as CSV"
-                        >
-                          <Download className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteProgram(program.id)}
-                          className="text-red-600 cursor-pointer hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all"
-                          title="Delete program"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
                     </div>
 
                     <div className="space-y-3">
@@ -533,6 +523,31 @@ export function SettingsView() {
                             }}
                           ></div>
                         </div>
+                      </div>
+
+                      <div className="flex gap-2 ml-2">
+                        <button
+                          onClick={() => handleViewProgram(program.id)}
+                          className="text-primary-600 cursor-pointer hover:text-primary-700 hover:bg-primary-50 p-2 rounded-lg transition-all"
+                          title="View program details"
+                        >
+                          <Eye className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleExportProgram(program.id, program.name)}
+                          disabled={exportingProgramId === program.id}
+                          className="text-primary-600 cursor-pointer hover:text-primary-700 hover:bg-primary-50 p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Export program as CSV"
+                        >
+                          <Download className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProgram(program.id)}
+                          className="text-red-600 cursor-pointer hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all"
+                          title="Delete program"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
                       </div>
                     </div>
                   </div>

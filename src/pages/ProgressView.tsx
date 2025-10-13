@@ -122,7 +122,7 @@ export function ProgressView() {
   }));
 
   return (
-    <div className="h-full overflow-y-auto pb-20">
+    <div className="h-full overflow-y-auto">
       <div className="max-w-4xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="card p-6 bg-white">

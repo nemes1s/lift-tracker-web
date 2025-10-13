@@ -29,6 +29,7 @@ export function CalendarView() {
     const dateKey = new Date(workout.startedAt).toISOString().split('T')[0];
     workoutDates.add(dateKey);
   });
+  
 
   // Get workouts for selected date
   const selectedDayWorkouts = selectedDate
@@ -41,6 +42,8 @@ export function CalendarView() {
         );
       })
     : [];
+
+    // debugger;
 
   const handleWorkoutClick = (workoutId: string) => {
     navigate(`/workout/${workoutId}`);
@@ -103,7 +106,7 @@ export function CalendarView() {
   };
 
   return (
-    <div className="h-full overflow-y-auto pb-20">
+    <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="card p-6 bg-white">
@@ -169,7 +172,7 @@ export function CalendarView() {
                         key={workout.id}
                         className="w-full card p-5 bg-white hover:shadow-xl transition-all transform hover:-translate-y-0.5 relative group"
                       >
-                        <button
+                        <div
                           onClick={() => handleWorkoutClick(workout.id)}
                           className="w-full text-left"
                         >
@@ -207,7 +210,7 @@ export function CalendarView() {
                               <p className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-lg">{workout.programNameSnapshot}</p>
                             )}
                           </div>
-                        </button>
+                        </div>
                       </div>
                     ))}
                   </div>
