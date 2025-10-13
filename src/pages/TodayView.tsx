@@ -11,6 +11,7 @@ import {
   findActiveWorkoutForToday,
 } from '../utils/programLogic';
 import { ensureDefaultProgram } from '../utils/programTemplates';
+import { cleanupAbandonedWorkouts } from '../utils/workoutCleanup';
 import type { WorkoutTemplate } from '../types/models';
 import { WorkoutRunner } from '../components/WorkoutRunner';
 
@@ -35,6 +36,9 @@ export function TodayView() {
     const initializeProgram = async () => {
       setIsLoading(true);
       try {
+        // Clean up abandoned workouts from previous days
+        await cleanupAbandonedWorkouts();
+
         // Ensure we have at least one program
         await ensureDefaultProgram();
 

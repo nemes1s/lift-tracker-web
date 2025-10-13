@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, StopCircle, CheckCircle, Activity, Flame, Zap, Clock, Pause, Play } from 'lucide-react';
+import { ChevronLeft, ChevronRight, StopCircle, CheckCircle, Activity, Flame, Zap, Clock, Pause, Play, RefreshCw } from 'lucide-react';
 import { db } from '../db/database';
 import { previousWorkoutInstances } from '../utils/programLogic';
 import { useAppStore } from '../store/appStore';
 import type { Workout, ExerciseInstance, SetRecord } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
 import { calculateWorkoutStats, formatVolume, formatRPE, formatDuration } from '../utils/workoutStats';
+import { getExerciseSubstitutions, hasSubstitutions, getExerciseNotes } from '../data/exerciseSubstitutions';
 
 interface WorkoutRunnerProps {
   workout: Workout;
@@ -26,6 +27,10 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const [pauseStartTime, setPauseStartTime] = useState<Date | null>(null);
   const [totalPausedMs, setTotalPausedMs] = useState(workout.totalPausedMs || 0);
   const [_currentTime, setCurrentTime] = useState(new Date()); // Used to trigger re-renders for live timer
+
+  // Exercise substitution state
+  const [showSubstitutions, setShowSubstitutions] = useState(false);
+  const [isSubstituting, setIsSubstituting] = useState(false);
 
   const { setActiveWorkout, triggerRefresh } = useAppStore();
 
@@ -128,7 +133,30 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
   // Handle stop (end workout immediately)
   const handleStopWorkout = async () => {
-    // If paused, update total paused time first
+    // Check if any sets were logged
+    const hasAnySets = allExercisesWithSets.some(ex => ex.sets.length > 0);
+
+    if (!hasAnySets) {
+      // No sets logged - delete the workout and all exercise instances
+      const exerciseInstances = await db.exerciseInstances
+        .where('workoutId')
+        .equals(workout.id)
+        .toArray();
+
+      // Delete all exercise instances
+      await Promise.all(
+        exerciseInstances.map(ex => db.exerciseInstances.delete(ex.id))
+      );
+
+      // Delete the workout
+      await db.workouts.delete(workout.id);
+
+      setActiveWorkout(null);
+      triggerRefresh();
+      return;
+    }
+
+    // Sets were logged - save the workout
     if (isPaused && pauseStartTime) {
       const pausedDuration = new Date().getTime() - pauseStartTime.getTime();
       const newTotalPausedMs = totalPausedMs + pausedDuration;
@@ -196,7 +224,31 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   };
 
   const handleFinishWorkout = async () => {
-    // If paused, update total paused time first
+    // Check if any sets were logged
+    const hasAnySets = allExercisesWithSets.some(ex => ex.sets.length > 0);
+
+    if (!hasAnySets) {
+      // No sets logged - delete the workout and all exercise instances
+      const exerciseInstances = await db.exerciseInstances
+        .where('workoutId')
+        .equals(workout.id)
+        .toArray();
+
+      // Delete all exercise instances
+      await Promise.all(
+        exerciseInstances.map(ex => db.exerciseInstances.delete(ex.id))
+      );
+
+      // Delete the workout
+      await db.workouts.delete(workout.id);
+
+      setActiveWorkout(null);
+      triggerRefresh();
+      alert('Workout cancelled - no sets were logged.');
+      return;
+    }
+
+    // Sets were logged - save the workout
     if (isPaused && pauseStartTime) {
       const pausedDuration = new Date().getTime() - pauseStartTime.getTime();
       const newTotalPausedMs = totalPausedMs + pausedDuration;
@@ -224,6 +276,56 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const goPrevious = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  const handleSubstituteExercise = async (newExerciseName: string) => {
+    if (!currentExercise) return;
+
+    setIsSubstituting(true);
+
+    try {
+      const oldExerciseName = currentExercise.name;
+
+      // 1. Update the current exercise instance
+      await db.exerciseInstances.update(currentExercise.id, {
+        name: newExerciseName,
+        notes: getExerciseNotes(newExerciseName) || currentExercise.notes
+      });
+
+      // 2. Update all previous exercise instances with the old name to the new name
+      // This ensures exercise history follows the new name
+      const allPreviousExercises = await db.exerciseInstances
+        .where('name')
+        .equals(oldExerciseName)
+        .toArray();
+
+      await Promise.all(
+        allPreviousExercises.map((ex) =>
+          db.exerciseInstances.update(ex.id, {
+            name: newExerciseName
+          })
+        )
+      );
+
+      // 3. Reload exercises to reflect the change
+      const updatedExercises = await db.exerciseInstances
+        .where('workoutId')
+        .equals(workout.id)
+        .sortBy('orderIndex');
+
+      setExercises(updatedExercises);
+
+      // Close substitution menu
+      setShowSubstitutions(false);
+
+      // Trigger a refresh to update any other views
+      triggerRefresh();
+    } catch (error) {
+      console.error('Error substituting exercise:', error);
+      alert('Failed to substitute exercise. Please try again.');
+    } finally {
+      setIsSubstituting(false);
     }
   };
 
@@ -279,18 +381,67 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
       {/* Exercise Header */}
       <div className="bg-primary-50 rounded-xl p-5">
-        <h3 className="text-2xl font-bold text-primary-700">
-          {currentExercise.name}
-        </h3>
-        {currentExercise.targetReps && (
-          <p className="text-gray-700 font-medium mt-2">
-            <span className="text-primary-600 font-bold">{currentExercise.targetSets}</span> sets × <span className="text-primary-600 font-bold">{currentExercise.targetReps}</span> reps
-          </p>
-        )}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <h3 className="text-2xl font-bold text-primary-700">
+              {currentExercise.name}
+            </h3>
+            {currentExercise.targetReps && (
+              <p className="text-gray-700 font-medium mt-2">
+                <span className="text-primary-600 font-bold">{currentExercise.targetSets}</span> sets × <span className="text-primary-600 font-bold">{currentExercise.targetReps}</span> reps
+              </p>
+            )}
+          </div>
+          {hasSubstitutions(currentExercise.name) && (
+            <button
+              onClick={() => setShowSubstitutions(!showSubstitutions)}
+              className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-primary-100 text-primary-700 font-semibold rounded-lg shadow-sm transition-all duration-200 transform hover:scale-105"
+              disabled={isSubstituting}
+            >
+              <RefreshCw className={`w-4 h-4 ${isSubstituting ? 'animate-spin' : ''}`} />
+            </button>
+          )}
+        </div>
         {currentExercise.notes && (
           <p className="text-sm text-gray-600 mt-3 bg-white/60 rounded-lg p-3">{currentExercise.notes}</p>
         )}
       </div>
+
+      {/* Exercise Substitution Options */}
+      {showSubstitutions && hasSubstitutions(currentExercise.name) && (
+        <div className="card p-5 bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-bold text-gray-900 text-lg">Alternative Exercises</h4>
+            <button
+              onClick={() => setShowSubstitutions(false)}
+              className="text-gray-500 hover:text-gray-700 font-semibold text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+          <p className="text-sm text-gray-600 mb-4">
+            Switch to a different exercise. This will update your exercise history to track the new exercise going forward.
+          </p>
+          <div className="space-y-2">
+            {getExerciseSubstitutions(currentExercise.name).map((substitution) => {
+              const notes = getExerciseNotes(substitution);
+              return (
+                <button
+                  key={substitution}
+                  onClick={() => handleSubstituteExercise(substitution)}
+                  disabled={isSubstituting}
+                  className="w-full text-left p-4 bg-white hover:bg-blue-50 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="font-bold text-gray-900">{substitution}</div>
+                  {notes && (
+                    <div className="text-sm text-gray-600 mt-1">{notes}</div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Current Session Sets */}
       <div>

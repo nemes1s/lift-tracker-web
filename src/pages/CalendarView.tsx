@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Dumbbell, Activity, Flame, Zap, Clock } from 'lucide-react';
+import { Calendar, Dumbbell, Activity, Flame, Zap, Clock, Trash2 } from 'lucide-react';
 import { db } from '../db/database';
 import type { Workout } from '../types/models';
 import { estimate1RM } from '../utils/oneRM';
@@ -11,6 +11,7 @@ export function CalendarView() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [deletingWorkoutId, setDeletingWorkoutId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,6 +48,58 @@ export function CalendarView() {
 
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
+  };
+
+  const handleDeleteWorkout = (workoutId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation to workout detail
+    setDeletingWorkoutId(workoutId);
+  };
+
+  const confirmDeleteWorkout = async () => {
+    if (!deletingWorkoutId) return;
+
+    // Delete all related set records first
+    const exerciseInstances = await db.exerciseInstances
+      .where('workoutId')
+      .equals(deletingWorkoutId)
+      .toArray();
+
+    for (const ex of exerciseInstances) {
+      await db.setRecords.where('exerciseId').equals(ex.id).delete();
+    }
+
+    // Delete all exercise instances
+    await Promise.all(
+      exerciseInstances.map(ex => db.exerciseInstances.delete(ex.id))
+    );
+
+    // Delete the workout
+    await db.workouts.delete(deletingWorkoutId);
+
+    // Refresh the workouts list
+    const allWorkouts = await db.workouts.orderBy('startedAt').reverse().toArray();
+    setWorkouts(allWorkouts);
+
+    // Clear selected date if no workouts remain for that date
+    if (selectedDate) {
+      const remainingWorkouts = allWorkouts.filter((workout) => {
+        const workoutDate = new Date(workout.startedAt);
+        return (
+          workoutDate.getDate() === selectedDate.getDate() &&
+          workoutDate.getMonth() === selectedDate.getMonth() &&
+          workoutDate.getFullYear() === selectedDate.getFullYear()
+        );
+      });
+      if (remainingWorkouts.length === 0) {
+        setSelectedDate(null);
+      }
+    }
+
+    setDeletingWorkoutId(null);
+  };
+
+  const cancelDelete = () => {
+    setDeletingWorkoutId(null);
   };
 
   return (
@@ -112,43 +165,82 @@ export function CalendarView() {
                 ) : (
                   <div className="space-y-3">
                     {selectedDayWorkouts.map((workout) => (
-                      <button
+                      <div
                         key={workout.id}
-                        onClick={() => handleWorkoutClick(workout.id)}
-                        className="w-full card p-5 hover:shadow-xl transition-all text-left transform hover:-translate-y-0.5 bg-white"
+                        className="w-full card p-5 bg-white hover:shadow-xl transition-all transform hover:-translate-y-0.5 relative group"
                       >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h3 className="font-bold text-gray-900 text-lg">{workout.name}</h3>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {new Date(workout.startedAt).toLocaleTimeString('en-US', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </p>
+                        <button
+                          onClick={() => handleWorkoutClick(workout.id)}
+                          className="w-full text-left"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h3 className="font-bold text-gray-900 text-lg">{workout.name}</h3>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {new Date(workout.startedAt).toLocaleTimeString('en-US', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </p>
+                            </div>
+                            <div className="text-right flex flex-col items-end gap-2">
+                              {workout.endedAt ? (
+                                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border-2 border-green-200">
+                                  ✓ Completed
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 border-2 border-yellow-200 animate-pulse-slow">
+                                  ⏱ In Progress
+                                </span>
+                              )}
+                              {workout.programNameSnapshot && (
+                                <p className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-lg">{workout.programNameSnapshot}</p>
+                              )}
+                            </div>
                           </div>
-                          <div className="text-right flex flex-col items-end gap-2">
-                            {workout.endedAt ? (
-                              <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border-2 border-green-200">
-                                ✓ Completed
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 border-2 border-yellow-200 animate-pulse-slow">
-                                ⏱ In Progress
-                              </span>
-                            )}
-                            {workout.programNameSnapshot && (
-                              <p className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-lg">{workout.programNameSnapshot}</p>
-                            )}
-                          </div>
-                        </div>
-                      </button>
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteWorkout(workout.id, e)}
+                          className="absolute top-3 right-3 p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                          title="Delete workout"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
                     ))}
                   </div>
                 )}
               </div>
             )}
           </>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {deletingWorkoutId && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+            <div className="card p-6 max-w-sm w-full bg-white animate-slideUp">
+              <h3 className="text-xl font-bold text-red-700 mb-3">
+                Delete Workout?
+              </h3>
+              <p className="text-gray-700 mb-6 font-medium">
+                This will permanently delete this workout and all its data. This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={cancelDelete}
+                  className="btn-secondary flex-1"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeleteWorkout}
+                  className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
