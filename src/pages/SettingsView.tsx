@@ -5,11 +5,6 @@ import { DisclaimerModal } from '../components/DisclaimerModal';
 import { db } from '../db/database';
 import { currentWeek } from '../utils/programLogic';
 import {
-  create5DaySplit,
-  create3DaySplit,
-  createMinimalEffort4Day,
-  createUpperLower4Day,
-  createProgramFromCSV,
   generate5DaySplitData,
   generate3DaySplitData,
   generateMinimalEffort4DayData,

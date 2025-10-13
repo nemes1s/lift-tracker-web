@@ -172,7 +172,7 @@ export function ProgramPreviewView() {
         {/* Workout Days */}
         <div className="space-y-4">
           <h3 className="text-lg font-bold text-gray-900 px-2">Workout Days</h3>
-          {workouts.map((workout, idx) => (
+          {workouts.map((workout) => (
             <div key={workout.template.id} className="card p-5 bg-white">
               <div className="flex items-start justify-between mb-4">
                 <div>
@@ -184,7 +184,7 @@ export function ProgramPreviewView() {
               </div>
 
               <div className="space-y-2">
-                {workout.exercises.map((exercise, exIdx) => (
+                {workout.exercises.map((exercise) => (
                   <div
                     key={exercise.id}
                     className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl border border-gray-100"
