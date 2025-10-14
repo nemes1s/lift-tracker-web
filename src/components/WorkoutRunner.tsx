@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, StopCircle, CheckCircle, Activity, Flame, Zap, Clock, Pause, Play, RefreshCw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, StopCircle, CheckCircle, Activity, Flame, Zap, Clock, Pause, Play, RefreshCw, X } from 'lucide-react';
 import { db } from '../db/database';
 import { previousWorkoutInstances } from '../utils/programLogic';
 import { useAppStore } from '../store/appStore';
@@ -221,6 +221,24 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     setWeightText(weight.toString());
     setRepsText(reps.toString());
     setRpeText(rpe ? rpe.toFixed(1) : '');
+  };
+
+  const handleDeleteSet = async (setId: string) => {
+    if (!currentExercise) return;
+
+    // Delete the set from the database
+    await db.setRecords.delete(setId);
+
+    // Reload sets
+    const updatedSets = await db.setRecords
+      .where('exerciseId')
+      .equals(currentExercise.id)
+      .sortBy('timestamp');
+
+    setSets(updatedSets);
+
+    // Reload all sets for stats
+    await loadAllSets();
   };
 
   const handleFinishWorkout = async () => {
@@ -451,9 +469,16 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
             {sets.map((set, idx) => (
               <div
                 key={set.id}
-                className="px-4 py-2 bg-green-50 border-2 border-green-200 rounded-xl text-sm font-bold text-gray-800 shadow-sm"
+                className="group relative px-4 py-2 bg-green-50 border-2 border-green-200 rounded-xl text-sm font-bold text-gray-800 shadow-sm"
               >
-                Set {idx + 1}: <span className="text-green-700">{set.weight}kg</span> × <span className="text-green-700">{set.reps}</span>
+                <button
+                  onClick={() => handleDeleteSet(set.id)}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg"
+                  title="Delete set"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                <span className="text-green-700">{set.weight}kg</span> × <span className="text-green-700">{set.reps}</span>
                 {set.rpe && <span className="text-orange-600 ml-1">@{set.rpe}</span>}
               </div>
             ))}
