@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Plus, Trash2, CheckCircle, Database, Shield, Upload, Pencil, Check, X, Download, AlertTriangle, Eye } from 'lucide-react';
+import { Settings, Plus, Trash2, CheckCircle, Database, Shield, Upload, Pencil, Check, X, Download, AlertTriangle, Eye, Timer } from 'lucide-react';
 import { DisclaimerModal } from '../components/DisclaimerModal';
 import { db } from '../db/database';
 import { currentWeek } from '../utils/programLogic';
@@ -276,6 +276,18 @@ export function SettingsView() {
     setShowDisclaimerModal(false);
   };
 
+  const handleRestTimerToggle = async (field: keyof SettingsModel, value: boolean) => {
+    if (!settings) return;
+    await db.settings.update(settings.id, { [field]: value });
+    await loadData();
+  };
+
+  const handleRestTimerDuration = async (duration: number) => {
+    if (!settings) return;
+    await db.settings.update(settings.id, { restTimerDuration: duration });
+    await loadData();
+  };
+
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto p-6 space-y-6">
@@ -391,6 +403,109 @@ export function SettingsView() {
               />
               <span className="font-bold text-gray-900">Brzycki</span>
             </label>
+          </div>
+        </div>
+
+        {/* Rest Timer Settings */}
+        <div className="card p-6 bg-white">
+          <div className="flex items-center gap-2 mb-4">
+            <Timer className="w-6 h-6 text-primary-600" />
+            <h2 className="font-bold text-gray-900 text-lg">Rest Timer</h2>
+          </div>
+
+          <div className="space-y-4">
+            {/* Enable Rest Timer */}
+            <label className="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-200 hover:border-primary-300 transition-all cursor-pointer">
+              <div>
+                <span className="font-bold text-gray-900 block">Enable Rest Timer</span>
+                <span className="text-sm text-gray-600">Show timer between sets</span>
+              </div>
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={settings?.restTimerEnabled !== false}
+                  onChange={(e) => handleRestTimerToggle('restTimerEnabled', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+              </div>
+            </label>
+
+            {/* Auto-start Timer */}
+            <label className="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-200 hover:border-primary-300 transition-all cursor-pointer">
+              <div>
+                <span className="font-bold text-gray-900 block">Auto-start Timer</span>
+                <span className="text-sm text-gray-600">Start automatically after logging a set</span>
+              </div>
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={settings?.restTimerAutoStart !== false}
+                  onChange={(e) => handleRestTimerToggle('restTimerAutoStart', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+              </div>
+            </label>
+
+            {/* Sound Notification */}
+            <label className="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-200 hover:border-primary-300 transition-all cursor-pointer">
+              <div>
+                <span className="font-bold text-gray-900 block">Sound Notification</span>
+                <span className="text-sm text-gray-600">Play sound when timer completes</span>
+              </div>
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={settings?.restTimerSound !== false}
+                  onChange={(e) => handleRestTimerToggle('restTimerSound', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+              </div>
+            </label>
+
+            {/* Default Rest Duration */}
+            <div className="p-4 bg-white rounded-xl border-2 border-gray-200">
+              <div className="flex items-center justify-between mb-3">
+              <label className="block mb-3">
+                <span className="font-bold text-gray-900 block mb-1">Default Rest Duration</span>
+                <span className="text-sm text-gray-600">Time in seconds (30-300)</span>
+              </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="30"
+                    max="300"
+                    value={settings?.restTimerDuration ?? 90}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (val >= 30 && val <= 300) {
+                        handleRestTimerDuration(val);
+                      }
+                    }}
+                    className="w-20 px-3 py-2 border-2 border-gray-200 rounded-lg font-bold text-gray-900 text-center"
+                  />
+                  <span className="text-sm text-gray-600 font-medium">sec</span>
+                </div>
+                </div>
+              <div className="flex items-center gap-4 ">
+                <input
+                  type="range"
+                  min="30"
+                  max="300"
+                  step="15"
+                  value={settings?.restTimerDuration ?? 90}
+                  onChange={(e) => handleRestTimerDuration(parseInt(e.target.value))}
+                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
+                />
+
+              </div>
+              <div className="flex justify-between text-xs text-gray-500 mt-2 px-1">
+                <span>30s</span>
+                <span>5 min</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -520,7 +635,7 @@ export function SettingsView() {
                         </div>
                       </div>
 
-                      <div className="flex gap-2 ml-2">
+                      <div className="flex gap-2 ml-2 justify-between ">
                         <button
                           onClick={() => handleViewProgram(program.id)}
                           className="text-primary-600 cursor-pointer hover:text-primary-700 hover:bg-primary-50 p-2 rounded-lg transition-all"

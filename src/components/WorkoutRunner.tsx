@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, StopCircle, CheckCircle, Activity, Flame, Zap, Clock, Pause, Play, RefreshCw, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, StopCircle, CheckCircle, Activity, Flame, Zap, Clock, Pause, Play, RefreshCw, X, Timer, SkipForward } from 'lucide-react';
 import { db } from '../db/database';
 import { previousWorkoutInstances } from '../utils/programLogic';
 import { useAppStore } from '../store/appStore';
-import type { Workout, ExerciseInstance, SetRecord } from '../types/models';
+import type { Workout, ExerciseInstance, SetRecord, SettingsModel } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
 import { calculateWorkoutStats, formatVolume, formatRPE, formatDuration } from '../utils/workoutStats';
 import { getExerciseSubstitutions, hasSubstitutions, getExerciseNotes } from '../data/exerciseSubstitutions';
+import { playTimerNotification } from '../utils/audio';
 
 interface WorkoutRunnerProps {
   workout: Workout;
@@ -32,9 +33,36 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const [showSubstitutions, setShowSubstitutions] = useState(false);
   const [isSubstituting, setIsSubstituting] = useState(false);
 
+  // Rest timer state
+  const [settings, setSettings] = useState<SettingsModel | null>(null);
+  const [restTimerActive, setRestTimerActive] = useState(false);
+  const [restTimerSecondsLeft, setRestTimerSecondsLeft] = useState(0);
+  const [restTimerDuration, setRestTimerDuration] = useState(90);
+  const [restTimerCompleted, setRestTimerCompleted] = useState(false);
+
   const { setActiveWorkout, triggerRefresh } = useAppStore();
 
   const currentExercise = exercises[currentIndex];
+
+  // Helper function to format time as MM:SS
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Load settings
+  useEffect(() => {
+    const loadSettings = async () => {
+      const sett = await db.settings.toCollection().first();
+      if (sett) {
+        setSettings(sett);
+        setRestTimerDuration(sett.restTimerDuration || 90);
+      }
+    };
+
+    loadSettings();
+  }, []);
 
   // Load exercises
   useEffect(() => {
@@ -92,6 +120,8 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     setWeightText('');
     setRepsText('');
     setRpeText('');
+    // Clear rest timer when changing exercise
+    skipRestTimer();
   }, [currentExercise]);
 
   // Initial load of all sets
@@ -109,6 +139,39 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
     return () => clearInterval(interval);
   }, [isPaused]);
+
+  // Rest timer countdown - only runs when timer is active and workout not paused
+  useEffect(() => {
+    if (!restTimerActive || isPaused || restTimerSecondsLeft <= 0) return;
+
+    const interval = setInterval(() => {
+      setRestTimerSecondsLeft(prev => {
+        if (prev <= 1) {
+          // Timer completed
+          setRestTimerActive(false);
+          setRestTimerCompleted(true);
+
+          // Play notification if enabled
+          if (settings?.restTimerSound !== false) {
+            playTimerNotification(true);
+          }
+
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [restTimerActive, isPaused, restTimerSecondsLeft, settings]);
+
+  // Pause rest timer when workout is paused
+  useEffect(() => {
+    if (isPaused && restTimerActive) {
+      // Timer will automatically stop counting due to the useEffect dependency
+      // No need to stop it explicitly, it will resume when isPaused becomes false
+    }
+  }, [isPaused, restTimerActive]);
 
   // Handle pause
   const handlePause = async () => {
@@ -209,6 +272,11 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     setRepsText('');
     setRpeText('');
 
+    // Start rest timer if enabled and auto-start is on
+    if (settings?.restTimerEnabled !== false && settings?.restTimerAutoStart !== false) {
+      startRestTimer();
+    }
+
     // Auto-advance if target sets reached
     if (updatedSets.length >= currentExercise.targetSets && currentIndex < exercises.length - 1) {
       setTimeout(() => {
@@ -221,6 +289,24 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     setWeightText(weight.toString());
     setRepsText(reps.toString());
     setRpeText(rpe ? rpe.toFixed(1) : '');
+  };
+
+  // Rest timer functions
+  const startRestTimer = (duration: number = restTimerDuration) => {
+    setRestTimerDuration(duration);
+    setRestTimerSecondsLeft(duration);
+    setRestTimerActive(true);
+    setRestTimerCompleted(false);
+  };
+
+  const skipRestTimer = () => {
+    setRestTimerActive(false);
+    setRestTimerSecondsLeft(0);
+    setRestTimerCompleted(false);
+  };
+
+  const addRestTime = (seconds: number) => {
+    setRestTimerSecondsLeft(prev => prev + seconds);
   };
 
   const handleDeleteSet = async (setId: string) => {
@@ -466,7 +552,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Today's Sets</p>
         {sets.length > 0 ? (
           <div className="flex flex-wrap gap-2">
-            {sets.map((set, idx) => (
+            {sets.map((set) => (
               <div
                 key={set.id}
                 className="group relative px-4 py-2 bg-green-50 border-2 border-green-200 rounded-xl text-sm font-bold text-gray-800 shadow-sm"
@@ -487,6 +573,122 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
           <p className="text-sm text-gray-500 italic">No sets logged yet - let's get started!</p>
         )}
       </div>
+
+      {/* Rest Timer */}
+      {(restTimerActive || restTimerCompleted) && settings?.restTimerEnabled !== false && (
+        <div className={`card p-5 transition-all duration-300 ${
+          restTimerCompleted
+            ? 'bg-gradient-to-br from-green-50 to-white border-2 border-green-300 animate-pulse'
+            : restTimerSecondsLeft <= restTimerDuration * 0.2
+            ? 'bg-gradient-to-br from-red-50 to-white border-2 border-red-300'
+            : restTimerSecondsLeft <= restTimerDuration * 0.5
+            ? 'bg-gradient-to-br from-yellow-50 to-white border-2 border-yellow-300'
+            : 'bg-gradient-to-br from-blue-50 to-white border-2 border-blue-300'
+        }`}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Timer className={`w-5 h-5 ${
+                restTimerCompleted ? 'text-green-600' : 'text-blue-600'
+              }`} />
+              <h4 className="font-bold text-gray-900 text-lg">
+                {restTimerCompleted ? 'Rest Complete!' : 'Rest Timer'}
+              </h4>
+            </div>
+            <button
+              onClick={skipRestTimer}
+              className="flex items-center gap-1 text-sm font-semibold text-gray-600 hover:text-red-600 transition-all"
+            >
+              <SkipForward className="w-4 h-4" />
+              Skip
+            </button>
+          </div>
+
+          <div className="text-center mb-4">
+            <div className={`text-6xl font-bold ${
+              restTimerCompleted
+                ? 'text-green-600'
+                : restTimerSecondsLeft <= restTimerDuration * 0.2
+                ? 'text-red-600'
+                : 'text-blue-700'
+            }`}>
+              {restTimerCompleted ? '00:00' : formatTime(restTimerSecondsLeft)}
+            </div>
+            {!restTimerCompleted && (
+              <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-1000 ${
+                    restTimerSecondsLeft <= restTimerDuration * 0.2
+                      ? 'bg-red-500'
+                      : restTimerSecondsLeft <= restTimerDuration * 0.5
+                      ? 'bg-yellow-500'
+                      : 'bg-blue-500'
+                  }`}
+                  style={{
+                    width: `${(restTimerSecondsLeft / restTimerDuration) * 100}%`,
+                  }}
+                ></div>
+              </div>
+            )}
+          </div>
+
+          {!restTimerCompleted && (
+            <div className="grid grid-cols-4 gap-2">
+              <button
+                onClick={() => startRestTimer(60)}
+                className="px-3 py-2 bg-white hover:bg-blue-50 border-2 border-blue-200 rounded-lg text-sm font-bold text-gray-700 transition-all"
+              >
+                1:00
+              </button>
+              <button
+                onClick={() => startRestTimer(90)}
+                className="px-3 py-2 bg-white hover:bg-blue-50 border-2 border-blue-200 rounded-lg text-sm font-bold text-gray-700 transition-all"
+              >
+                1:30
+              </button>
+              <button
+                onClick={() => startRestTimer(120)}
+                className="px-3 py-2 bg-white hover:bg-blue-50 border-2 border-blue-200 rounded-lg text-sm font-bold text-gray-700 transition-all"
+              >
+                2:00
+              </button>
+              <button
+                onClick={() => startRestTimer(180)}
+                className="px-3 py-2 bg-white hover:bg-blue-50 border-2 border-blue-200 rounded-lg text-sm font-bold text-gray-700 transition-all"
+              >
+                3:00
+              </button>
+            </div>
+          )}
+
+          {!restTimerCompleted && restTimerActive && (
+            <div className="flex gap-2 mt-3">
+              <button
+                onClick={() => addRestTime(15)}
+                className="flex-1 px-3 py-2 bg-white hover:bg-green-50 border-2 border-green-200 rounded-lg text-sm font-bold text-green-700 transition-all"
+              >
+                +15s
+              </button>
+              <button
+                onClick={() => addRestTime(30)}
+                className="flex-1 px-3 py-2 bg-white hover:bg-green-50 border-2 border-green-200 rounded-lg text-sm font-bold text-green-700 transition-all"
+              >
+                +30s
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Manual Rest Timer Start */}
+      {!restTimerActive && !restTimerCompleted && settings?.restTimerEnabled !== false && sets.length > 0 && (
+        <button
+          onClick={() => startRestTimer()}
+          className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-blue-200"
+        >
+          <Timer className="w-5 h-5" />
+          <span>Start Rest Timer ({formatTime(restTimerDuration)})</span>
+        </button>
+      )}
 
       {/* Set Logger */}
       <div className="card p-5 bg-white">

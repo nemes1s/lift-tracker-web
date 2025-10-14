@@ -42,6 +42,9 @@ export class LiftTrackerDatabase extends Dexie {
 
     // Version 3: Add disclaimer fields to settings (no schema change needed, Dexie handles new fields automatically)
     this.version(3).stores({});
+
+    // Version 4: Add rest timer fields to settings (no schema change needed, Dexie handles new fields automatically)
+    this.version(4).stores({});
   }
 }
 

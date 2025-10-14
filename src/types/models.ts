@@ -70,6 +70,11 @@ export interface SettingsModel {
   activeProgramId?: string;
   disclaimerAccepted?: boolean; // User permanently dismissed disclaimer
   lastDisclaimerShown?: Date; // Last time disclaimer was shown
+  // Rest timer settings
+  restTimerEnabled?: boolean; // Whether rest timer is enabled (default: true)
+  restTimerAutoStart?: boolean; // Auto-start timer after logging set (default: true)
+  restTimerDuration?: number; // Default rest duration in seconds (default: 90)
+  restTimerSound?: boolean; // Play sound when timer completes (default: true)
 }
 
 // Enum for split days
