@@ -208,7 +208,7 @@ export function ProgramPreviewView() {
         </div>
 
         {/* Action Buttons */}
-        <div className="sticky bottom-0 bg-white/95 backdrop-blur-sm p-4 rounded-xl border-2 border-gray-200 shadow-lg">
+        <div className="sticky bottom-20 bg-white/95 backdrop-blur-sm p-4 rounded-xl border-2 border-gray-200 shadow-lg">
           {isPreviewMode ? (
             <div className="flex gap-3">
               <button

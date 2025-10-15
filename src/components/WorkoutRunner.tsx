@@ -401,30 +401,13 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     setIsSubstituting(true);
 
     try {
-      const oldExerciseName = currentExercise.name;
-
-      // 1. Update the current exercise instance
+      // Update only the current exercise instance
       await db.exerciseInstances.update(currentExercise.id, {
         name: newExerciseName,
         notes: getExerciseNotes(newExerciseName) || currentExercise.notes
       });
 
-      // 2. Update all previous exercise instances with the old name to the new name
-      // This ensures exercise history follows the new name
-      const allPreviousExercises = await db.exerciseInstances
-        .where('name')
-        .equals(oldExerciseName)
-        .toArray();
-
-      await Promise.all(
-        allPreviousExercises.map((ex) =>
-          db.exerciseInstances.update(ex.id, {
-            name: newExerciseName
-          })
-        )
-      );
-
-      // 3. Reload exercises to reflect the change
+      // Reload exercises to reflect the change
       const updatedExercises = await db.exerciseInstances
         .where('workoutId')
         .equals(workout.id)
