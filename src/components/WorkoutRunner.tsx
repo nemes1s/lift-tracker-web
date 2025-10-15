@@ -1,13 +1,22 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, StopCircle, CheckCircle, Activity, Flame, Zap, Clock, Pause, Play, RefreshCw, X, Timer, SkipForward } from 'lucide-react';
 import { db } from '../db/database';
 import { previousWorkoutInstances } from '../utils/programLogic';
 import { useAppStore } from '../store/appStore';
 import type { Workout, ExerciseInstance, SetRecord, SettingsModel } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
-import { calculateWorkoutStats, formatVolume, formatRPE, formatDuration } from '../utils/workoutStats';
-import { getExerciseSubstitutions, hasSubstitutions, getExerciseNotes } from '../data/exerciseSubstitutions';
+import { calculateWorkoutStats } from '../utils/workoutStats';
+import { getExerciseNotes, hasSubstitutions } from '../data/exerciseSubstitutions';
 import { playTimerNotification, initAudioContext, playCountdownBeep } from '../utils/audio';
+import { WorkoutControlsSection } from './WorkoutRunner/WorkoutControlsSection';
+import { ExerciseHeaderSection } from './WorkoutRunner/ExerciseHeaderSection';
+import { ExerciseSubstitutionSection } from './WorkoutRunner/ExerciseSubstitutionSection';
+import { CurrentSetsSection } from './WorkoutRunner/CurrentSetsSection';
+import { RestTimerSection } from './WorkoutRunner/RestTimerSection';
+import { SetLoggerSection } from './WorkoutRunner/SetLoggerSection';
+import { PreviousWorkoutsSection } from './WorkoutRunner/PreviousWorkoutsSection';
+import { WorkoutStatsSection } from './WorkoutRunner/WorkoutStatsSection';
+import { ExerciseNavigationSection } from './WorkoutRunner/ExerciseNavigationSection';
+import { FinishWorkoutButton } from './WorkoutRunner/FinishWorkoutButton';
 
 interface WorkoutRunnerProps {
   workout: Workout;
@@ -43,13 +52,6 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const { setActiveWorkout, triggerRefresh } = useAppStore();
 
   const currentExercise = exercises[currentIndex];
-
-  // Helper function to format time as MM:SS
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
 
   // Load settings
   useEffect(() => {
@@ -170,14 +172,6 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
     return () => clearInterval(interval);
   }, [restTimerActive, isPaused, restTimerSecondsLeft, settings]);
-
-  // Pause rest timer when workout is paused
-  useEffect(() => {
-    if (isPaused && restTimerActive) {
-      // Timer will automatically stop counting due to the useEffect dependency
-      // No need to stop it explicitly, it will resume when isPaused becomes false
-    }
-  }, [isPaused, restTimerActive]);
 
   // Handle pause
   const handlePause = async () => {
@@ -440,407 +434,83 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
   return (
     <div className="space-y-6">
-      {/* Workout Controls */}
-      <div className={`card p-4 transition-all duration-200 ${isPaused ? 'bg-yellow-50 border-2 border-yellow-300' : 'bg-white'}`}>
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className={`w-3 h-3 rounded-full animate-pulse ${isPaused ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
-              <div className={`absolute inset-0 rounded-full animate-ping opacity-75 ${isPaused ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
-            </div>
-            <h2 className={`text-lg font-bold ${isPaused ? 'text-yellow-700' : 'text-green-700'}`}>
-              {isPaused ? 'Paused' : 'Running'}
-            </h2>
-          </div>
-          <div className="flex items-center gap-2">
-            {!isPaused ? (
-              <button
-                onClick={handlePause}
-                className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-3 rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                <Pause className="w-5 h-5" />
-              </button>
-            ) : (
-              <button
-                onClick={handleResume}
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-3 rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                <Play className="w-5 h-5" />
-              </button>
-            )}
-            <button
-              onClick={handleStopWorkout}
-              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              <StopCircle className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </div>
+      <WorkoutControlsSection
+        isPaused={isPaused}
+        onPause={handlePause}
+        onResume={handleResume}
+        onStop={handleStopWorkout}
+      />
 
-      {/* Exercise Header */}
-      <div className="bg-primary-50 rounded-xl p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <h3 className="text-2xl font-bold text-primary-700">
-              {currentExercise.name}
-            </h3>
-            {currentExercise.targetReps && (
-              <p className="text-gray-700 font-medium mt-2">
-                <span className="text-primary-600 font-bold">{currentExercise.targetSets}</span> sets × <span className="text-primary-600 font-bold">{currentExercise.targetReps}</span> reps
-              </p>
-            )}
-          </div>
-          {hasSubstitutions(currentExercise.name) && (
-            <button
-              onClick={() => setShowSubstitutions(!showSubstitutions)}
-              className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-primary-100 text-primary-700 font-semibold rounded-lg shadow-sm transition-all duration-200 transform hover:scale-105"
-              disabled={isSubstituting}
-            >
-              <RefreshCw className={`w-4 h-4 ${isSubstituting ? 'animate-spin' : ''}`} />
-            </button>
-          )}
-        </div>
-        {currentExercise.notes && (
-          <p className="text-sm text-gray-600 mt-3 bg-white/60 rounded-lg p-3">{currentExercise.notes}</p>
-        )}
-      </div>
+      <ExerciseHeaderSection
+        exercise={currentExercise}
+        onShowSubstitutions={() => setShowSubstitutions(!showSubstitutions)}
+        isSubstituting={isSubstituting}
+      />
 
-      {/* Exercise Substitution Options */}
       {showSubstitutions && hasSubstitutions(currentExercise.name) && (
-        <div className="card p-5 bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-bold text-gray-900 text-lg">Alternative Exercises</h4>
-            <button
-              onClick={() => setShowSubstitutions(false)}
-              className="text-gray-500 hover:text-gray-700 font-semibold text-sm"
-            >
-              Cancel
-            </button>
-          </div>
-          <p className="text-sm text-gray-600 mb-4">
-            Switch to a different exercise. This will update your exercise history to track the new exercise going forward.
-          </p>
-          <div className="space-y-2">
-            {getExerciseSubstitutions(currentExercise.name).map((substitution) => {
-              const notes = getExerciseNotes(substitution);
-              return (
-                <button
-                  key={substitution}
-                  onClick={() => handleSubstituteExercise(substitution)}
-                  disabled={isSubstituting}
-                  className="w-full text-left p-4 bg-white hover:bg-blue-50 border-2 border-blue-200 hover:border-blue-400 rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <div className="font-bold text-gray-900">{substitution}</div>
-                  {notes && (
-                    <div className="text-sm text-gray-600 mt-1">{notes}</div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <ExerciseSubstitutionSection
+          exerciseName={currentExercise.name}
+          isSubstituting={isSubstituting}
+          onSubstitute={handleSubstituteExercise}
+          onCancel={() => setShowSubstitutions(false)}
+        />
       )}
 
-      {/* Current Session Sets */}
-      <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Today's Sets</p>
-        {sets.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {sets.map((set) => (
-              <div
-                key={set.id}
-                className="group relative px-4 py-2 bg-green-50 border-2 border-green-200 rounded-xl text-sm font-bold text-gray-800 shadow-sm"
-              >
-                <button
-                  onClick={() => handleDeleteSet(set.id)}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg"
-                  title="Delete set"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-                <span className="text-green-700">{set.weight}kg</span> × <span className="text-green-700">{set.reps}</span>
-                {set.rpe && <span className="text-orange-600 ml-1">@{set.rpe}</span>}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-gray-500 italic">No sets logged yet - let's get started!</p>
-        )}
-      </div>
+      <CurrentSetsSection
+        sets={sets}
+        onDeleteSet={handleDeleteSet}
+      />
 
-      {/* Rest Timer */}
       {(restTimerActive || restTimerCompleted) && settings?.restTimerEnabled !== false && (
-        <div className={`card p-5 transition-all duration-300 ${
-          restTimerCompleted
-            ? 'bg-gradient-to-br from-green-50 to-white border-2 border-green-300 animate-pulse'
-            : restTimerSecondsLeft <= restTimerDuration * 0.2
-            ? 'bg-gradient-to-br from-red-50 to-white border-2 border-red-300'
-            : restTimerSecondsLeft <= restTimerDuration * 0.5
-            ? 'bg-gradient-to-br from-yellow-50 to-white border-2 border-yellow-300'
-            : 'bg-gradient-to-br from-blue-50 to-white border-2 border-blue-300'
-        }`}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Timer className={`w-5 h-5 ${
-                restTimerCompleted ? 'text-green-600' : 'text-blue-600'
-              }`} />
-              <h4 className="font-bold text-gray-900 text-lg">
-                {restTimerCompleted ? 'Rest Complete!' : 'Rest Timer'}
-              </h4>
-            </div>
-            <button
-              onClick={skipRestTimer}
-              className="flex items-center gap-1 text-sm font-semibold text-gray-600 hover:text-red-600 transition-all"
-            >
-              <SkipForward className="w-4 h-4" />
-              Skip
-            </button>
-          </div>
-
-          <div className="text-center mb-4">
-            <div className={`text-6xl font-bold ${
-              restTimerCompleted
-                ? 'text-green-600'
-                : restTimerSecondsLeft <= restTimerDuration * 0.2
-                ? 'text-red-600'
-                : 'text-blue-700'
-            }`}>
-              {restTimerCompleted ? '00:00' : formatTime(restTimerSecondsLeft)}
-            </div>
-            {!restTimerCompleted && (
-              <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-1000 ${
-                    restTimerSecondsLeft <= restTimerDuration * 0.2
-                      ? 'bg-red-500'
-                      : restTimerSecondsLeft <= restTimerDuration * 0.5
-                      ? 'bg-yellow-500'
-                      : 'bg-blue-500'
-                  }`}
-                  style={{
-                    width: `${(restTimerSecondsLeft / restTimerDuration) * 100}%`,
-                  }}
-                ></div>
-              </div>
-            )}
-          </div>
-
-          {!restTimerCompleted && (
-            <div className="grid grid-cols-4 gap-2">
-              <button
-                onClick={() => startRestTimer(60)}
-                className="px-3 py-2 bg-white hover:bg-blue-50 border-2 border-blue-200 rounded-lg text-sm font-bold text-gray-700 transition-all"
-              >
-                1:00
-              </button>
-              <button
-                onClick={() => startRestTimer(90)}
-                className="px-3 py-2 bg-white hover:bg-blue-50 border-2 border-blue-200 rounded-lg text-sm font-bold text-gray-700 transition-all"
-              >
-                1:30
-              </button>
-              <button
-                onClick={() => startRestTimer(120)}
-                className="px-3 py-2 bg-white hover:bg-blue-50 border-2 border-blue-200 rounded-lg text-sm font-bold text-gray-700 transition-all"
-              >
-                2:00
-              </button>
-              <button
-                onClick={() => startRestTimer(180)}
-                className="px-3 py-2 bg-white hover:bg-blue-50 border-2 border-blue-200 rounded-lg text-sm font-bold text-gray-700 transition-all"
-              >
-                3:00
-              </button>
-            </div>
-          )}
-
-          {!restTimerCompleted && restTimerActive && (
-            <div className="flex gap-2 mt-3">
-              <button
-                onClick={() => addRestTime(15)}
-                className="flex-1 px-3 py-2 bg-white hover:bg-green-50 border-2 border-green-200 rounded-lg text-sm font-bold text-green-700 transition-all"
-              >
-                +15s
-              </button>
-              <button
-                onClick={() => addRestTime(30)}
-                className="flex-1 px-3 py-2 bg-white hover:bg-green-50 border-2 border-green-200 rounded-lg text-sm font-bold text-green-700 transition-all"
-              >
-                +30s
-              </button>
-            </div>
-          )}
-        </div>
+        <RestTimerSection
+          isActive={restTimerActive}
+          isCompleted={restTimerCompleted}
+          secondsLeft={restTimerSecondsLeft}
+          duration={restTimerDuration}
+          onStart={startRestTimer}
+          onSkip={skipRestTimer}
+          onAddTime={addRestTime}
+        />
       )}
 
-      {/* Manual Rest Timer Start */}
       {!restTimerActive && !restTimerCompleted && settings?.restTimerEnabled !== false && sets.length > 0 && (
-        <button
-          onClick={() => startRestTimer()}
-          className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-blue-200"
-        >
-          <Timer className="w-5 h-5" />
-          <span>Start Rest Timer ({formatTime(restTimerDuration)})</span>
-        </button>
+        <RestTimerSection
+          isActive={false}
+          isCompleted={false}
+          secondsLeft={0}
+          duration={restTimerDuration}
+          onStart={startRestTimer}
+          onSkip={skipRestTimer}
+          onAddTime={addRestTime}
+        />
       )}
 
-      {/* Set Logger */}
-      <div className="card p-5 bg-white">
-        <p className="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wide">Log New Set</p>
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Weight (kg)</label>
-            <input
-              type="number"
-              step="0.5"
-              placeholder="0"
-              value={weightText}
-              onChange={(e) => setWeightText(e.target.value)}
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Reps</label>
-            <input
-              type="number"
-              placeholder="0"
-              value={repsText}
-              onChange={(e) => setRepsText(e.target.value)}
-              className="input-field"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">RPE</label>
-            <input
-              type="number"
-              step="0.5"
-              placeholder="0"
-              value={rpeText}
-              onChange={(e) => setRpeText(e.target.value)}
-              className="input-field"
-            />
-          </div>
-        </div>
-        <button
-          onClick={handleLogSet}
-          disabled={!weightText || !repsText}
-          className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-        >
-          <CheckCircle className="w-5 h-5" />
-          Log Set
-        </button>
-      </div>
+      <SetLoggerSection
+        weightText={weightText}
+        repsText={repsText}
+        rpeText={rpeText}
+        onWeightChange={setWeightText}
+        onRepsChange={setRepsText}
+        onRpeChange={setRpeText}
+        onLogSet={handleLogSet}
+      />
 
-      {/* Previous Workout History */}
-      {previousHistory.length > 0 && (
-        <div className="card p-5 bg-white">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-bold text-gray-900 text-lg">Previous Workouts</h4>
-            <span className="text-xs text-primary-600 font-semibold bg-primary-50 px-3 py-1 rounded-full">Tap to prefill</span>
-          </div>
-          <div className="space-y-3">
-            {previousHistory.map((item, idx) => (
-              <div key={idx} className="bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-bold text-gray-800">
-                    {new Date(item.workout.startedAt).toLocaleDateString()}
-                  </span>
-                  <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-lg">{item.workout.name}</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {item.sets.map((set) => (
-                    <button
-                      key={set.id}
-                      onClick={() => handlePrefillSet(set.weight, set.reps, set.rpe)}
-                      className="px-3 py-2 bg-white border-2 border-gray-200 rounded-lg text-sm font-medium hover:border-primary-300 hover:bg-primary-50 transition-all transform hover:scale-105"
-                    >
-                      {set.weight}kg × {set.reps}
-                      {set.rpe && <span className="text-orange-600 ml-1">@{set.rpe}</span>}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <PreviousWorkoutsSection
+        history={previousHistory}
+        onPrefillSet={handlePrefillSet}
+      />
 
-      {/* Live Workout Stats */}
-      <div className="grid grid-cols-2 gap-3">
-        <h4 className="col-span-2 font-bold text-gray-900 text-lg">Workout Stats:</h4>
-        <div className="bg-gradient-to-br from-primary-50 to-white rounded-xl p-3 border-2 border-primary-100 shadow-sm">
-          <div className="flex items-center gap-2 mb-1">
-            <Activity className="w-4 h-4 text-primary-600" />
-            <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Volume</span>
-          </div>
-          <p className="text-xl font-bold text-primary-700">{formatVolume(stats.totalVolume)} kg</p>
-        </div>
+      <WorkoutStatsSection stats={stats} />
 
-        <div className="bg-gradient-to-br from-orange-50 to-white rounded-xl p-3 border-2 border-orange-100 shadow-sm">
-          <div className="flex items-center gap-2 mb-1">
-            <Flame className="w-4 h-4 text-orange-600" />
-            <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Calories</span>
-          </div>
-          <p className="text-xl font-bold text-orange-700">~{stats.estimatedCalories}</p>
-        </div>
+      <ExerciseNavigationSection
+        currentIndex={currentIndex}
+        totalExercises={exercises.length}
+        onPrevious={goPrevious}
+        onNext={goNext}
+      />
 
-        {stats.averageRPE > 0 && (
-          <div className="bg-gradient-to-br from-purple-50 to-white rounded-xl p-3 border-2 border-purple-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-1">
-              <Zap className="w-4 h-4 text-purple-600" />
-              <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Avg RPE</span>
-            </div>
-            <p className="text-xl font-bold text-purple-700">{formatRPE(stats.averageRPE)}</p>
-          </div>
-        )}
-
-        <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-3 border-2 border-blue-100 shadow-sm">
-          <div className="flex items-center gap-2 mb-1">
-            <Clock className="w-4 h-4 text-blue-600" />
-            <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Duration</span>
-          </div>
-          <p className="text-xl font-bold text-blue-700">{formatDuration(stats.duration)}</p>
-        </div>
-      </div>
-
-
-      {/* Navigation */}
-      <div className="card p-4 bg-white">
-          <div className="text-center mb-4">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider block">Exercise {currentIndex + 1} of {exercises.length}</span>
-          </div>
-        <div className="flex items-center justify-between gap-4">
-          <button
-            onClick={goPrevious}
-            disabled={currentIndex === 0}
-            className="btn-secondary flex flex-1 items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-          >
-            <ChevronLeft className="w-5 h-5" />
-            Previous
-          </button>
-
-
-          <button
-            onClick={goNext}
-            disabled={currentIndex === exercises.length - 1}
-            className="btn-primary flex flex-1 items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-          >
-            Next
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Finish Workout */}
       {currentIndex === exercises.length - 1 && (
-        <button
-          onClick={handleFinishWorkout}
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-        >
-          <CheckCircle className="w-6 h-6" />
-          Finish Workout
-        </button>
+        <FinishWorkoutButton onFinish={handleFinishWorkout} />
       )}
     </div>
   );
