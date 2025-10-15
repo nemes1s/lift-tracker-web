@@ -56,6 +56,7 @@ export function initAudioContext() {
  */
 export function playCountdownBeep() {
   console.info('Playing countdown beep');
+
   try {
     // Initialize context if needed
     if (!audioContext) {
@@ -105,6 +106,7 @@ export function playCountdownBeep() {
  */
 export function playTimerCompleteSound() {
   console.info('Playing timer complete sound');
+  
   try {
     // Initialize context if needed
     if (!audioContext) {

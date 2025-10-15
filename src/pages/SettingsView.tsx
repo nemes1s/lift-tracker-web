@@ -19,6 +19,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { InstallButton } from '../components/InstallPrompt';
 import { isPersisted, getStorageEstimate } from '../utils/persistence';
 import { playTimerNotification, initAudioContext } from '../utils/audio';
+import { APP_VERSION } from '../version';
 
 export function SettingsView() {
   const navigate = useNavigate();
@@ -304,6 +305,11 @@ export function SettingsView() {
               </h1>
               <p className="text-sm text-gray-500 mt-0.5">Customize your experience</p>
             </div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <p className="text-xs text-gray-500">
+              Version <span className="font-mono font-semibold text-gray-700">{APP_VERSION}</span>
+            </p>
           </div>
         </div>
 
