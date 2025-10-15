@@ -55,6 +55,7 @@ export function initAudioContext() {
  * Used during the last seconds of the timer
  */
 export function playCountdownBeep() {
+  console.info('Playing countdown beep');
   try {
     // Initialize context if needed
     if (!audioContext) {
@@ -103,6 +104,7 @@ export function playCountdownBeep() {
  * This creates a pleasant notification sound without external audio files
  */
 export function playTimerCompleteSound() {
+  console.info('Playing timer complete sound');
   try {
     // Initialize context if needed
     if (!audioContext) {
