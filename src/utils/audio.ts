@@ -9,6 +9,7 @@ let isAudioUnlocked = false;
  * Must be called on user interaction
  */
 export function initAudioContext() {
+  console.info('Initializing AudioContext');
   if (!audioContext) {
     try {
       audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -41,6 +42,8 @@ export function initAudioContext() {
       return;
     }
   }
+
+  console.log('AudioContext initialized:', audioContext);
 
   // Resume context if suspended (required for iOS)
   if (audioContext && audioContext.state === 'suspended') {
@@ -106,7 +109,7 @@ export function playCountdownBeep() {
  */
 export function playTimerCompleteSound() {
   console.info('Playing timer complete sound');
-  
+
   try {
     // Initialize context if needed
     if (!audioContext) {
