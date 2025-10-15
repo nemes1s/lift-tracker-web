@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Plus, Trash2, CheckCircle, Database, Shield, Upload, Pencil, Check, X, Download, AlertTriangle, Eye, Timer } from 'lucide-react';
+import { Settings, Plus, Trash2, CheckCircle, Database, Shield, Upload, Pencil, Check, X, Download, AlertTriangle, Eye, Timer, Moon, Sun } from 'lucide-react';
 import { DisclaimerModal } from '../components/DisclaimerModal';
 import { db } from '../db/database';
 import { currentWeek } from '../utils/programLogic';
@@ -36,7 +36,7 @@ export function SettingsView() {
   const [exportingProgramId, setExportingProgramId] = useState<string | null>(null);
   const [showDisclaimerModal, setShowDisclaimerModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { triggerRefresh } = useAppStore();
+  const { triggerRefresh, darkMode, toggleDarkMode } = useAppStore();
 
   useEffect(() => {
     loadData();
@@ -294,46 +294,74 @@ export function SettingsView() {
     <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto p-6 space-y-6">
         {/* Header */}
-        <div className="card p-6 bg-white">
+        <div className="card p-6 bg-white dark:bg-slate-800">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-primary-600 rounded-2xl shadow-lg">
               <Settings className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-primary-700">
+              <h1 className="text-2xl font-bold text-primary-700 dark:text-primary-400">
                 Settings
               </h1>
-              <p className="text-sm text-gray-500 mt-0.5">Customize your experience</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Customize your experience</p>
             </div>
           </div>
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <p className="text-xs text-gray-500">
-              Version <span className="font-mono font-semibold text-gray-700">{APP_VERSION}</span>
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Version <span className="font-mono font-semibold text-gray-700 dark:text-gray-300">{APP_VERSION}</span>
             </p>
           </div>
         </div>
 
+        {/* Appearance */}
+        <div className="card p-6 bg-white dark:bg-slate-800">
+          <div className="flex items-center gap-2 mb-4">
+            {darkMode ? (
+              <Moon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+            ) : (
+              <Sun className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+            )}
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Appearance</h2>
+          </div>
+
+          <label className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600 transition-all cursor-pointer">
+            <div>
+              <span className="font-bold text-gray-900 dark:text-gray-100 block">Dark Mode</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Use dark theme throughout the app</span>
+            </div>
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={darkMode}
+                onChange={toggleDarkMode}
+                className="sr-only peer"
+              />
+              <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+            </div>
+          </label>
+        </div>
+
         {/* PWA Install */}
-        <div className="card p-6 bg-white">
-          <h2 className="font-bold text-gray-900 text-lg mb-3">Install App</h2>
-          <p className="text-sm text-gray-700 mb-4">
+        <div className="card p-6 bg-white dark:bg-slate-800">
+          <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-3">Install App</h2>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
             Install LiftTracker as an app for offline access, faster loading, and a better experience.
           </p>
           <InstallButton />
         </div>
 
         {/* Disclaimer */}
-        <div className="card p-6 bg-white">
+        <div className="card p-6 bg-white dark:bg-slate-800">
           <div className="flex items-center gap-2 mb-3">
-            <AlertTriangle className="w-6 h-6 text-amber-600" />
-            <h2 className="font-bold text-gray-900 text-lg">Disclaimer</h2>
+            <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-500" />
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Disclaimer</h2>
           </div>
-          <p className="text-sm text-gray-700 mb-4">
+          <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
             View important health and safety information about using this fitness tracking app.
           </p>
           <button
             onClick={() => setShowDisclaimerModal(true)}
-            className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-amber-200 hover:border-amber-300"
+            className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-amber-200 dark:border-amber-800 hover:border-amber-300 dark:hover:border-amber-700"
           >
             <AlertTriangle className="w-5 h-5" />
             View Disclaimer
@@ -341,46 +369,46 @@ export function SettingsView() {
         </div>
 
         {/* Storage Info */}
-        <div className="card p-6 bg-white">
+        <div className="card p-6 bg-white dark:bg-slate-800">
           <div className="flex items-center gap-2 mb-4">
-            <Database className="w-6 h-6 text-primary-600" />
-            <h2 className="font-bold text-gray-900 text-lg">Storage</h2>
+            <Database className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Storage</h2>
           </div>
 
           <div className="space-y-4">
             {/* Persistence Status */}
-            <div className="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-100 dark:border-slate-700 shadow-sm">
               <div className="flex items-center gap-3">
-                <Shield className={`w-6 h-6 ${persisted ? 'text-green-600' : 'text-orange-600'}`} />
-                <span className="font-bold text-gray-900">Persistent Storage</span>
+                <Shield className={`w-6 h-6 ${persisted ? 'text-green-600 dark:text-green-500' : 'text-orange-600 dark:text-orange-500'}`} />
+                <span className="font-bold text-gray-900 dark:text-gray-100">Persistent Storage</span>
               </div>
-              <span className={`text-sm font-bold px-3 py-1.5 rounded-lg ${persisted ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+              <span className={`text-sm font-bold px-3 py-1.5 rounded-lg ${persisted ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'}`}>
                 {persisted ? '✓ Enabled' : 'Not Enabled'}
               </span>
             </div>
 
             {!persisted && (
-              <p className="text-xs text-gray-700 px-3 bg-orange-50 py-2 rounded-lg border border-orange-100">
+              <p className="text-xs text-gray-700 dark:text-gray-300 px-3 bg-orange-50 dark:bg-orange-900/20 py-2 rounded-lg border border-orange-100 dark:border-orange-800">
                 Storage may be cleared when device runs low on space. Install the app for guaranteed persistence.
               </p>
             )}
 
             {/* Storage Usage */}
             {storageInfo && (
-              <div className="space-y-3 bg-white/80 p-4 rounded-xl">
+              <div className="space-y-3 bg-white/80 dark:bg-slate-900/50 p-4 rounded-xl">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-700 font-semibold">Used</span>
-                  <span className="font-bold text-gray-900">
+                  <span className="text-gray-700 dark:text-gray-300 font-semibold">Used</span>
+                  <span className="font-bold text-gray-900 dark:text-gray-100">
                     {storageInfo.usageInMB} MB / {storageInfo.quotaInMB} MB
                   </span>
                 </div>
-                <div className="bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+                <div className="bg-gray-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden shadow-inner">
                   <div
-                    className="bg-primary-600 h-full transition-all duration-500 shadow-glow"
+                    className="bg-primary-600 dark:bg-primary-500 h-full transition-all duration-500 shadow-glow"
                     style={{ width: `${storageInfo.percentUsed}%` }}
                   ></div>
                 </div>
-                <p className="text-xs text-gray-600 font-medium">
+                <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
                   {storageInfo.percentUsed}% of available storage used
                 </p>
               </div>
@@ -389,43 +417,43 @@ export function SettingsView() {
         </div>
 
         {/* Formula Selection */}
-        <div className="card p-6 bg-white">
-          <h2 className="font-bold text-gray-900 text-lg mb-4">1RM Formula</h2>
+        <div className="card p-6 bg-white dark:bg-slate-800">
+          <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-4">1RM Formula</h2>
           <div className="flex gap-3">
-            <label className="flex-1 flex items-center justify-center gap-2 cursor-pointer p-3 bg-white rounded-xl border-2 border-gray-200 hover:border-primary-300 transition-all has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50">
+            <label className="flex-1 flex items-center justify-center gap-2 cursor-pointer p-3 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600 transition-all has-[:checked]:border-primary-500 dark:has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 dark:has-[:checked]:bg-primary-900/30">
               <input
                 type="radio"
                 checked={settings?.useEpley === true}
                 onChange={() => settings && db.settings.update(settings.id, { useEpley: true })}
                 className="w-5 h-5 text-primary-600"
               />
-              <span className="font-bold text-gray-900">Epley</span>
+              <span className="font-bold text-gray-900 dark:text-gray-100">Epley</span>
             </label>
-            <label className="flex-1 flex items-center justify-center gap-2 cursor-pointer p-3 bg-white rounded-xl border-2 border-gray-200 hover:border-primary-300 transition-all has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50">
+            <label className="flex-1 flex items-center justify-center gap-2 cursor-pointer p-3 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600 transition-all has-[:checked]:border-primary-500 dark:has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 dark:has-[:checked]:bg-primary-900/30">
               <input
                 type="radio"
                 checked={settings?.useEpley === false}
                 onChange={() => settings && db.settings.update(settings.id, { useEpley: false })}
                 className="w-5 h-5 text-primary-600"
               />
-              <span className="font-bold text-gray-900">Brzycki</span>
+              <span className="font-bold text-gray-900 dark:text-gray-100">Brzycki</span>
             </label>
           </div>
         </div>
 
         {/* Rest Timer Settings */}
-        <div className="card p-6 bg-white">
+        <div className="card p-6 bg-white dark:bg-slate-800">
           <div className="flex items-center gap-2 mb-4">
-            <Timer className="w-6 h-6 text-primary-600" />
-            <h2 className="font-bold text-gray-900 text-lg">Rest Timer</h2>
+            <Timer className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Rest Timer</h2>
           </div>
 
           <div className="space-y-4">
             {/* Enable Rest Timer */}
-            <label className="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-200 hover:border-primary-300 transition-all cursor-pointer">
+            <label className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600 transition-all cursor-pointer">
               <div>
-                <span className="font-bold text-gray-900 block">Enable Rest Timer</span>
-                <span className="text-sm text-gray-600">Show timer between sets</span>
+                <span className="font-bold text-gray-900 dark:text-gray-100 block">Enable Rest Timer</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Show timer between sets</span>
               </div>
               <div className="relative">
                 <input
@@ -434,15 +462,15 @@ export function SettingsView() {
                   onChange={(e) => handleRestTimerToggle('restTimerEnabled', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+                <div className="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
               </div>
             </label>
 
             {/* Auto-start Timer */}
-            <label className="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-200 hover:border-primary-300 transition-all cursor-pointer">
+            <label className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600 transition-all cursor-pointer">
               <div>
-                <span className="font-bold text-gray-900 block">Auto-start Timer</span>
-                <span className="text-sm text-gray-600">Start automatically after logging a set</span>
+                <span className="font-bold text-gray-900 dark:text-gray-100 block">Auto-start Timer</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Start automatically after logging a set</span>
               </div>
               <div className="relative">
                 <input
@@ -451,15 +479,15 @@ export function SettingsView() {
                   onChange={(e) => handleRestTimerToggle('restTimerAutoStart', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+                <div className="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
               </div>
             </label>
 
             {/* Sound Notification */}
-            <label className="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-gray-200 hover:border-primary-300 transition-all cursor-pointer">
+            <label className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600 transition-all cursor-pointer">
               <div>
-                <span className="font-bold text-gray-900 block">Sound Notification</span>
-                <span className="text-sm text-gray-600">Play sound when timer completes</span>
+                <span className="font-bold text-gray-900 dark:text-gray-100 block">Sound Notification</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Play sound when timer completes</span>
               </div>
               <div className="relative">
                 <input
@@ -468,7 +496,7 @@ export function SettingsView() {
                   onChange={(e) => handleRestTimerToggle('restTimerSound', e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+                <div className="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
               </div>
             </label>
 
@@ -478,18 +506,18 @@ export function SettingsView() {
                 initAudioContext();
                 playTimerNotification(true);
               }}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-blue-200"
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-blue-200 dark:border-blue-800"
             >
               <Timer className="w-5 h-5" />
               <span>Test Sound</span>
             </button>
 
             {/* Default Rest Duration */}
-            <div className="p-4 bg-white rounded-xl border-2 border-gray-200">
+            <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700">
               <div className="flex items-center justify-between mb-3">
               <label className="block mb-3">
-                <span className="font-bold text-gray-900 block mb-1">Default Rest Duration</span>
-                <span className="text-sm text-gray-600">Time in seconds (30-300)</span>
+                <span className="font-bold text-gray-900 dark:text-gray-100 block mb-1">Default Rest Duration</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Time in seconds (30-300)</span>
               </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -503,9 +531,9 @@ export function SettingsView() {
                         handleRestTimerDuration(val);
                       }
                     }}
-                    className="w-20 px-3 py-2 border-2 border-gray-200 rounded-lg font-bold text-gray-900 text-center"
+                    className="w-20 px-3 py-2 border-2 border-gray-200 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-100 rounded-lg font-bold text-gray-900 text-center"
                   />
-                  <span className="text-sm text-gray-600 font-medium">sec</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">sec</span>
                 </div>
                 </div>
               <div className="flex items-center gap-4 ">
@@ -516,11 +544,11 @@ export function SettingsView() {
                   step="15"
                   value={settings?.restTimerDuration ?? 90}
                   onChange={(e) => handleRestTimerDuration(parseInt(e.target.value))}
-                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
+                  className="flex-1 h-2 bg-gray-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary-600"
                 />
 
               </div>
-              <div className="flex justify-between text-xs text-gray-500 mt-2 px-1">
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2 px-1">
                 <span>30s</span>
                 <span>5 min</span>
               </div>
@@ -529,21 +557,21 @@ export function SettingsView() {
         </div>
 
         {/* Active Program */}
-        <div className="card p-6 bg-white">
-          <h2 className="font-bold text-gray-900 text-lg mb-4">Active Program</h2>
+        <div className="card p-6 bg-white dark:bg-slate-800">
+          <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-4">Active Program</h2>
           {programs.length === 0 ? (
-            <p className="text-gray-600 text-sm italic">No programs available. Create one below.</p>
+            <p className="text-gray-600 dark:text-gray-400 text-sm italic">No programs available. Create one below.</p>
           ) : (
             <div className="space-y-2">
               {programs.map((program) => (
                 <button
                   key={program.id}
                   onClick={() => handleSetActive(program.id)}
-                  className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-primary-50 rounded-xl border-2 border-gray-200 hover:border-primary-300 transition-all text-left shadow-sm hover:shadow-md"
+                  className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-900 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-xl border-2 border-gray-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600 transition-all text-left shadow-sm hover:shadow-md"
                 >
-                  <span className="font-bold text-gray-900">{program.name}</span>
+                  <span className="font-bold text-gray-900 dark:text-gray-100">{program.name}</span>
                   {settings?.activeProgramId === program.id && (
-                    <CheckCircle className="w-6 h-6 text-primary-600" />
+                    <CheckCircle className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                   )}
                 </button>
               ))}
@@ -552,18 +580,18 @@ export function SettingsView() {
         </div>
 
         {/* Programs */}
-        <div className="card p-6 bg-white">
-          <h2 className="font-bold text-gray-900 text-lg mb-4">Programs</h2>
+        <div className="card p-6 bg-white dark:bg-slate-800">
+          <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-4">Programs</h2>
 
           {programs.length === 0 ? (
-            <p className="text-gray-600 text-sm mb-4 italic">No programs yet - create one below</p>
+            <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 italic">No programs yet - create one below</p>
           ) : (
             <div className="space-y-4 mb-6">
               {programs.map((program) => {
                 const week = currentWeek(program.startDate, program.totalWeeks);
 
                 return (
-                  <div key={program.id} className="bg-white border-2 border-gray-200 rounded-xl p-5 shadow-sm">
+                  <div key={program.id} className="bg-white dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         {editingProgramId === program.id ? (
@@ -581,14 +609,14 @@ export function SettingsView() {
                             />
                             <button
                               onClick={handleSaveRename}
-                              className="text-green-600 hover:text-green-700 hover:bg-green-50 p-2 rounded-lg transition-all"
+                              className="text-green-600 dark:text-green-500 hover:text-green-700 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 p-2 rounded-lg transition-all"
                               title="Save"
                             >
                               <Check className="w-5 h-5" />
                             </button>
                             <button
                               onClick={handleCancelRename}
-                              className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 p-2 rounded-lg transition-all"
+                              className="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 p-2 rounded-lg transition-all"
                               title="Cancel"
                             >
                               <X className="w-5 h-5" />
@@ -596,25 +624,25 @@ export function SettingsView() {
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">
-                            <h3 className="font-bold text-gray-900 text-lg">{program.name}</h3>
+                            <h3 className="font-bold text-gray-900 dark:text-gray-100 text-lg">{program.name}</h3>
                             <button
                               onClick={() => handleStartRename(program.id, program.name)}
-                              className="text-gray-500 hover:text-primary-600 hover:bg-primary-50 p-1.5 rounded-lg transition-all"
+                              className="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 p-1.5 rounded-lg transition-all"
                               title="Rename program"
                             >
                               <Pencil className="w-4 h-4" />
                             </button>
                           </div>
                         )}
-                        <p className="text-sm text-gray-700 font-medium mt-1">
-                          Week <span className="text-primary-600">{week}</span> of <span className="text-primary-600">{program.totalWeeks}</span>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 font-medium mt-1">
+                          Week <span className="text-primary-600 dark:text-primary-400">{week}</span> of <span className="text-primary-600 dark:text-primary-400">{program.totalWeeks}</span>
                         </p>
                       </div>
                     </div>
 
                     <div className="space-y-3">
                       <div>
-                        <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider block mb-2">Start Date</label>
+                        <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider block mb-2">Start Date</label>
                         <input
                           type="date"
                           value={
@@ -630,7 +658,7 @@ export function SettingsView() {
                       </div>
 
                       <div>
-                        <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider block mb-2">Total Weeks</label>
+                        <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider block mb-2">Total Weeks</label>
                         <input
                           type="number"
                           min="1"
@@ -643,10 +671,10 @@ export function SettingsView() {
                         />
                       </div>
 
-                      <div className="bg-white/60 rounded-xl p-3">
-                        <div className="h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+                      <div className="bg-white/60 dark:bg-slate-800/60 rounded-xl p-3">
+                        <div className="h-3 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden shadow-inner">
                           <div
-                            className="h-full bg-primary-600 transition-all duration-500 shadow-glow"
+                            className="h-full bg-primary-600 dark:bg-primary-500 transition-all duration-500 shadow-glow"
                             style={{
                               width: `${(week / Math.max(program.totalWeeks, 1)) * 100}%`,
                             }}
@@ -657,7 +685,7 @@ export function SettingsView() {
                       <div className="flex gap-2 ml-2 justify-between ">
                         <button
                           onClick={() => handleViewProgram(program.id)}
-                          className="text-primary-600 cursor-pointer hover:text-primary-700 hover:bg-primary-50 p-2 rounded-lg transition-all"
+                          className="text-primary-600 dark:text-primary-400 cursor-pointer hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 p-2 rounded-lg transition-all"
                           title="View program details"
                         >
                           <Eye className="w-5 h-5" />
@@ -665,14 +693,14 @@ export function SettingsView() {
                         <button
                           onClick={() => handleExportProgram(program.id, program.name)}
                           disabled={exportingProgramId === program.id}
-                          className="text-primary-600 cursor-pointer hover:text-primary-700 hover:bg-primary-50 p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="text-primary-600 dark:text-primary-400 cursor-pointer hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Export program as CSV"
                         >
                           <Download className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => handleDeleteProgram(program.id)}
-                          className="text-red-600 cursor-pointer hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all"
+                          className="text-red-600 dark:text-red-500 cursor-pointer hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 p-2 rounded-lg transition-all"
                           title="Delete program"
                         >
                           <Trash2 className="w-5 h-5" />
@@ -687,15 +715,15 @@ export function SettingsView() {
 
           {/* Create New Programs */}
           <div className="space-y-3">
-            <p className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-3">Create New Program</p>
+            <p className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3">Create New Program</p>
 
             {/* Import status message */}
             {importMessage && (
               <div
                 className={`p-4 rounded-xl font-bold text-sm ${
                   importMessage.type === 'success'
-                    ? 'bg-green-50 text-green-700 border-2 border-green-200'
-                    : 'bg-red-50 text-red-700 border-2 border-red-200'
+                    ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-2 border-green-200 dark:border-green-800'
+                    : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-2 border-red-200 dark:border-red-800'
                 }`}
               >
                 {importMessage.text}
@@ -713,17 +741,17 @@ export function SettingsView() {
             <button
               onClick={handleImportClick}
               disabled={isImporting}
-              className="w-full flex items-center gap-3 px-5 py-3 bg-green-50 hover:bg-green-100 text-green-700 rounded-xl transition-all font-bold shadow-sm hover:shadow-md transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-2 border-green-200"
+              className="w-full flex items-center gap-3 px-5 py-3 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-2 border-green-200 dark:border-green-800"
             >
               <Upload className="w-5 h-5" />
               <span>{isImporting ? 'Importing...' : 'Import from CSV'}</span>
             </button>
 
-            <div className="border-t-2 border-gray-200 my-4"></div>
+            <div className="border-t-2 border-gray-200 dark:border-slate-700 my-4"></div>
 
             <button
               onClick={() => handleCreateProgram('5day')}
-              className="w-full flex items-center gap-3 px-5 py-3 bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-xl transition-all font-bold shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+              className="w-full flex items-center gap-3 px-5 py-3 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/50 text-primary-700 dark:text-primary-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
             >
               <Plus className="w-5 h-5" />
               <span>5-Day Split</span>
@@ -731,7 +759,7 @@ export function SettingsView() {
 
             <button
               onClick={() => handleCreateProgram('3day')}
-              className="w-full flex items-center gap-3 px-5 py-3 bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-xl transition-all font-bold shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+              className="w-full flex items-center gap-3 px-5 py-3 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/50 text-primary-700 dark:text-primary-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
             >
               <Plus className="w-5 h-5" />
               <span>3-Day Split</span>
@@ -739,7 +767,7 @@ export function SettingsView() {
 
             <button
               onClick={() => handleCreateProgram('minimal')}
-              className="w-full flex items-center gap-3 px-5 py-3 bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-xl transition-all font-bold shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+              className="w-full flex items-center gap-3 px-5 py-3 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/50 text-primary-700 dark:text-primary-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
             >
               <Plus className="w-5 h-5" />
               <span>Minimal Effort (4-Day)</span>
@@ -747,17 +775,17 @@ export function SettingsView() {
 
             <button
               onClick={() => handleCreateProgram('upperlower')}
-              className="w-full flex items-center gap-3 px-5 py-3 bg-primary-50 hover:bg-primary-100 text-primary-700 rounded-xl transition-all font-bold shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+              className="w-full flex items-center gap-3 px-5 py-3 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/50 text-primary-700 dark:text-primary-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
             >
               <Plus className="w-5 h-5" />
               <span>Upper/Lower (4-Day)</span>
             </button>
 
-            <div className="border-t-2 border-gray-200 my-4"></div>
+            <div className="border-t-2 border-gray-200 dark:border-slate-700 my-4"></div>
 
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-red-200 hover:border-red-300"
+              className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-700"
             >
               <Trash2 className="w-5 h-5" />
               <span>Delete All Programs</span>
@@ -768,11 +796,11 @@ export function SettingsView() {
         {/* Delete Single Program Confirmation Modal */}
         {deletingProgramId && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-            <div className="card p-6 max-w-sm w-full bg-white animate-slideUp">
-              <h3 className="text-xl font-bold text-red-700 mb-3">
+            <div className="card p-6 max-w-sm w-full bg-white dark:bg-slate-800 animate-slideUp">
+              <h3 className="text-xl font-bold text-red-700 dark:text-red-400 mb-3">
                 Delete Program?
               </h3>
-              <p className="text-gray-700 mb-6 font-medium">
+              <p className="text-gray-700 dark:text-gray-300 mb-6 font-medium">
                 This will delete "{programs.find(p => p.id === deletingProgramId)?.name}" and all its templates. Your workout history will be preserved.
               </p>
               <div className="flex gap-3">
@@ -796,11 +824,11 @@ export function SettingsView() {
         {/* Delete All Programs Confirmation Modal */}
         {showDeleteConfirm && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-            <div className="card p-6 max-w-sm w-full bg-white animate-slideUp">
-              <h3 className="text-xl font-bold text-red-700 mb-3">
+            <div className="card p-6 max-w-sm w-full bg-white dark:bg-slate-800 animate-slideUp">
+              <h3 className="text-xl font-bold text-red-700 dark:text-red-400 mb-3">
                 Delete All Programs?
               </h3>
-              <p className="text-gray-700 mb-6 font-medium">
+              <p className="text-gray-700 dark:text-gray-300 mb-6 font-medium">
                 This will delete all programs and their templates. Your workout history will be
                 preserved.
               </p>

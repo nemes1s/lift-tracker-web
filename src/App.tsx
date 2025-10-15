@@ -18,7 +18,17 @@ import { initAudioContext } from './utils/audio';
 
 function App() {
   const showSplash = useAppStore((state) => state.showSplash);
+  const darkMode = useAppStore((state) => state.darkMode);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+
+  useEffect(() => {
+    // Apply dark mode class to document
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
 
   useEffect(() => {
     // Initialize audio context and set up unlock listeners for iOS

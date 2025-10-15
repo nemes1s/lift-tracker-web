@@ -24,6 +24,8 @@
   --color-accent-900: #701a75;
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 * {
   box-sizing: border-box;
 }
@@ -39,6 +41,11 @@ body {
   background-attachment: fixed;
 }
 
+.dark body {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  background-attachment: fixed;
+}
+
 .card {
   background-color: white;
   border-radius: 1rem;
@@ -46,8 +53,17 @@ body {
   transition: all 0.3s ease;
 }
 
+.dark .card {
+  background-color: #1e293b;
+  box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.3), 0 10px 20px -2px rgba(0, 0, 0, 0.2);
+}
+
 .card:hover {
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dark .card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
 }
 
 .btn-primary {
@@ -79,10 +95,21 @@ body {
   transform: translateY(0);
 }
 
+.dark .btn-secondary {
+  background-color: #334155;
+  color: #93c5fd;
+  border-color: #475569;
+}
+
 .btn-secondary:hover {
   border-color: #93c5fd;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   transform: translateY(-2px);
+}
+
+.dark .btn-secondary:hover {
+  border-color: #60a5fa;
+  background-color: #3b4d64;
 }
 
 .input-field {
@@ -91,12 +118,24 @@ body {
   border: 2px solid #e5e7eb;
   border-radius: 0.75rem;
   transition: all 0.2s ease;
+  background-color: white;
+  color: #111827;
+}
+
+.dark .input-field {
+  background-color: #1e293b;
+  border-color: #475569;
+  color: #f1f5f9;
 }
 
 .input-field:focus {
   outline: none;
   border-color: transparent;
   box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.dark .input-field:focus {
+  box-shadow: 0 0 0 2px #60a5fa;
 }
 
 @keyframes fadeIn {
