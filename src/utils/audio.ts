@@ -47,9 +47,16 @@ export function initAudioContext() {
 
   // Resume context if suspended (required for iOS)
   if (audioContext && audioContext.state === 'suspended') {
-    audioContext.resume().catch(err => {
+    audioContext.resume()
+    .then(() => {
+      console.info('AudioContext resumed successfully');
+      playCountdownBeep(); // Test sound
+    })
+    .catch(err => {
       console.warn('Failed to resume AudioContext:', err);
     });
+
+    console.info('AudioContext state after resume attempt:', audioContext.state);
   }
 }
 
