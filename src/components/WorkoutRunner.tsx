@@ -7,7 +7,7 @@ import type { Workout, ExerciseInstance, SetRecord, SettingsModel } from '../typ
 import { v4 as uuidv4 } from 'uuid';
 import { calculateWorkoutStats, formatVolume, formatRPE, formatDuration } from '../utils/workoutStats';
 import { getExerciseSubstitutions, hasSubstitutions, getExerciseNotes } from '../data/exerciseSubstitutions';
-import { playTimerNotification } from '../utils/audio';
+import { playTimerNotification, initAudioContext, playCountdownBeep } from '../utils/audio';
 
 interface WorkoutRunnerProps {
   workout: Workout;
@@ -158,6 +158,12 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
           return 0;
         }
+
+        // Play countdown beeps at 2 and 1 seconds remaining
+        if ((prev === 2 || prev === 3) && settings?.restTimerSound !== false) {
+          playCountdownBeep();
+        }
+
         return prev - 1;
       });
     }, 1000);
@@ -247,6 +253,9 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
     if (isNaN(weight) || isNaN(reps)) return;
 
+    // Initialize audio context on user interaction (required for iOS)
+    initAudioContext();
+
     const set: SetRecord = {
       id: uuidv4(),
       exerciseId: currentExercise.id,
@@ -293,6 +302,9 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
   // Rest timer functions
   const startRestTimer = (duration: number = restTimerDuration) => {
+    // Initialize audio context on user interaction (required for iOS)
+    initAudioContext();
+
     setRestTimerDuration(duration);
     setRestTimerSecondsLeft(duration);
     setRestTimerActive(true);

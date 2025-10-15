@@ -18,6 +18,7 @@ import type { Program, SettingsModel } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
 import { InstallButton } from '../components/InstallPrompt';
 import { isPersisted, getStorageEstimate } from '../utils/persistence';
+import { playTimerNotification, initAudioContext } from '../utils/audio';
 
 export function SettingsView() {
   const navigate = useNavigate();
@@ -464,6 +465,18 @@ export function SettingsView() {
                 <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
               </div>
             </label>
+
+            {/* Test Sound Button */}
+            <button
+              onClick={() => {
+                initAudioContext();
+                playTimerNotification(true);
+              }}
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-blue-200"
+            >
+              <Timer className="w-5 h-5" />
+              <span>Test Sound</span>
+            </button>
 
             {/* Default Rest Duration */}
             <div className="p-4 bg-white rounded-xl border-2 border-gray-200">
