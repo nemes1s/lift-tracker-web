@@ -2,6 +2,7 @@
 
 // Global AudioContext instance - reuse to avoid iOS issues
 let audioContext: AudioContext | null = null;
+let isAudioUnlocked = false;
 
 /**
  * Initialize and unlock audio context for iOS
@@ -11,6 +12,30 @@ export function initAudioContext() {
   if (!audioContext) {
     try {
       audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+      // Set up aggressive unlock listeners for iOS
+      if (!isAudioUnlocked) {
+        const unlock = () => {
+          if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume().then(() => {
+              console.log('Audio context unlocked via user interaction');
+              isAudioUnlocked = true;
+
+              // Remove listeners after successful unlock
+              document.removeEventListener('touchstart', unlock);
+              document.removeEventListener('touchend', unlock);
+              document.removeEventListener('click', unlock);
+            }).catch(err => {
+              console.warn('Failed to unlock AudioContext:', err);
+            });
+          }
+        };
+
+        // Listen to any touch or click on the document
+        document.addEventListener('touchstart', unlock, { passive: true });
+        document.addEventListener('touchend', unlock, { passive: true });
+        document.addEventListener('click', unlock);
+      }
     } catch (error) {
       console.warn('Failed to create AudioContext:', error);
       return;
@@ -18,7 +43,7 @@ export function initAudioContext() {
   }
 
   // Resume context if suspended (required for iOS)
-  if (audioContext.state === 'suspended') {
+  if (audioContext && audioContext.state === 'suspended') {
     audioContext.resume().catch(err => {
       console.warn('Failed to resume AudioContext:', err);
     });

@@ -14,12 +14,16 @@ import { useAppStore } from './store/appStore';
 import { initializePersistence } from './utils/persistence';
 import { db } from './db/database';
 import { v4 as uuidv4 } from 'uuid';
+import { initAudioContext } from './utils/audio';
 
 function App() {
   const showSplash = useAppStore((state) => state.showSplash);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   useEffect(() => {
+    // Initialize audio context and set up unlock listeners for iOS
+    initAudioContext();
+
     // Request persistent storage on app load
     const initPersistence = async () => {
       const result = await initializePersistence();
