@@ -62,8 +62,13 @@ export function ProgramPreviewView() {
           workouts.push({ template, exercises });
         }
 
-        // Sort workouts by dayIndex
-        workouts.sort((a, b) => a.template.dayIndex - b.template.dayIndex);
+        // Sort workouts by week first, then by day index
+        workouts.sort((a, b) => {
+          if (a.template.weekNumber !== b.template.weekNumber) {
+            return a.template.weekNumber - b.template.weekNumber;
+          }
+          return a.template.dayIndex - b.template.dayIndex;
+        });
 
         setProgramData({ program, workouts });
         setIsLoading(false);
@@ -178,7 +183,7 @@ export function ProgramPreviewView() {
                 <div>
                   <h4 className="text-lg font-bold text-gray-900">{workout.template.name}</h4>
                   <p className="text-sm text-gray-600 mt-1">
-                    Day {workout.template.dayIndex + 1} • {workout.exercises.length} exercise{workout.exercises.length !== 1 ? 's' : ''}
+                    Week {workout.template.weekNumber} • Day {workout.template.dayIndex + 1} • {workout.exercises.length} exercise{workout.exercises.length !== 1 ? 's' : ''}
                   </p>
                 </div>
               </div>
