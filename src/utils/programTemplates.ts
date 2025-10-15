@@ -30,11 +30,14 @@ export async function create5DaySplit(): Promise<Program> {
   const days: Array<{
     name: string;
     idx: number;
+    weekNumber: number;
     exercises: Array<Pick<ExerciseTemplate, 'name' | 'targetSets' | 'targetReps' | 'orderIndex'> & { notes?: string }>;
   }> = [
+    // Weeks 1-4: Base Phase
     {
       name: 'Day 1 – Upper',
       idx: 0,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Bench Press',     targetSets: 4, targetReps: '5-8',   orderIndex: 0, notes: 'Primary horizontal press' },
         { name: 'Barbell Row',             targetSets: 4, targetReps: '6-8',   orderIndex: 1, notes: 'Primary horizontal pull' },
@@ -48,6 +51,7 @@ export async function create5DaySplit(): Promise<Program> {
     {
       name: 'Day 2 – Lower',
       idx: 1,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Squat',           targetSets: 4, targetReps: '5-8',   orderIndex: 0, notes: 'Primary squat pattern' },
         { name: 'Romanian Deadlift',       targetSets: 3, targetReps: '6-10',  orderIndex: 1 },
@@ -60,9 +64,10 @@ export async function create5DaySplit(): Promise<Program> {
     {
       name: 'Day 3 – Pull',
       idx: 2,
+      weekNumber: 1,
       exercises: [
         { name: 'Deadlift',                 targetSets: 3, targetReps: '3-5',   orderIndex: 0, notes: 'Keep 1–2 reps in reserve' },
-        { name: 'Weighted Pull-Ups',        targetSets: 4, targetReps: '5-8',   orderIndex: 1 }, // Bodyweight if needed
+        { name: 'Weighted Pull-Ups',        targetSets: 4, targetReps: '5-8',   orderIndex: 1 },
         { name: 'Chest-Supported Row',      targetSets: 3, targetReps: '8-10',  orderIndex: 2 },
         { name: 'Face Pulls',               targetSets: 3, targetReps: '12-15', orderIndex: 3 },
         { name: 'Incline Dumbbell Curl',    targetSets: 3, targetReps: '10-12', orderIndex: 4 },
@@ -72,6 +77,7 @@ export async function create5DaySplit(): Promise<Program> {
     {
       name: 'Day 4 – Push',
       idx: 3,
+      weekNumber: 1,
       exercises: [
         { name: 'Incline Barbell Press',    targetSets: 4, targetReps: '6-8',   orderIndex: 0 },
         { name: 'Dumbbell Bench Press',     targetSets: 3, targetReps: '8-10',  orderIndex: 1 },
@@ -85,6 +91,7 @@ export async function create5DaySplit(): Promise<Program> {
     {
       name: 'Day 5 – Legs',
       idx: 4,
+      weekNumber: 1,
       exercises: [
         { name: 'Front Squat',              targetSets: 4, targetReps: '5-8',   orderIndex: 0 },
         { name: 'Bulgarian Split Squat',    targetSets: 3, targetReps: '8-10',  orderIndex: 1 },
@@ -92,6 +99,140 @@ export async function create5DaySplit(): Promise<Program> {
         { name: 'Hip Thrust',               targetSets: 3, targetReps: '8-12',  orderIndex: 3 },
         { name: 'Seated Calf Raise',        targetSets: 4, targetReps: '15-20', orderIndex: 4 },
         { name: 'Plank',                    targetSets: 3, targetReps: '45-60s',orderIndex: 5 },
+      ],
+    },
+    // Weeks 5-8: Variation Phase
+    {
+      name: 'Day 1 – Upper',
+      idx: 0,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Dumbbell Bench Press',     targetSets: 4, targetReps: '8-10',  orderIndex: 0 },
+        { name: 'T-Bar Row',                targetSets: 4, targetReps: '8-10',  orderIndex: 1 },
+        { name: 'Arnold Press',             targetSets: 3, targetReps: '8-12',  orderIndex: 2 },
+        { name: 'Cable Row',                targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+        { name: 'Cable Lateral Raise',      targetSets: 3, targetReps: '15-20', orderIndex: 4 },
+        { name: 'EZ Bar Curl',              targetSets: 3, targetReps: '10-12', orderIndex: 5 },
+        { name: 'Rope Triceps Extension',   targetSets: 3, targetReps: '12-15', orderIndex: 6 },
+      ],
+    },
+    {
+      name: 'Day 2 – Lower',
+      idx: 1,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Goblet Squat',            targetSets: 4, targetReps: '8-12',  orderIndex: 0 },
+        { name: 'Good Morning',            targetSets: 3, targetReps: '8-10',  orderIndex: 1 },
+        { name: 'Walking Lunges',          targetSets: 3, targetReps: '10-12', orderIndex: 2 },
+        { name: 'Lying Leg Curl',          targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+        { name: 'Seated Calf Raise',       targetSets: 4, targetReps: '15-20', orderIndex: 4 },
+        { name: 'Hanging Leg Raise',       targetSets: 3, targetReps: '10-15', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Day 3 – Pull',
+      idx: 2,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Trap Bar Deadlift',        targetSets: 3, targetReps: '5-8',   orderIndex: 0 },
+        { name: 'Chin-Ups',                 targetSets: 4, targetReps: '6-10',  orderIndex: 1 },
+        { name: 'Dumbbell Row',             targetSets: 3, targetReps: '8-12',  orderIndex: 2 },
+        { name: 'Rear Delt Fly',            targetSets: 3, targetReps: '12-15', orderIndex: 3 },
+        { name: 'Cable Curl',               targetSets: 3, targetReps: '12-15', orderIndex: 4 },
+        { name: 'Reverse Curl',             targetSets: 2, targetReps: '12-15', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Day 4 – Push',
+      idx: 3,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Flat Dumbbell Press',     targetSets: 4, targetReps: '8-10',  orderIndex: 0 },
+        { name: 'Incline Dumbbell Fly',    targetSets: 3, targetReps: '10-12', orderIndex: 1 },
+        { name: 'Standing Military Press', targetSets: 3, targetReps: '8-10',  orderIndex: 2 },
+        { name: 'Pec Deck',                targetSets: 3, targetReps: '12-15', orderIndex: 3 },
+        { name: 'Upright Row',             targetSets: 3, targetReps: '10-12', orderIndex: 4 },
+        { name: 'Diamond Push-Ups',        targetSets: 3, targetReps: 'AMRAP', orderIndex: 5 },
+        { name: 'Cable Triceps Kickback',  targetSets: 3, targetReps: '12-15', orderIndex: 6 },
+      ],
+    },
+    {
+      name: 'Day 5 – Legs',
+      idx: 4,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Hack Squat',              targetSets: 4, targetReps: '8-10',  orderIndex: 0 },
+        { name: 'Single Leg Press',        targetSets: 3, targetReps: '10-12', orderIndex: 1 },
+        { name: 'Sissy Squat',             targetSets: 3, targetReps: '10-15', orderIndex: 2 },
+        { name: 'Glute Ham Raise',         targetSets: 3, targetReps: '8-10',  orderIndex: 3 },
+        { name: 'Donkey Calf Raise',       targetSets: 4, targetReps: '15-20', orderIndex: 4 },
+        { name: 'Ab Wheel Rollout',        targetSets: 3, targetReps: '8-12',  orderIndex: 5 },
+      ],
+    },
+    // Weeks 9-12: Strength Phase
+    {
+      name: 'Day 1 – Upper',
+      idx: 0,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Bench Press',     targetSets: 5, targetReps: '3-5',   orderIndex: 0, notes: 'Heavy weight, low reps' },
+        { name: 'Pendlay Row',             targetSets: 4, targetReps: '5-8',   orderIndex: 1 },
+        { name: 'Close-Grip Bench Press',  targetSets: 3, targetReps: '6-8',   orderIndex: 2 },
+        { name: 'Weighted Pull-Ups',       targetSets: 3, targetReps: '5-8',   orderIndex: 3 },
+        { name: 'Barbell Curl',            targetSets: 3, targetReps: '8-10',  orderIndex: 4 },
+        { name: 'Skull Crushers',          targetSets: 3, targetReps: '8-10',  orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Day 2 – Lower',
+      idx: 1,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Squat',           targetSets: 5, targetReps: '3-5',   orderIndex: 0, notes: 'Heavy weight, low reps' },
+        { name: 'Barbell Hip Thrust',      targetSets: 4, targetReps: '6-8',   orderIndex: 1 },
+        { name: 'Front Squat',             targetSets: 3, targetReps: '6-8',   orderIndex: 2 },
+        { name: 'Nordic Hamstring Curl',   targetSets: 3, targetReps: '5-8',   orderIndex: 3 },
+        { name: 'Standing Calf Raise',     targetSets: 5, targetReps: '8-10',  orderIndex: 4 },
+        { name: 'Weighted Plank',          targetSets: 3, targetReps: '60s',   orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Day 3 – Pull',
+      idx: 2,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Deadlift',                 targetSets: 5, targetReps: '1-3',   orderIndex: 0, notes: 'Maximum effort' },
+        { name: 'Pull-Ups',                 targetSets: 4, targetReps: '6-8',   orderIndex: 1 },
+        { name: 'Barbell Row',              targetSets: 4, targetReps: '6-8',   orderIndex: 2 },
+        { name: 'Face Pulls',               targetSets: 3, targetReps: '15-20', orderIndex: 3 },
+        { name: 'Preacher Curl',            targetSets: 3, targetReps: '8-10',  orderIndex: 4 },
+        { name: 'Concentration Curl',       targetSets: 2, targetReps: '10-12', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Day 4 – Push',
+      idx: 3,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Incline Barbell Press',    targetSets: 5, targetReps: '4-6',   orderIndex: 0 },
+        { name: 'Overhead Press',           targetSets: 4, targetReps: '5-8',   orderIndex: 1 },
+        { name: 'Dips',                     targetSets: 3, targetReps: '6-10',  orderIndex: 2 },
+        { name: 'Flat Dumbbell Press',      targetSets: 3, targetReps: '8-10',  orderIndex: 3 },
+        { name: 'Lateral Raise',            targetSets: 3, targetReps: '12-15', orderIndex: 4 },
+        { name: 'Close-Grip Bench Press',   targetSets: 3, targetReps: '6-8',   orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Day 5 – Legs',
+      idx: 4,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Front Squat',              targetSets: 5, targetReps: '4-6',   orderIndex: 0 },
+        { name: 'Romanian Deadlift',        targetSets: 4, targetReps: '6-8',   orderIndex: 1 },
+        { name: 'Leg Press',                targetSets: 3, targetReps: '8-10',  orderIndex: 2 },
+        { name: 'Seated Leg Curl',          targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+        { name: 'Calf Press on Leg Press',  targetSets: 4, targetReps: '12-15', orderIndex: 4 },
+        { name: 'Cable Crunch',             targetSets: 3, targetReps: '15-20', orderIndex: 5 },
       ],
     },
   ];
@@ -102,7 +243,7 @@ export async function create5DaySplit(): Promise<Program> {
       id: templateId,
       name: day.name,
       dayIndex: day.idx,
-      weekNumber: 1,
+      weekNumber: day.weekNumber,
       programId,
     };
 
@@ -140,9 +281,11 @@ export async function create3DaySplit(): Promise<Program> {
   await db.programs.add(program);
 
   const days = [
+    // Weeks 1-4: Base Phase
     {
       name: 'Full Body A',
       idx: 0,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Bench Press', targetSets: 3, targetReps: '6-8', orderIndex: 0 },
         { name: 'Barbell Row', targetSets: 3, targetReps: '6-8', orderIndex: 1 },
@@ -155,6 +298,7 @@ export async function create3DaySplit(): Promise<Program> {
     {
       name: 'Legs',
       idx: 1,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Squat', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
         { name: 'Romanian Deadlift', targetSets: 3, targetReps: '8-10', orderIndex: 1 },
@@ -167,6 +311,7 @@ export async function create3DaySplit(): Promise<Program> {
     {
       name: 'Full Body B',
       idx: 2,
+      weekNumber: 1,
       exercises: [
         { name: 'Incline Dumbbell Press', targetSets: 3, targetReps: '8-10', orderIndex: 0 },
         { name: 'Lat Pulldown', targetSets: 3, targetReps: '8-10', orderIndex: 1 },
@@ -174,6 +319,86 @@ export async function create3DaySplit(): Promise<Program> {
         { name: 'Cable Row', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
         { name: 'Hammer Curl', targetSets: 3, targetReps: '10-12', orderIndex: 4 },
         { name: 'Overhead Triceps Extension', targetSets: 3, targetReps: '10-12', orderIndex: 5 },
+      ],
+    },
+    // Weeks 5-8: Variation Phase (exercises changed after 4 weeks)
+    {
+      name: 'Full Body A',
+      idx: 0,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Dumbbell Bench Press', targetSets: 3, targetReps: '8-10', orderIndex: 0 },
+        { name: 'T-Bar Row', targetSets: 3, targetReps: '8-10', orderIndex: 1 },
+        { name: 'Arnold Press', targetSets: 3, targetReps: '8-12', orderIndex: 2 },
+        { name: 'Chin-Ups', targetSets: 3, targetReps: '6-10', orderIndex: 3 },
+        { name: 'EZ Bar Curl', targetSets: 3, targetReps: '10-12', orderIndex: 4 },
+        { name: 'Skull Crushers', targetSets: 3, targetReps: '10-12', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Legs',
+      idx: 1,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Front Squat', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Barbell Hip Thrust', targetSets: 3, targetReps: '8-12', orderIndex: 1 },
+        { name: 'Bulgarian Split Squat', targetSets: 3, targetReps: '8-10', orderIndex: 2 },
+        { name: 'Nordic Hamstring Curl', targetSets: 3, targetReps: '6-8', orderIndex: 3 },
+        { name: 'Seated Calf Raise', targetSets: 4, targetReps: '15-20', orderIndex: 4 },
+        { name: 'Ab Wheel Rollout', targetSets: 3, targetReps: '8-12', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Full Body B',
+      idx: 2,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Incline Barbell Press', targetSets: 3, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Chest-Supported Row', targetSets: 3, targetReps: '8-12', orderIndex: 1 },
+        { name: 'Seated Dumbbell Press', targetSets: 3, targetReps: '8-12', orderIndex: 2 },
+        { name: 'One-Arm Dumbbell Row', targetSets: 3, targetReps: '8-12', orderIndex: 3 },
+        { name: 'Cable Curl', targetSets: 3, targetReps: '12-15', orderIndex: 4 },
+        { name: 'Rope Triceps Extension', targetSets: 3, targetReps: '12-15', orderIndex: 5 },
+      ],
+    },
+    // Weeks 9-12: Strength Phase (another variation)
+    {
+      name: 'Full Body A',
+      idx: 0,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Bench Press', targetSets: 4, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Pendlay Row', targetSets: 4, targetReps: '5-8', orderIndex: 1 },
+        { name: 'Standing Military Press', targetSets: 3, targetReps: '6-8', orderIndex: 2 },
+        { name: 'Weighted Pull-Ups', targetSets: 3, targetReps: '5-8', orderIndex: 3 },
+        { name: 'Preacher Curl', targetSets: 3, targetReps: '8-10', orderIndex: 4 },
+        { name: 'Close-Grip Bench Press', targetSets: 3, targetReps: '6-8', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Legs',
+      idx: 1,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Squat', targetSets: 5, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Deadlift', targetSets: 4, targetReps: '5-8', orderIndex: 1 },
+        { name: 'Walking Lunges', targetSets: 3, targetReps: '10-12', orderIndex: 2 },
+        { name: 'Lying Leg Curl', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+        { name: 'Standing Calf Raise', targetSets: 5, targetReps: '10-12', orderIndex: 4 },
+        { name: 'Hanging Leg Raise', targetSets: 3, targetReps: '10-15', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Full Body B',
+      idx: 2,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Flat Dumbbell Press', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Pull-Ups', targetSets: 4, targetReps: '6-10', orderIndex: 1 },
+        { name: 'Push Press', targetSets: 3, targetReps: '6-8', orderIndex: 2 },
+        { name: 'Barbell Row', targetSets: 3, targetReps: '8-10', orderIndex: 3 },
+        { name: 'Incline Dumbbell Curl', targetSets: 3, targetReps: '10-12', orderIndex: 4 },
+        { name: 'Dips', targetSets: 3, targetReps: '8-12', orderIndex: 5 },
       ],
     },
   ];
@@ -184,7 +409,7 @@ export async function create3DaySplit(): Promise<Program> {
       id: templateId,
       name: day.name,
       dayIndex: day.idx,
-      weekNumber: 1,
+      weekNumber: day.weekNumber,
       programId,
     };
 
@@ -217,9 +442,11 @@ export async function createMinimalEffort4Day(): Promise<Program> {
   await db.programs.add(program);
 
   const days = [
+    // Weeks 1-4: Base Phase
     {
       name: 'Upper A',
       idx: 0,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Bench Press', targetSets: 2, targetReps: '5-8', orderIndex: 0 },
         { name: 'Barbell Row', targetSets: 2, targetReps: '5-8', orderIndex: 1 },
@@ -230,6 +457,7 @@ export async function createMinimalEffort4Day(): Promise<Program> {
     {
       name: 'Lower A',
       idx: 1,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Squat', targetSets: 2, targetReps: '5-8', orderIndex: 0 },
         { name: 'Romanian Deadlift', targetSets: 2, targetReps: '6-10', orderIndex: 1 },
@@ -240,6 +468,7 @@ export async function createMinimalEffort4Day(): Promise<Program> {
     {
       name: 'Upper B',
       idx: 2,
+      weekNumber: 1,
       exercises: [
         { name: 'Incline Dumbbell Press', targetSets: 2, targetReps: '6-10', orderIndex: 0 },
         { name: 'Pull-Ups', targetSets: 2, targetReps: '5-10', orderIndex: 1 },
@@ -250,11 +479,102 @@ export async function createMinimalEffort4Day(): Promise<Program> {
     {
       name: 'Lower B',
       idx: 3,
+      weekNumber: 1,
       exercises: [
         { name: 'Deadlift', targetSets: 2, targetReps: '5-8', orderIndex: 0 },
         { name: 'Bulgarian Split Squat', targetSets: 2, targetReps: '8-10', orderIndex: 1 },
         { name: 'Leg Extension', targetSets: 2, targetReps: '10-12', orderIndex: 2 },
         { name: 'Ab Wheel Rollout', targetSets: 2, targetReps: '8-12', orderIndex: 3 },
+      ],
+    },
+    // Weeks 5-8: Variation Phase
+    {
+      name: 'Upper A',
+      idx: 0,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Dumbbell Bench Press', targetSets: 2, targetReps: '8-10', orderIndex: 0 },
+        { name: 'T-Bar Row', targetSets: 2, targetReps: '8-10', orderIndex: 1 },
+        { name: 'Dumbbell Shoulder Press', targetSets: 2, targetReps: '8-12', orderIndex: 2 },
+        { name: 'Rear Delt Fly', targetSets: 2, targetReps: '12-15', orderIndex: 3 },
+      ],
+    },
+    {
+      name: 'Lower A',
+      idx: 1,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Goblet Squat', targetSets: 2, targetReps: '8-12', orderIndex: 0 },
+        { name: 'Good Morning', targetSets: 2, targetReps: '8-10', orderIndex: 1 },
+        { name: 'Nordic Hamstring Curl', targetSets: 2, targetReps: '6-8', orderIndex: 2 },
+        { name: 'Seated Calf Raise', targetSets: 2, targetReps: '15-20', orderIndex: 3 },
+      ],
+    },
+    {
+      name: 'Upper B',
+      idx: 2,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Incline Barbell Press', targetSets: 2, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Chin-Ups', targetSets: 2, targetReps: '6-10', orderIndex: 1 },
+        { name: 'Cable Curl', targetSets: 2, targetReps: '10-12', orderIndex: 2 },
+        { name: 'Rope Triceps Extension', targetSets: 2, targetReps: '12-15', orderIndex: 3 },
+      ],
+    },
+    {
+      name: 'Lower B',
+      idx: 3,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Trap Bar Deadlift', targetSets: 2, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Walking Lunges', targetSets: 2, targetReps: '10-12', orderIndex: 1 },
+        { name: 'Leg Press', targetSets: 2, targetReps: '12-15', orderIndex: 2 },
+        { name: 'Plank', targetSets: 2, targetReps: '45-60s', orderIndex: 3 },
+      ],
+    },
+    // Weeks 9-12: Strength Phase
+    {
+      name: 'Upper A',
+      idx: 0,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Bench Press', targetSets: 3, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Pendlay Row', targetSets: 3, targetReps: '5-8', orderIndex: 1 },
+        { name: 'Overhead Press', targetSets: 2, targetReps: '5-8', orderIndex: 2 },
+        { name: 'Face Pulls', targetSets: 2, targetReps: '15-20', orderIndex: 3 },
+      ],
+    },
+    {
+      name: 'Lower A',
+      idx: 1,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Squat', targetSets: 3, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Romanian Deadlift', targetSets: 3, targetReps: '6-8', orderIndex: 1 },
+        { name: 'Seated Leg Curl', targetSets: 2, targetReps: '10-12', orderIndex: 2 },
+        { name: 'Standing Calf Raise', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+      ],
+    },
+    {
+      name: 'Upper B',
+      idx: 2,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Incline Barbell Press', targetSets: 3, targetReps: '5-8', orderIndex: 0 },
+        { name: 'Pull-Ups', targetSets: 3, targetReps: '6-10', orderIndex: 1 },
+        { name: 'Preacher Curl', targetSets: 2, targetReps: '8-10', orderIndex: 2 },
+        { name: 'Close-Grip Bench Press', targetSets: 2, targetReps: '6-8', orderIndex: 3 },
+      ],
+    },
+    {
+      name: 'Lower B',
+      idx: 3,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Deadlift', targetSets: 3, targetReps: '3-5', orderIndex: 0 },
+        { name: 'Front Squat', targetSets: 2, targetReps: '6-8', orderIndex: 1 },
+        { name: 'Leg Extension', targetSets: 2, targetReps: '10-12', orderIndex: 2 },
+        { name: 'Hanging Leg Raise', targetSets: 2, targetReps: '10-15', orderIndex: 3 },
       ],
     },
   ];
@@ -265,7 +585,7 @@ export async function createMinimalEffort4Day(): Promise<Program> {
       id: templateId,
       name: day.name,
       dayIndex: day.idx,
-      weekNumber: 1,
+      weekNumber: day.weekNumber,
       programId,
     };
 
@@ -298,9 +618,11 @@ export async function createUpperLower4Day(): Promise<Program> {
   await db.programs.add(program);
 
   const days = [
+    // Weeks 1-4: Base Phase
     {
       name: 'Upper A',
       idx: 0,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Bench Press', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
         { name: 'Barbell Row', targetSets: 4, targetReps: '6-8', orderIndex: 1 },
@@ -313,6 +635,7 @@ export async function createUpperLower4Day(): Promise<Program> {
     {
       name: 'Lower A',
       idx: 1,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Squat', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
         { name: 'Romanian Deadlift', targetSets: 3, targetReps: '8-10', orderIndex: 1 },
@@ -325,6 +648,7 @@ export async function createUpperLower4Day(): Promise<Program> {
     {
       name: 'Upper B',
       idx: 2,
+      weekNumber: 1,
       exercises: [
         { name: 'Incline Dumbbell Press', targetSets: 4, targetReps: '8-10', orderIndex: 0 },
         { name: 'Pull-Ups', targetSets: 4, targetReps: '6-10', orderIndex: 1 },
@@ -337,6 +661,7 @@ export async function createUpperLower4Day(): Promise<Program> {
     {
       name: 'Lower B',
       idx: 3,
+      weekNumber: 1,
       exercises: [
         { name: 'Deadlift', targetSets: 4, targetReps: '5-8', orderIndex: 0 },
         { name: 'Bulgarian Split Squat', targetSets: 3, targetReps: '8-10', orderIndex: 1 },
@@ -344,6 +669,112 @@ export async function createUpperLower4Day(): Promise<Program> {
         { name: 'Seated Leg Curl', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
         { name: 'Seated Calf Raise', targetSets: 4, targetReps: '15-20', orderIndex: 4 },
         { name: 'Plank', targetSets: 3, targetReps: '45-60s', orderIndex: 5 },
+      ],
+    },
+    // Weeks 5-8: Variation Phase
+    {
+      name: 'Upper A',
+      idx: 0,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Dumbbell Bench Press', targetSets: 4, targetReps: '8-10', orderIndex: 0 },
+        { name: 'T-Bar Row', targetSets: 4, targetReps: '8-10', orderIndex: 1 },
+        { name: 'Arnold Press', targetSets: 3, targetReps: '8-12', orderIndex: 2 },
+        { name: 'Chest-Supported Row', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+        { name: 'Cable Lateral Raise', targetSets: 3, targetReps: '15-20', orderIndex: 4 },
+        { name: 'EZ Bar Curl', targetSets: 3, targetReps: '10-12', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Lower A',
+      idx: 1,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Front Squat', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Good Morning', targetSets: 3, targetReps: '8-10', orderIndex: 1 },
+        { name: 'Hack Squat', targetSets: 3, targetReps: '10-12', orderIndex: 2 },
+        { name: 'Nordic Hamstring Curl', targetSets: 3, targetReps: '6-8', orderIndex: 3 },
+        { name: 'Seated Calf Raise', targetSets: 4, targetReps: '15-20', orderIndex: 4 },
+        { name: 'Hanging Leg Raise', targetSets: 3, targetReps: '10-15', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Upper B',
+      idx: 2,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Incline Barbell Press', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Chin-Ups', targetSets: 4, targetReps: '6-10', orderIndex: 1 },
+        { name: 'Seated Dumbbell Press', targetSets: 3, targetReps: '8-12', orderIndex: 2 },
+        { name: 'One-Arm Dumbbell Row', targetSets: 3, targetReps: '8-12', orderIndex: 3 },
+        { name: 'Rear Delt Fly', targetSets: 3, targetReps: '12-15', orderIndex: 4 },
+        { name: 'Rope Triceps Extension', targetSets: 3, targetReps: '12-15', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Lower B',
+      idx: 3,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Trap Bar Deadlift', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Walking Lunges', targetSets: 3, targetReps: '10-12', orderIndex: 1 },
+        { name: 'Sissy Squat', targetSets: 3, targetReps: '10-15', orderIndex: 2 },
+        { name: 'Lying Leg Curl', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+        { name: 'Donkey Calf Raise', targetSets: 4, targetReps: '15-20', orderIndex: 4 },
+        { name: 'Ab Wheel Rollout', targetSets: 3, targetReps: '8-12', orderIndex: 5 },
+      ],
+    },
+    // Weeks 9-12: Strength Phase
+    {
+      name: 'Upper A',
+      idx: 0,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Bench Press', targetSets: 5, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Pendlay Row', targetSets: 4, targetReps: '5-8', orderIndex: 1 },
+        { name: 'Overhead Press', targetSets: 4, targetReps: '5-8', orderIndex: 2 },
+        { name: 'Weighted Pull-Ups', targetSets: 3, targetReps: '5-8', orderIndex: 3 },
+        { name: 'Barbell Curl', targetSets: 3, targetReps: '8-10', orderIndex: 4 },
+        { name: 'Close-Grip Bench Press', targetSets: 3, targetReps: '6-8', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Lower A',
+      idx: 1,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Squat', targetSets: 5, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Romanian Deadlift', targetSets: 4, targetReps: '6-8', orderIndex: 1 },
+        { name: 'Front Squat', targetSets: 3, targetReps: '6-8', orderIndex: 2 },
+        { name: 'Seated Leg Curl', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+        { name: 'Standing Calf Raise', targetSets: 5, targetReps: '10-12', orderIndex: 4 },
+        { name: 'Weighted Plank', targetSets: 3, targetReps: '60s', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Upper B',
+      idx: 2,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Incline Barbell Press', targetSets: 5, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Pull-Ups', targetSets: 4, targetReps: '6-8', orderIndex: 1 },
+        { name: 'Standing Military Press', targetSets: 4, targetReps: '5-8', orderIndex: 2 },
+        { name: 'Barbell Row', targetSets: 3, targetReps: '8-10', orderIndex: 3 },
+        { name: 'Preacher Curl', targetSets: 3, targetReps: '8-10', orderIndex: 4 },
+        { name: 'Skull Crushers', targetSets: 3, targetReps: '8-10', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Lower B',
+      idx: 3,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Deadlift', targetSets: 5, targetReps: '3-5', orderIndex: 0 },
+        { name: 'Barbell Hip Thrust', targetSets: 4, targetReps: '6-8', orderIndex: 1 },
+        { name: 'Leg Press', targetSets: 3, targetReps: '8-10', orderIndex: 2 },
+        { name: 'Nordic Hamstring Curl', targetSets: 3, targetReps: '5-8', orderIndex: 3 },
+        { name: 'Calf Press on Leg Press', targetSets: 5, targetReps: '12-15', orderIndex: 4 },
+        { name: 'Cable Crunch', targetSets: 3, targetReps: '15-20', orderIndex: 5 },
       ],
     },
   ];
@@ -354,7 +785,7 @@ export async function createUpperLower4Day(): Promise<Program> {
       id: templateId,
       name: day.name,
       dayIndex: day.idx,
-      weekNumber: 1,
+      weekNumber: day.weekNumber,
       programId,
     };
 
@@ -432,70 +863,193 @@ export function generate5DaySplitData(): ProgramPreviewData {
   const days: Array<{
     name: string;
     idx: number;
+    weekNumber: number;
     exercises: Array<Pick<ExerciseTemplate, 'name' | 'targetSets' | 'targetReps' | 'orderIndex'> & { notes?: string }>;
   }> = [
-    {
-      name: 'Day 1 – Upper',
-      idx: 0,
-      exercises: [
-        { name: 'Barbell Bench Press',     targetSets: 4, targetReps: '5-8',   orderIndex: 0, notes: 'Primary horizontal press' },
-        { name: 'Barbell Row',             targetSets: 4, targetReps: '6-8',   orderIndex: 1, notes: 'Primary horizontal pull' },
-        { name: 'Overhead Press',          targetSets: 3, targetReps: '6-10',  orderIndex: 2 },
-        { name: 'Lat Pulldown',            targetSets: 3, targetReps: '8-12',  orderIndex: 3 },
-        { name: 'Lateral Raise',           targetSets: 3, targetReps: '12-15', orderIndex: 4 },
-        { name: 'Dumbbell Curl',           targetSets: 3, targetReps: '10-12', orderIndex: 5 },
-        { name: 'Triceps Pushdown',        targetSets: 3, targetReps: '10-12', orderIndex: 6 },
-      ],
-    },
-    {
-      name: 'Day 2 – Lower',
-      idx: 1,
-      exercises: [
-        { name: 'Barbell Squat',           targetSets: 4, targetReps: '5-8',   orderIndex: 0, notes: 'Primary squat pattern' },
-        { name: 'Romanian Deadlift',       targetSets: 3, targetReps: '6-10',  orderIndex: 1 },
-        { name: 'Leg Press',               targetSets: 3, targetReps: '10-12', orderIndex: 2 },
-        { name: 'Seated Leg Curl',         targetSets: 3, targetReps: '10-12', orderIndex: 3 },
-        { name: 'Standing Calf Raise',     targetSets: 4, targetReps: '12-15', orderIndex: 4 },
-        { name: 'Cable Crunch',            targetSets: 3, targetReps: '12-15', orderIndex: 5 },
-      ],
-    },
-    {
-      name: 'Day 3 – Pull',
-      idx: 2,
-      exercises: [
-        { name: 'Deadlift',                 targetSets: 3, targetReps: '3-5',   orderIndex: 0, notes: 'Keep 1–2 reps in reserve' },
-        { name: 'Weighted Pull-Ups',        targetSets: 4, targetReps: '5-8',   orderIndex: 1 },
-        { name: 'Chest-Supported Row',      targetSets: 3, targetReps: '8-10',  orderIndex: 2 },
-        { name: 'Face Pulls',               targetSets: 3, targetReps: '12-15', orderIndex: 3 },
-        { name: 'Incline Dumbbell Curl',    targetSets: 3, targetReps: '10-12', orderIndex: 4 },
-        { name: 'Hammer Curl',              targetSets: 2, targetReps: '10-12', orderIndex: 5 },
-      ],
-    },
-    {
-      name: 'Day 4 – Push',
-      idx: 3,
-      exercises: [
-        { name: 'Incline Barbell Press',    targetSets: 4, targetReps: '6-8',   orderIndex: 0 },
-        { name: 'Dumbbell Bench Press',     targetSets: 3, targetReps: '8-10',  orderIndex: 1 },
-        { name: 'Seated Dumbbell Press',    targetSets: 3, targetReps: '8-10',  orderIndex: 2 },
-        { name: 'Cable Fly',                targetSets: 3, targetReps: '12-15', orderIndex: 3 },
-        { name: 'Lateral Raise (Cable)',    targetSets: 3, targetReps: '12-15', orderIndex: 4 },
-        { name: 'Dip (Assisted if needed)', targetSets: 3, targetReps: '6-10',  orderIndex: 5 },
-        { name: 'Overhead Triceps Ext.',    targetSets: 3, targetReps: '10-12', orderIndex: 6 },
-      ],
-    },
-    {
-      name: 'Day 5 – Legs',
-      idx: 4,
-      exercises: [
-        { name: 'Front Squat',              targetSets: 4, targetReps: '5-8',   orderIndex: 0 },
-        { name: 'Bulgarian Split Squat',    targetSets: 3, targetReps: '8-10',  orderIndex: 1 },
-        { name: 'Leg Extension',            targetSets: 3, targetReps: '10-12', orderIndex: 2 },
-        { name: 'Hip Thrust',               targetSets: 3, targetReps: '8-12',  orderIndex: 3 },
-        { name: 'Seated Calf Raise',        targetSets: 4, targetReps: '15-20', orderIndex: 4 },
-        { name: 'Plank',                    targetSets: 3, targetReps: '45-60s',orderIndex: 5 },
-      ],
-    },
+    // Use the same structure as create5DaySplit
+    ...Array.from({ length: 15 }).map((_, i) => {
+      const weekNumber = i < 5 ? 1 : i < 10 ? 5 : 9;
+      const dayIdx = i % 5;
+
+      // Weeks 1-4: Base Phase
+      if (weekNumber === 1) {
+        if (dayIdx === 0) return {
+          name: 'Day 1 – Upper', idx: 0, weekNumber: 1,
+          exercises: [
+            { name: 'Barbell Bench Press',     targetSets: 4, targetReps: '5-8',   orderIndex: 0, notes: 'Primary horizontal press' },
+            { name: 'Barbell Row',             targetSets: 4, targetReps: '6-8',   orderIndex: 1, notes: 'Primary horizontal pull' },
+            { name: 'Overhead Press',          targetSets: 3, targetReps: '6-10',  orderIndex: 2 },
+            { name: 'Lat Pulldown',            targetSets: 3, targetReps: '8-12',  orderIndex: 3 },
+            { name: 'Lateral Raise',           targetSets: 3, targetReps: '12-15', orderIndex: 4 },
+            { name: 'Dumbbell Curl',           targetSets: 3, targetReps: '10-12', orderIndex: 5 },
+            { name: 'Triceps Pushdown',        targetSets: 3, targetReps: '10-12', orderIndex: 6 },
+          ],
+        };
+        if (dayIdx === 1) return {
+          name: 'Day 2 – Lower', idx: 1, weekNumber: 1,
+          exercises: [
+            { name: 'Barbell Squat',           targetSets: 4, targetReps: '5-8',   orderIndex: 0, notes: 'Primary squat pattern' },
+            { name: 'Romanian Deadlift',       targetSets: 3, targetReps: '6-10',  orderIndex: 1 },
+            { name: 'Leg Press',               targetSets: 3, targetReps: '10-12', orderIndex: 2 },
+            { name: 'Seated Leg Curl',         targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+            { name: 'Standing Calf Raise',     targetSets: 4, targetReps: '12-15', orderIndex: 4 },
+            { name: 'Cable Crunch',            targetSets: 3, targetReps: '12-15', orderIndex: 5 },
+          ],
+        };
+        if (dayIdx === 2) return {
+          name: 'Day 3 – Pull', idx: 2, weekNumber: 1,
+          exercises: [
+            { name: 'Deadlift',                 targetSets: 3, targetReps: '3-5',   orderIndex: 0, notes: 'Keep 1–2 reps in reserve' },
+            { name: 'Weighted Pull-Ups',        targetSets: 4, targetReps: '5-8',   orderIndex: 1 },
+            { name: 'Chest-Supported Row',      targetSets: 3, targetReps: '8-10',  orderIndex: 2 },
+            { name: 'Face Pulls',               targetSets: 3, targetReps: '12-15', orderIndex: 3 },
+            { name: 'Incline Dumbbell Curl',    targetSets: 3, targetReps: '10-12', orderIndex: 4 },
+            { name: 'Hammer Curl',              targetSets: 2, targetReps: '10-12', orderIndex: 5 },
+          ],
+        };
+        if (dayIdx === 3) return {
+          name: 'Day 4 – Push', idx: 3, weekNumber: 1,
+          exercises: [
+            { name: 'Incline Barbell Press',    targetSets: 4, targetReps: '6-8',   orderIndex: 0 },
+            { name: 'Dumbbell Bench Press',     targetSets: 3, targetReps: '8-10',  orderIndex: 1 },
+            { name: 'Seated Dumbbell Press',    targetSets: 3, targetReps: '8-10',  orderIndex: 2 },
+            { name: 'Cable Fly',                targetSets: 3, targetReps: '12-15', orderIndex: 3 },
+            { name: 'Lateral Raise (Cable)',    targetSets: 3, targetReps: '12-15', orderIndex: 4 },
+            { name: 'Dip (Assisted if needed)', targetSets: 3, targetReps: '6-10',  orderIndex: 5 },
+            { name: 'Overhead Triceps Ext.',    targetSets: 3, targetReps: '10-12', orderIndex: 6 },
+          ],
+        };
+        return {
+          name: 'Day 5 – Legs', idx: 4, weekNumber: 1,
+          exercises: [
+            { name: 'Front Squat',              targetSets: 4, targetReps: '5-8',   orderIndex: 0 },
+            { name: 'Bulgarian Split Squat',    targetSets: 3, targetReps: '8-10',  orderIndex: 1 },
+            { name: 'Leg Extension',            targetSets: 3, targetReps: '10-12', orderIndex: 2 },
+            { name: 'Hip Thrust',               targetSets: 3, targetReps: '8-12',  orderIndex: 3 },
+            { name: 'Seated Calf Raise',        targetSets: 4, targetReps: '15-20', orderIndex: 4 },
+            { name: 'Plank',                    targetSets: 3, targetReps: '45-60s',orderIndex: 5 },
+          ],
+        };
+      }
+
+      // Weeks 5-8: Variation Phase
+      if (weekNumber === 5) {
+        if (dayIdx === 0) return {
+          name: 'Day 1 – Upper', idx: 0, weekNumber: 5,
+          exercises: [
+            { name: 'Dumbbell Bench Press',     targetSets: 4, targetReps: '8-10',  orderIndex: 0 },
+            { name: 'T-Bar Row',                targetSets: 4, targetReps: '8-10',  orderIndex: 1 },
+            { name: 'Arnold Press',             targetSets: 3, targetReps: '8-12',  orderIndex: 2 },
+            { name: 'Cable Row',                targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+            { name: 'Cable Lateral Raise',      targetSets: 3, targetReps: '15-20', orderIndex: 4 },
+            { name: 'EZ Bar Curl',              targetSets: 3, targetReps: '10-12', orderIndex: 5 },
+            { name: 'Rope Triceps Extension',   targetSets: 3, targetReps: '12-15', orderIndex: 6 },
+          ],
+        };
+        if (dayIdx === 1) return {
+          name: 'Day 2 – Lower', idx: 1, weekNumber: 5,
+          exercises: [
+            { name: 'Goblet Squat',            targetSets: 4, targetReps: '8-12',  orderIndex: 0 },
+            { name: 'Good Morning',            targetSets: 3, targetReps: '8-10',  orderIndex: 1 },
+            { name: 'Walking Lunges',          targetSets: 3, targetReps: '10-12', orderIndex: 2 },
+            { name: 'Lying Leg Curl',          targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+            { name: 'Seated Calf Raise',       targetSets: 4, targetReps: '15-20', orderIndex: 4 },
+            { name: 'Hanging Leg Raise',       targetSets: 3, targetReps: '10-15', orderIndex: 5 },
+          ],
+        };
+        if (dayIdx === 2) return {
+          name: 'Day 3 – Pull', idx: 2, weekNumber: 5,
+          exercises: [
+            { name: 'Trap Bar Deadlift',        targetSets: 3, targetReps: '5-8',   orderIndex: 0 },
+            { name: 'Chin-Ups',                 targetSets: 4, targetReps: '6-10',  orderIndex: 1 },
+            { name: 'Dumbbell Row',             targetSets: 3, targetReps: '8-12',  orderIndex: 2 },
+            { name: 'Rear Delt Fly',            targetSets: 3, targetReps: '12-15', orderIndex: 3 },
+            { name: 'Cable Curl',               targetSets: 3, targetReps: '12-15', orderIndex: 4 },
+            { name: 'Reverse Curl',             targetSets: 2, targetReps: '12-15', orderIndex: 5 },
+          ],
+        };
+        if (dayIdx === 3) return {
+          name: 'Day 4 – Push', idx: 3, weekNumber: 5,
+          exercises: [
+            { name: 'Flat Dumbbell Press',     targetSets: 4, targetReps: '8-10',  orderIndex: 0 },
+            { name: 'Incline Dumbbell Fly',    targetSets: 3, targetReps: '10-12', orderIndex: 1 },
+            { name: 'Standing Military Press', targetSets: 3, targetReps: '8-10',  orderIndex: 2 },
+            { name: 'Pec Deck',                targetSets: 3, targetReps: '12-15', orderIndex: 3 },
+            { name: 'Upright Row',             targetSets: 3, targetReps: '10-12', orderIndex: 4 },
+            { name: 'Diamond Push-Ups',        targetSets: 3, targetReps: 'AMRAP', orderIndex: 5 },
+            { name: 'Cable Triceps Kickback',  targetSets: 3, targetReps: '12-15', orderIndex: 6 },
+          ],
+        };
+        return {
+          name: 'Day 5 – Legs', idx: 4, weekNumber: 5,
+          exercises: [
+            { name: 'Hack Squat',              targetSets: 4, targetReps: '8-10',  orderIndex: 0 },
+            { name: 'Single Leg Press',        targetSets: 3, targetReps: '10-12', orderIndex: 1 },
+            { name: 'Sissy Squat',             targetSets: 3, targetReps: '10-15', orderIndex: 2 },
+            { name: 'Glute Ham Raise',         targetSets: 3, targetReps: '8-10',  orderIndex: 3 },
+            { name: 'Donkey Calf Raise',       targetSets: 4, targetReps: '15-20', orderIndex: 4 },
+            { name: 'Ab Wheel Rollout',        targetSets: 3, targetReps: '8-12',  orderIndex: 5 },
+          ],
+        };
+      }
+
+      // Weeks 9-12: Strength Phase
+      if (dayIdx === 0) return {
+        name: 'Day 1 – Upper', idx: 0, weekNumber: 9,
+        exercises: [
+          { name: 'Barbell Bench Press',     targetSets: 5, targetReps: '3-5',   orderIndex: 0, notes: 'Heavy weight, low reps' },
+          { name: 'Pendlay Row',             targetSets: 4, targetReps: '5-8',   orderIndex: 1 },
+          { name: 'Close-Grip Bench Press',  targetSets: 3, targetReps: '6-8',   orderIndex: 2 },
+          { name: 'Weighted Pull-Ups',       targetSets: 3, targetReps: '5-8',   orderIndex: 3 },
+          { name: 'Barbell Curl',            targetSets: 3, targetReps: '8-10',  orderIndex: 4 },
+          { name: 'Skull Crushers',          targetSets: 3, targetReps: '8-10',  orderIndex: 5 },
+        ],
+      };
+      if (dayIdx === 1) return {
+        name: 'Day 2 – Lower', idx: 1, weekNumber: 9,
+        exercises: [
+          { name: 'Barbell Squat',           targetSets: 5, targetReps: '3-5',   orderIndex: 0, notes: 'Heavy weight, low reps' },
+          { name: 'Barbell Hip Thrust',      targetSets: 4, targetReps: '6-8',   orderIndex: 1 },
+          { name: 'Front Squat',             targetSets: 3, targetReps: '6-8',   orderIndex: 2 },
+          { name: 'Nordic Hamstring Curl',   targetSets: 3, targetReps: '5-8',   orderIndex: 3 },
+          { name: 'Standing Calf Raise',     targetSets: 5, targetReps: '8-10',  orderIndex: 4 },
+          { name: 'Weighted Plank',          targetSets: 3, targetReps: '60s',   orderIndex: 5 },
+        ],
+      };
+      if (dayIdx === 2) return {
+        name: 'Day 3 – Pull', idx: 2, weekNumber: 9,
+        exercises: [
+          { name: 'Deadlift',                 targetSets: 5, targetReps: '1-3',   orderIndex: 0, notes: 'Maximum effort' },
+          { name: 'Pull-Ups',                 targetSets: 4, targetReps: '6-8',   orderIndex: 1 },
+          { name: 'Barbell Row',              targetSets: 4, targetReps: '6-8',   orderIndex: 2 },
+          { name: 'Face Pulls',               targetSets: 3, targetReps: '15-20', orderIndex: 3 },
+          { name: 'Preacher Curl',            targetSets: 3, targetReps: '8-10',  orderIndex: 4 },
+          { name: 'Concentration Curl',       targetSets: 2, targetReps: '10-12', orderIndex: 5 },
+        ],
+      };
+      if (dayIdx === 3) return {
+        name: 'Day 4 – Push', idx: 3, weekNumber: 9,
+        exercises: [
+          { name: 'Incline Barbell Press',    targetSets: 5, targetReps: '4-6',   orderIndex: 0 },
+          { name: 'Overhead Press',           targetSets: 4, targetReps: '5-8',   orderIndex: 1 },
+          { name: 'Dips',                     targetSets: 3, targetReps: '6-10',  orderIndex: 2 },
+          { name: 'Flat Dumbbell Press',      targetSets: 3, targetReps: '8-10',  orderIndex: 3 },
+          { name: 'Lateral Raise',            targetSets: 3, targetReps: '12-15', orderIndex: 4 },
+          { name: 'Close-Grip Bench Press',   targetSets: 3, targetReps: '6-8',   orderIndex: 5 },
+        ],
+      };
+      return {
+        name: 'Day 5 – Legs', idx: 4, weekNumber: 9,
+        exercises: [
+          { name: 'Front Squat',              targetSets: 5, targetReps: '4-6',   orderIndex: 0 },
+          { name: 'Romanian Deadlift',        targetSets: 4, targetReps: '6-8',   orderIndex: 1 },
+          { name: 'Leg Press',                targetSets: 3, targetReps: '8-10',  orderIndex: 2 },
+          { name: 'Seated Leg Curl',          targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+          { name: 'Calf Press on Leg Press',  targetSets: 4, targetReps: '12-15', orderIndex: 4 },
+          { name: 'Cable Crunch',             targetSets: 3, targetReps: '15-20', orderIndex: 5 },
+        ],
+      };
+    })
   ];
 
   const workouts = days.map(day => {
@@ -504,7 +1058,7 @@ export function generate5DaySplitData(): ProgramPreviewData {
       id: templateId,
       name: day.name,
       dayIndex: day.idx,
-      weekNumber: 1,
+      weekNumber: day.weekNumber,
       programId,
     };
 
@@ -536,9 +1090,11 @@ export function generate3DaySplitData(): ProgramPreviewData {
   };
 
   const days = [
+    // Weeks 1-4: Base Phase
     {
       name: 'Full Body A',
       idx: 0,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Bench Press', targetSets: 3, targetReps: '6-8', orderIndex: 0 },
         { name: 'Barbell Row', targetSets: 3, targetReps: '6-8', orderIndex: 1 },
@@ -551,6 +1107,7 @@ export function generate3DaySplitData(): ProgramPreviewData {
     {
       name: 'Legs',
       idx: 1,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Squat', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
         { name: 'Romanian Deadlift', targetSets: 3, targetReps: '8-10', orderIndex: 1 },
@@ -563,6 +1120,7 @@ export function generate3DaySplitData(): ProgramPreviewData {
     {
       name: 'Full Body B',
       idx: 2,
+      weekNumber: 1,
       exercises: [
         { name: 'Incline Dumbbell Press', targetSets: 3, targetReps: '8-10', orderIndex: 0 },
         { name: 'Lat Pulldown', targetSets: 3, targetReps: '8-10', orderIndex: 1 },
@@ -570,6 +1128,86 @@ export function generate3DaySplitData(): ProgramPreviewData {
         { name: 'Cable Row', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
         { name: 'Hammer Curl', targetSets: 3, targetReps: '10-12', orderIndex: 4 },
         { name: 'Overhead Triceps Extension', targetSets: 3, targetReps: '10-12', orderIndex: 5 },
+      ],
+    },
+    // Weeks 5-8: Variation Phase (exercises changed after 4 weeks)
+    {
+      name: 'Full Body A',
+      idx: 0,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Dumbbell Bench Press', targetSets: 3, targetReps: '8-10', orderIndex: 0 },
+        { name: 'T-Bar Row', targetSets: 3, targetReps: '8-10', orderIndex: 1 },
+        { name: 'Arnold Press', targetSets: 3, targetReps: '8-12', orderIndex: 2 },
+        { name: 'Chin-Ups', targetSets: 3, targetReps: '6-10', orderIndex: 3 },
+        { name: 'EZ Bar Curl', targetSets: 3, targetReps: '10-12', orderIndex: 4 },
+        { name: 'Skull Crushers', targetSets: 3, targetReps: '10-12', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Legs',
+      idx: 1,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Front Squat', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Barbell Hip Thrust', targetSets: 3, targetReps: '8-12', orderIndex: 1 },
+        { name: 'Bulgarian Split Squat', targetSets: 3, targetReps: '8-10', orderIndex: 2 },
+        { name: 'Nordic Hamstring Curl', targetSets: 3, targetReps: '6-8', orderIndex: 3 },
+        { name: 'Seated Calf Raise', targetSets: 4, targetReps: '15-20', orderIndex: 4 },
+        { name: 'Ab Wheel Rollout', targetSets: 3, targetReps: '8-12', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Full Body B',
+      idx: 2,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Incline Barbell Press', targetSets: 3, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Chest-Supported Row', targetSets: 3, targetReps: '8-12', orderIndex: 1 },
+        { name: 'Seated Dumbbell Press', targetSets: 3, targetReps: '8-12', orderIndex: 2 },
+        { name: 'One-Arm Dumbbell Row', targetSets: 3, targetReps: '8-12', orderIndex: 3 },
+        { name: 'Cable Curl', targetSets: 3, targetReps: '12-15', orderIndex: 4 },
+        { name: 'Rope Triceps Extension', targetSets: 3, targetReps: '12-15', orderIndex: 5 },
+      ],
+    },
+    // Weeks 9-12: Strength Phase (another variation)
+    {
+      name: 'Full Body A',
+      idx: 0,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Bench Press', targetSets: 4, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Pendlay Row', targetSets: 4, targetReps: '5-8', orderIndex: 1 },
+        { name: 'Standing Military Press', targetSets: 3, targetReps: '6-8', orderIndex: 2 },
+        { name: 'Weighted Pull-Ups', targetSets: 3, targetReps: '5-8', orderIndex: 3 },
+        { name: 'Preacher Curl', targetSets: 3, targetReps: '8-10', orderIndex: 4 },
+        { name: 'Close-Grip Bench Press', targetSets: 3, targetReps: '6-8', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Legs',
+      idx: 1,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Squat', targetSets: 5, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Deadlift', targetSets: 4, targetReps: '5-8', orderIndex: 1 },
+        { name: 'Walking Lunges', targetSets: 3, targetReps: '10-12', orderIndex: 2 },
+        { name: 'Lying Leg Curl', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+        { name: 'Standing Calf Raise', targetSets: 5, targetReps: '10-12', orderIndex: 4 },
+        { name: 'Hanging Leg Raise', targetSets: 3, targetReps: '10-15', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Full Body B',
+      idx: 2,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Flat Dumbbell Press', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Pull-Ups', targetSets: 4, targetReps: '6-10', orderIndex: 1 },
+        { name: 'Push Press', targetSets: 3, targetReps: '6-8', orderIndex: 2 },
+        { name: 'Barbell Row', targetSets: 3, targetReps: '8-10', orderIndex: 3 },
+        { name: 'Incline Dumbbell Curl', targetSets: 3, targetReps: '10-12', orderIndex: 4 },
+        { name: 'Dips', targetSets: 3, targetReps: '8-12', orderIndex: 5 },
       ],
     },
   ];
@@ -580,7 +1218,7 @@ export function generate3DaySplitData(): ProgramPreviewData {
       id: templateId,
       name: day.name,
       dayIndex: day.idx,
-      weekNumber: 1,
+      weekNumber: day.weekNumber,
       programId,
     };
 
@@ -611,9 +1249,11 @@ export function generateMinimalEffort4DayData(): ProgramPreviewData {
   };
 
   const days = [
+    // Weeks 1-4: Base Phase
     {
       name: 'Upper A',
       idx: 0,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Bench Press', targetSets: 2, targetReps: '5-8', orderIndex: 0 },
         { name: 'Barbell Row', targetSets: 2, targetReps: '5-8', orderIndex: 1 },
@@ -624,6 +1264,7 @@ export function generateMinimalEffort4DayData(): ProgramPreviewData {
     {
       name: 'Lower A',
       idx: 1,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Squat', targetSets: 2, targetReps: '5-8', orderIndex: 0 },
         { name: 'Romanian Deadlift', targetSets: 2, targetReps: '6-10', orderIndex: 1 },
@@ -634,6 +1275,7 @@ export function generateMinimalEffort4DayData(): ProgramPreviewData {
     {
       name: 'Upper B',
       idx: 2,
+      weekNumber: 1,
       exercises: [
         { name: 'Incline Dumbbell Press', targetSets: 2, targetReps: '6-10', orderIndex: 0 },
         { name: 'Pull-Ups', targetSets: 2, targetReps: '5-10', orderIndex: 1 },
@@ -644,11 +1286,102 @@ export function generateMinimalEffort4DayData(): ProgramPreviewData {
     {
       name: 'Lower B',
       idx: 3,
+      weekNumber: 1,
       exercises: [
         { name: 'Deadlift', targetSets: 2, targetReps: '5-8', orderIndex: 0 },
         { name: 'Bulgarian Split Squat', targetSets: 2, targetReps: '8-10', orderIndex: 1 },
         { name: 'Leg Extension', targetSets: 2, targetReps: '10-12', orderIndex: 2 },
         { name: 'Ab Wheel Rollout', targetSets: 2, targetReps: '8-12', orderIndex: 3 },
+      ],
+    },
+    // Weeks 5-8: Variation Phase
+    {
+      name: 'Upper A',
+      idx: 0,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Dumbbell Bench Press', targetSets: 2, targetReps: '8-10', orderIndex: 0 },
+        { name: 'T-Bar Row', targetSets: 2, targetReps: '8-10', orderIndex: 1 },
+        { name: 'Dumbbell Shoulder Press', targetSets: 2, targetReps: '8-12', orderIndex: 2 },
+        { name: 'Rear Delt Fly', targetSets: 2, targetReps: '12-15', orderIndex: 3 },
+      ],
+    },
+    {
+      name: 'Lower A',
+      idx: 1,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Goblet Squat', targetSets: 2, targetReps: '8-12', orderIndex: 0 },
+        { name: 'Good Morning', targetSets: 2, targetReps: '8-10', orderIndex: 1 },
+        { name: 'Nordic Hamstring Curl', targetSets: 2, targetReps: '6-8', orderIndex: 2 },
+        { name: 'Seated Calf Raise', targetSets: 2, targetReps: '15-20', orderIndex: 3 },
+      ],
+    },
+    {
+      name: 'Upper B',
+      idx: 2,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Incline Barbell Press', targetSets: 2, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Chin-Ups', targetSets: 2, targetReps: '6-10', orderIndex: 1 },
+        { name: 'Cable Curl', targetSets: 2, targetReps: '10-12', orderIndex: 2 },
+        { name: 'Rope Triceps Extension', targetSets: 2, targetReps: '12-15', orderIndex: 3 },
+      ],
+    },
+    {
+      name: 'Lower B',
+      idx: 3,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Trap Bar Deadlift', targetSets: 2, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Walking Lunges', targetSets: 2, targetReps: '10-12', orderIndex: 1 },
+        { name: 'Leg Press', targetSets: 2, targetReps: '12-15', orderIndex: 2 },
+        { name: 'Plank', targetSets: 2, targetReps: '45-60s', orderIndex: 3 },
+      ],
+    },
+    // Weeks 9-12: Strength Phase
+    {
+      name: 'Upper A',
+      idx: 0,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Bench Press', targetSets: 3, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Pendlay Row', targetSets: 3, targetReps: '5-8', orderIndex: 1 },
+        { name: 'Overhead Press', targetSets: 2, targetReps: '5-8', orderIndex: 2 },
+        { name: 'Face Pulls', targetSets: 2, targetReps: '15-20', orderIndex: 3 },
+      ],
+    },
+    {
+      name: 'Lower A',
+      idx: 1,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Squat', targetSets: 3, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Romanian Deadlift', targetSets: 3, targetReps: '6-8', orderIndex: 1 },
+        { name: 'Seated Leg Curl', targetSets: 2, targetReps: '10-12', orderIndex: 2 },
+        { name: 'Standing Calf Raise', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+      ],
+    },
+    {
+      name: 'Upper B',
+      idx: 2,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Incline Barbell Press', targetSets: 3, targetReps: '5-8', orderIndex: 0 },
+        { name: 'Pull-Ups', targetSets: 3, targetReps: '6-10', orderIndex: 1 },
+        { name: 'Preacher Curl', targetSets: 2, targetReps: '8-10', orderIndex: 2 },
+        { name: 'Close-Grip Bench Press', targetSets: 2, targetReps: '6-8', orderIndex: 3 },
+      ],
+    },
+    {
+      name: 'Lower B',
+      idx: 3,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Deadlift', targetSets: 3, targetReps: '3-5', orderIndex: 0 },
+        { name: 'Front Squat', targetSets: 2, targetReps: '6-8', orderIndex: 1 },
+        { name: 'Leg Extension', targetSets: 2, targetReps: '10-12', orderIndex: 2 },
+        { name: 'Hanging Leg Raise', targetSets: 2, targetReps: '10-15', orderIndex: 3 },
       ],
     },
   ];
@@ -659,7 +1392,7 @@ export function generateMinimalEffort4DayData(): ProgramPreviewData {
       id: templateId,
       name: day.name,
       dayIndex: day.idx,
-      weekNumber: 1,
+      weekNumber: day.weekNumber,
       programId,
     };
 
@@ -690,9 +1423,11 @@ export function generateUpperLower4DayData(): ProgramPreviewData {
   };
 
   const days = [
+    // Weeks 1-4: Base Phase
     {
       name: 'Upper A',
       idx: 0,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Bench Press', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
         { name: 'Barbell Row', targetSets: 4, targetReps: '6-8', orderIndex: 1 },
@@ -705,6 +1440,7 @@ export function generateUpperLower4DayData(): ProgramPreviewData {
     {
       name: 'Lower A',
       idx: 1,
+      weekNumber: 1,
       exercises: [
         { name: 'Barbell Squat', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
         { name: 'Romanian Deadlift', targetSets: 3, targetReps: '8-10', orderIndex: 1 },
@@ -717,6 +1453,7 @@ export function generateUpperLower4DayData(): ProgramPreviewData {
     {
       name: 'Upper B',
       idx: 2,
+      weekNumber: 1,
       exercises: [
         { name: 'Incline Dumbbell Press', targetSets: 4, targetReps: '8-10', orderIndex: 0 },
         { name: 'Pull-Ups', targetSets: 4, targetReps: '6-10', orderIndex: 1 },
@@ -729,6 +1466,7 @@ export function generateUpperLower4DayData(): ProgramPreviewData {
     {
       name: 'Lower B',
       idx: 3,
+      weekNumber: 1,
       exercises: [
         { name: 'Deadlift', targetSets: 4, targetReps: '5-8', orderIndex: 0 },
         { name: 'Bulgarian Split Squat', targetSets: 3, targetReps: '8-10', orderIndex: 1 },
@@ -736,6 +1474,112 @@ export function generateUpperLower4DayData(): ProgramPreviewData {
         { name: 'Seated Leg Curl', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
         { name: 'Seated Calf Raise', targetSets: 4, targetReps: '15-20', orderIndex: 4 },
         { name: 'Plank', targetSets: 3, targetReps: '45-60s', orderIndex: 5 },
+      ],
+    },
+    // Weeks 5-8: Variation Phase
+    {
+      name: 'Upper A',
+      idx: 0,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Dumbbell Bench Press', targetSets: 4, targetReps: '8-10', orderIndex: 0 },
+        { name: 'T-Bar Row', targetSets: 4, targetReps: '8-10', orderIndex: 1 },
+        { name: 'Arnold Press', targetSets: 3, targetReps: '8-12', orderIndex: 2 },
+        { name: 'Chest-Supported Row', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+        { name: 'Cable Lateral Raise', targetSets: 3, targetReps: '15-20', orderIndex: 4 },
+        { name: 'EZ Bar Curl', targetSets: 3, targetReps: '10-12', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Lower A',
+      idx: 1,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Front Squat', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Good Morning', targetSets: 3, targetReps: '8-10', orderIndex: 1 },
+        { name: 'Hack Squat', targetSets: 3, targetReps: '10-12', orderIndex: 2 },
+        { name: 'Nordic Hamstring Curl', targetSets: 3, targetReps: '6-8', orderIndex: 3 },
+        { name: 'Seated Calf Raise', targetSets: 4, targetReps: '15-20', orderIndex: 4 },
+        { name: 'Hanging Leg Raise', targetSets: 3, targetReps: '10-15', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Upper B',
+      idx: 2,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Incline Barbell Press', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Chin-Ups', targetSets: 4, targetReps: '6-10', orderIndex: 1 },
+        { name: 'Seated Dumbbell Press', targetSets: 3, targetReps: '8-12', orderIndex: 2 },
+        { name: 'One-Arm Dumbbell Row', targetSets: 3, targetReps: '8-12', orderIndex: 3 },
+        { name: 'Rear Delt Fly', targetSets: 3, targetReps: '12-15', orderIndex: 4 },
+        { name: 'Rope Triceps Extension', targetSets: 3, targetReps: '12-15', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Lower B',
+      idx: 3,
+      weekNumber: 5,
+      exercises: [
+        { name: 'Trap Bar Deadlift', targetSets: 4, targetReps: '6-8', orderIndex: 0 },
+        { name: 'Walking Lunges', targetSets: 3, targetReps: '10-12', orderIndex: 1 },
+        { name: 'Sissy Squat', targetSets: 3, targetReps: '10-15', orderIndex: 2 },
+        { name: 'Lying Leg Curl', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+        { name: 'Donkey Calf Raise', targetSets: 4, targetReps: '15-20', orderIndex: 4 },
+        { name: 'Ab Wheel Rollout', targetSets: 3, targetReps: '8-12', orderIndex: 5 },
+      ],
+    },
+    // Weeks 9-12: Strength Phase
+    {
+      name: 'Upper A',
+      idx: 0,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Bench Press', targetSets: 5, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Pendlay Row', targetSets: 4, targetReps: '5-8', orderIndex: 1 },
+        { name: 'Overhead Press', targetSets: 4, targetReps: '5-8', orderIndex: 2 },
+        { name: 'Weighted Pull-Ups', targetSets: 3, targetReps: '5-8', orderIndex: 3 },
+        { name: 'Barbell Curl', targetSets: 3, targetReps: '8-10', orderIndex: 4 },
+        { name: 'Close-Grip Bench Press', targetSets: 3, targetReps: '6-8', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Lower A',
+      idx: 1,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Barbell Squat', targetSets: 5, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Romanian Deadlift', targetSets: 4, targetReps: '6-8', orderIndex: 1 },
+        { name: 'Front Squat', targetSets: 3, targetReps: '6-8', orderIndex: 2 },
+        { name: 'Seated Leg Curl', targetSets: 3, targetReps: '10-12', orderIndex: 3 },
+        { name: 'Standing Calf Raise', targetSets: 5, targetReps: '10-12', orderIndex: 4 },
+        { name: 'Weighted Plank', targetSets: 3, targetReps: '60s', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Upper B',
+      idx: 2,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Incline Barbell Press', targetSets: 5, targetReps: '4-6', orderIndex: 0 },
+        { name: 'Pull-Ups', targetSets: 4, targetReps: '6-8', orderIndex: 1 },
+        { name: 'Standing Military Press', targetSets: 4, targetReps: '5-8', orderIndex: 2 },
+        { name: 'Barbell Row', targetSets: 3, targetReps: '8-10', orderIndex: 3 },
+        { name: 'Preacher Curl', targetSets: 3, targetReps: '8-10', orderIndex: 4 },
+        { name: 'Skull Crushers', targetSets: 3, targetReps: '8-10', orderIndex: 5 },
+      ],
+    },
+    {
+      name: 'Lower B',
+      idx: 3,
+      weekNumber: 9,
+      exercises: [
+        { name: 'Deadlift', targetSets: 5, targetReps: '3-5', orderIndex: 0 },
+        { name: 'Barbell Hip Thrust', targetSets: 4, targetReps: '6-8', orderIndex: 1 },
+        { name: 'Leg Press', targetSets: 3, targetReps: '8-10', orderIndex: 2 },
+        { name: 'Nordic Hamstring Curl', targetSets: 3, targetReps: '5-8', orderIndex: 3 },
+        { name: 'Calf Press on Leg Press', targetSets: 5, targetReps: '12-15', orderIndex: 4 },
+        { name: 'Cable Crunch', targetSets: 3, targetReps: '15-20', orderIndex: 5 },
       ],
     },
   ];
@@ -746,7 +1590,7 @@ export function generateUpperLower4DayData(): ProgramPreviewData {
       id: templateId,
       name: day.name,
       dayIndex: day.idx,
-      weekNumber: 1,
+      weekNumber: day.weekNumber,
       programId,
     };
 

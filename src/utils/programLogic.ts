@@ -29,14 +29,27 @@ export async function getActiveProgram(): Promise<Program | undefined> {
 }
 
 // Select the appropriate workout template for a given week and day index
+// Finds the template with the highest weekNumber <= current week
 export async function selectTemplate(
   programId: string,
   weekNumber: number,
   dayIndex: number
 ): Promise<WorkoutTemplate | undefined> {
-  return await db.workoutTemplates
-    .where({ programId, weekNumber, dayIndex })
-    .first();
+  // Get all templates for this program and day
+  const templates = await db.workoutTemplates
+    .where({ programId, dayIndex })
+    .toArray();
+
+  // Filter to templates with weekNumber <= current week
+  const validTemplates = templates.filter(t => t.weekNumber <= weekNumber);
+
+  if (validTemplates.length === 0) {
+    return undefined;
+  }
+
+  // Sort by weekNumber descending and return the first one (highest weekNumber)
+  validTemplates.sort((a, b) => b.weekNumber - a.weekNumber);
+  return validTemplates[0];
 }
 
 // Get recommended day based on last workout
