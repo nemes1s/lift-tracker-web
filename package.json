@@ -1,13 +1,14 @@
 {
   "name": "lifttrackerweb",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "version:bump": "node scripts/bump-version.js"
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",
