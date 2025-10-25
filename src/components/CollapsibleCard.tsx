@@ -23,11 +23,11 @@ export function CollapsibleCard({
     <div className="card bg-white overflow-hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-5 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        className="w-full p-5 flex items-center justify-between cursor-pointer transition-colors"
       >
         <div className="flex items-center gap-3">
           {icon && <div className="text-primary-600">{icon}</div>}
-          <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">{title}</h2>
           {badge !== undefined && (
             <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-primary-100 text-primary-700">
               {badge}

@@ -90,7 +90,7 @@ export function CalendarGrid({
           <ChevronLeft className="w-6 h-6 text-gray-700" />
         </button>
 
-        <h2 className="text-xl font-bold text-gray-900">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
           {monthNames[month]} {year}
         </h2>
 

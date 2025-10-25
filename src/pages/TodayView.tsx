@@ -137,15 +137,15 @@ export function TodayView() {
               <h1 className="text-2xl font-bold text-primary-700">
                 {activeProgram.name}
               </h1>
-              <p className="text-sm text-gray-500 mt-0.5">Let's crush it today!</p>
+              <p className="text-sm text-gray-500 mt-0.5 dark:text-gray-400">Let's crush it today!</p>
             </div>
           </div>
 
           {/* Week Progress */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 mb-5 shadow-inner-lg">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 mb-5 shadow-inner-lg dark:bg-slate-800">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-gray-600">Training Week</span>
-              <span className="font-bold text-lg text-primary-700">
+              <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Training Week</span>
+              <span className="font-bold text-lg text-primary-700 dark:text-primary-400">
                 {weekNumber} of {activeProgram.totalWeeks}
               </span>
             </div>
@@ -161,14 +161,14 @@ export function TodayView() {
 
           {/* Recommended Today */}
           <div className="mb-5">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Recommended Today</p>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 dark:text-gray-400">Recommended Today</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {template?.name || `Day ${selectedDayIndex + 1}`}
             </p>
           </div>
 
           {/* Day Picker */}
-          <div className="grid grid-cols-5 gap-2">
+          <div className={`grid grid-cols-${maxDayIndex + 1} gap-2`}>
             {Array.from({ length: maxDayIndex + 1 }, (_, idx) => (
               <button
                 key={idx}
