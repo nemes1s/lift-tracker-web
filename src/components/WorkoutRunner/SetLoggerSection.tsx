@@ -1,4 +1,5 @@
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Lightbulb } from 'lucide-react';
+import type { ProgressiveOverloadSuggestion } from '../../utils/programLogic';
 
 interface SetLoggerSectionProps {
   weightText: string;
@@ -8,6 +9,8 @@ interface SetLoggerSectionProps {
   onRepsChange: (value: string) => void;
   onRpeChange: (value: string) => void;
   onLogSet: () => void;
+  suggestion?: ProgressiveOverloadSuggestion;
+  onApplySuggestion?: (weight?: number, reps?: string) => void;
 }
 
 export function SetLoggerSection({
@@ -17,7 +20,9 @@ export function SetLoggerSection({
   onWeightChange,
   onRepsChange,
   onRpeChange,
-  onLogSet
+  onLogSet,
+  suggestion,
+  onApplySuggestion
 }: SetLoggerSectionProps) {
   return (
     <div className="card p-5 bg-white">
@@ -56,6 +61,30 @@ export function SetLoggerSection({
           />
         </div>
       </div>
+      {suggestion && suggestion.hasData && (suggestion.suggestedWeight || suggestion.suggestedReps) && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
+          <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-xs font-semibold text-blue-900 mb-2">{suggestion.reason}</p>
+            {suggestion.suggestedWeight && (
+              <button
+                onClick={() => onApplySuggestion?.(suggestion.suggestedWeight, undefined)}
+                className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded transition-colors"
+              >
+                Apply weight: {suggestion.suggestedWeight}
+              </button>
+            )}
+            {suggestion.suggestedReps && (
+              <button
+                onClick={() => onApplySuggestion?.(undefined, suggestion.suggestedReps)}
+                className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded transition-colors ml-2"
+              >
+                Apply reps: {suggestion.suggestedReps}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
       <button
         onClick={onLogSet}
         disabled={!weightText || !repsText}

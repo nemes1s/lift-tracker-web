@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { db } from '../db/database';
-import { previousWorkoutInstances } from '../utils/programLogic';
+import { previousWorkoutInstances, getProgressiveOverloadSuggestion } from '../utils/programLogic';
+import type { ProgressiveOverloadSuggestion } from '../utils/programLogic';
 import { useAppStore } from '../store/appStore';
 import type { Workout, ExerciseInstance, SetRecord, SettingsModel } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
@@ -31,6 +32,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const [rpeText, setRpeText] = useState('');
   const [previousHistory, setPreviousHistory] = useState<{ workout: Workout; sets: SetRecord[] }[]>([]);
   const [allExercisesWithSets, setAllExercisesWithSets] = useState<Array<{ sets: SetRecord[] }>>([]);
+  const [suggestion, setSuggestion] = useState<ProgressiveOverloadSuggestion | undefined>(undefined);
 
   // Pause/Resume state
   const [isPaused, setIsPaused] = useState(false);
@@ -112,6 +114,13 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       // Load previous workout history
       const history = await previousWorkoutInstances(currentExercise.name, 3);
       setPreviousHistory(history);
+
+      // Load progressive overload suggestion
+      const sug = await getProgressiveOverloadSuggestion(
+        currentExercise.name,
+        currentExercise.targetReps
+      );
+      setSuggestion(sug);
 
       // Reload all sets for stats
       await loadAllSets();
@@ -292,6 +301,19 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     setWeightText(weight.toString());
     setRepsText(reps.toString());
     setRpeText(rpe ? rpe.toFixed(1) : '');
+  };
+
+  const handleApplySuggestion = (suggestedWeight?: number, suggestedReps?: string) => {
+    if (suggestedWeight) {
+      setWeightText(suggestedWeight.toString());
+    }
+    if (suggestedReps) {
+      // Parse the rep range and use the lower bound as suggested reps
+      const match = suggestedReps.match(/^(\d+)-(\d+)$/);
+      if (match) {
+        setRepsText(match[1]); // Use lower bound
+      }
+    }
   };
 
   // Rest timer functions
@@ -493,6 +515,8 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
         onRepsChange={setRepsText}
         onRpeChange={setRpeText}
         onLogSet={handleLogSet}
+        suggestion={suggestion}
+        onApplySuggestion={handleApplySuggestion}
       />
 
       <PreviousWorkoutsSection

@@ -236,3 +236,119 @@ export async function findActiveWorkoutForToday(): Promise<Workout | undefined> 
     return workoutDate.getTime() === today.getTime();
   });
 }
+
+// Calculate adaptive percentage increase based on weight
+function getAdaptivePercentageIncrease(currentWeight: number): number {
+  if (currentWeight < 50) return 0.05; // 5% for lighter weights
+  if (currentWeight < 150) return 0.0375; // 3.75% for medium weights
+  return 0.025; // 2.5% for heavier weights
+}
+
+// Round weight to nearest sensible increment based on weight magnitude
+function roundWeightToNearestIncrement(weight: number): number {
+  if (weight < 20) return Math.round(weight * 2) / 2; // 0.5 lb increments
+  if (weight < 50) return Math.round(weight); // 1 lb increments
+  return Math.round(weight * 2) / 2; // 0.5 lb increments for all others
+}
+
+// Parse rep range (e.g., "8-10" returns [8, 10])
+function parseRepRange(repString: string): [number, number] | null {
+  const match = repString.match(/^(\d+)-(\d+)$/);
+  if (!match) return null;
+  return [parseInt(match[1]), parseInt(match[2])];
+}
+
+// Interface for progressive overload suggestion
+export interface ProgressiveOverloadSuggestion {
+  suggestedWeight?: number;
+  suggestedReps?: string;
+  reason: string;
+  hasData: boolean;
+}
+
+// Get progressive overload suggestion based on previous workouts
+export async function getProgressiveOverloadSuggestion(
+  exerciseName: string,
+  targetReps: string | undefined
+): Promise<ProgressiveOverloadSuggestion> {
+  try {
+    // Get last 3 completed workouts for this exercise
+    const previousWorkouts = await previousWorkoutInstances(exerciseName, 3);
+
+    if (previousWorkouts.length === 0) {
+      return {
+        reason: 'No previous data',
+        hasData: false,
+      };
+    }
+
+    // Analyze the last 3 workouts
+    const workoutAnalysis = previousWorkouts.map((pw) => {
+      const lastSet = pw.sets[pw.sets.length - 1]; // Get last set of workout
+      if (!lastSet) return null;
+      return { weight: lastSet.weight, reps: lastSet.reps };
+    }).filter((a) => a !== null) as Array<{ weight: number; reps: number }>;
+
+    if (workoutAnalysis.length === 0) {
+      return {
+        reason: 'No set data available',
+        hasData: false,
+      };
+    }
+
+    // Get the last set data
+    const lastSet = workoutAnalysis[0];
+    const parsedReps = parseRepRange(targetReps || '');
+
+    // Check if hit upper bound reps in last workout
+    let hitTargetReps = false;
+    if (parsedReps) {
+      const [_lowerBound, upperBound] = parsedReps;
+      hitTargetReps = lastSet.reps >= upperBound;
+    }
+
+    // Check if consistently hitting upper bound (at least 2 of last 3 workouts)
+    let consistentlyHittingReps = false;
+    if (parsedReps) {
+      const [_lowerBound, upperBound] = parsedReps;
+      const hittingCount = workoutAnalysis.filter((a) => a.reps >= upperBound).length;
+      consistentlyHittingReps = hittingCount >= 2;
+    }
+
+    // Suggest rep increase first if hitting targets consistently
+    if (consistentlyHittingReps && parsedReps) {
+      const [lowerBound, upperBound] = parsedReps;
+      const newReps = `${lowerBound + 2}-${upperBound + 2}`;
+      return {
+        suggestedReps: newReps,
+        reason: `Hit ${upperBound} reps consistently - increase to ${newReps}`,
+        hasData: true,
+      };
+    }
+
+    // If not hitting target reps, suggest keeping weight the same
+    if (!hitTargetReps) {
+      return {
+        reason: `Need to hit ${parsedReps?.[1] || 'target'} reps first`,
+        hasData: true,
+      };
+    }
+
+    // If hitting target reps (but not consistently), suggest weight increase
+    const percentIncrease = getAdaptivePercentageIncrease(lastSet.weight);
+    const newWeight = lastSet.weight * (1 + percentIncrease);
+    const roundedWeight = roundWeightToNearestIncrement(newWeight);
+
+    return {
+      suggestedWeight: roundedWeight,
+      reason: `Hit ${lastSet.reps} reps - increase weight to ${roundedWeight}`,
+      hasData: true,
+    };
+  } catch (error) {
+    console.error('Error calculating progressive overload suggestion:', error);
+    return {
+      reason: 'Unable to calculate suggestion',
+      hasData: false,
+    };
+  }
+}
