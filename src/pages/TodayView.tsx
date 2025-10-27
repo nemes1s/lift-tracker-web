@@ -93,24 +93,42 @@ export function TodayView() {
         return;
       }
 
-      console.log('[TodayView] loadTemplate called for day:', selectedDayIndex, 'week:', weekNumber);
-      const tmpl = await selectTemplate(activeProgram.id, weekNumber, selectedDayIndex);
-      console.log('[TodayView] Selected template:', tmpl ? { id: tmpl.id, name: tmpl.name, dayIndex: tmpl.dayIndex } : 'NONE');
-      setTemplate(tmpl || null);
+      console.log('[TodayView] loadTemplate called', {
+        selectedDayIndex,
+        weekNumber,
+        hasActiveWorkout: !!activeWorkout,
+        activeWorkoutName: activeWorkout?.name,
+      });
 
-      // Update active workout if it matches selected day
-      if (activeWorkout && tmpl && activeWorkout.name !== tmpl.name) {
-        console.log('[TodayView] Clearing activeWorkout: workout name does not match template', {
+      // If there's an active workout, prioritize it over selectedDayIndex
+      // The user should be able to continue their workout regardless of which day they've selected
+      if (activeWorkout) {
+        console.log('[TodayView] Active workout is in progress - prioritizing it over day selection', {
           workoutName: activeWorkout.name,
-          templateName: tmpl.name,
         });
-        setActiveWorkout(null);
-      } else if (activeWorkout && tmpl && activeWorkout.name === tmpl.name) {
-        console.log('[TodayView] Keeping activeWorkout: names match', { name: activeWorkout.name });
-        setActiveWorkout(activeWorkout);
-      } else if (activeWorkout && !tmpl) {
-        console.log('[TodayView] Template not found, clearing activeWorkout');
+
+        // Find the template that matches the active workout to display correct info
+        // But don't use selectedDayIndex - search all days for a matching template
+        const allTemplates = await db.workoutTemplates
+          .where('programId')
+          .equals(activeProgram.id)
+          .toArray();
+
+        // Find templates with the same name as the active workout
+        const matchingTemplates = allTemplates.filter(t => t.name === activeWorkout.name);
+        const workoutTemplate = matchingTemplates.length > 0 ? matchingTemplates[0] : null;
+
+        console.log('[TodayView] Found matching template for active workout:', workoutTemplate ? { id: workoutTemplate.id, name: workoutTemplate.name, dayIndex: workoutTemplate.dayIndex } : 'NONE');
+        setTemplate(workoutTemplate);
+
+        // NEVER clear an active workout based on day selection
+        return;
       }
+
+      // Only load template based on selectedDayIndex if there's NO active workout
+      const tmpl = await selectTemplate(activeProgram.id, weekNumber, selectedDayIndex);
+      console.log('[TodayView] Selected template for day:', selectedDayIndex, ':', tmpl ? { id: tmpl.id, name: tmpl.name, dayIndex: tmpl.dayIndex } : 'NONE');
+      setTemplate(tmpl || null);
     };
 
     loadTemplate();
