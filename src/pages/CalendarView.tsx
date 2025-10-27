@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar } from 'lucide-react';
+import { Calendar, Plus } from 'lucide-react';
 import { db } from '../db/database';
-import type { Workout } from '../types/models';
+import type { Workout, ExerciseInstance } from '../types/models';
 import { calculateWorkoutStats, calculate1RMChange } from '../utils/workoutStats';
 import { CalendarGrid } from '../components/CalendarGrid';
 import { EmptyWorkoutsState } from '../components/CalendarView/EmptyWorkoutsState';
@@ -10,6 +10,9 @@ import { SelectedDayWorkoutsSection } from '../components/CalendarView/SelectedD
 import { DeleteConfirmModal } from '../components/CalendarView/DeleteConfirmModal';
 import { WorkoutStatsSection } from '../components/CalendarView/WorkoutStatsSection';
 import { ExerciseListSection } from '../components/CalendarView/ExerciseListSection';
+import { AddCustomExerciseModal } from '../components/shared/AddCustomExerciseModal';
+import { getAllExerciseNames } from '../data/exerciseSubstitutions';
+import { v4 as uuidv4 } from 'uuid';
 
 export function CalendarView() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -164,6 +167,8 @@ export function WorkoutDetail() {
   const [workout, setWorkout] = useState<Workout | null>(null);
   const [exercises, setExercises] = useState<any[]>([]);
   const [exercise1RMChanges, setExercise1RMChanges] = useState<Map<string, any>>(new Map());
+  const [showAddCustomExercise, setShowAddCustomExercise] = useState(false);
+  const [exerciseSuggestions, setExerciseSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     const loadWorkout = async () => {
@@ -210,6 +215,77 @@ export function WorkoutDetail() {
     loadWorkout();
   }, []);
 
+  // Load exercise suggestions for autocomplete
+  useEffect(() => {
+    const allExerciseNames = getAllExerciseNames();
+
+    // Also add current exercises in this workout
+    const currentExerciseNames = exercises
+      .map(ex => ex.name)
+      .filter(name => !allExerciseNames.includes(name)); // Only add if not already in substitutions
+
+    // Combine and sort
+    const combined = [...allExerciseNames, ...currentExerciseNames].sort();
+    setExerciseSuggestions(combined);
+  }, [exercises]);
+
+  const handleAddCustomExercise = async (exerciseName: string) => {
+    if (!workout) return;
+
+    console.log('[WorkoutDetail] handleAddCustomExercise started', {
+      exerciseName,
+      workoutId: workout.id,
+    });
+
+    try {
+      // Create new exercise instance
+      const newExercise: ExerciseInstance = {
+        id: uuidv4(),
+        name: exerciseName,
+        workoutId: workout.id,
+        orderIndex: exercises.length,
+        targetSets: 3,
+        targetReps: '8-10',
+        isCustom: true,
+      };
+
+      console.log('[WorkoutDetail] Adding custom exercise to database');
+      await db.exerciseInstances.add(newExercise);
+
+      // Reload exercises
+      console.log('[WorkoutDetail] Reloading exercises for workout:', workout.id);
+      const exs = await db.exerciseInstances
+        .where('workoutId')
+        .equals(workout.id)
+        .sortBy('orderIndex');
+
+      const exercisesWithSets = await Promise.all(
+        exs.map(async (ex) => {
+          const sets = await db.setRecords
+            .where('exerciseId')
+            .equals(ex.id)
+            .sortBy('timestamp');
+
+          return { ...ex, sets };
+        })
+      );
+
+      console.log('[WorkoutDetail] Updated exercises loaded:', exercisesWithSets.length, 'exercises');
+      setExercises(exercisesWithSets);
+
+      // Calculate 1RM change for the new exercise (should be 0 if no sets)
+      const changes = new Map(exercise1RMChanges);
+      changes.set(newExercise.id, undefined);
+      setExercise1RMChanges(changes);
+
+      // Close modal
+      setShowAddCustomExercise(false);
+    } catch (error) {
+      console.error('Error adding custom exercise:', error);
+      alert('Failed to add custom exercise. Please try again.');
+    }
+  };
+
   if (!workout) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -252,7 +328,24 @@ export function WorkoutDetail() {
 
         {/* Exercises */}
         <ExerciseListSection exercises={exercises} exercise1RMChanges={exercise1RMChanges} />
+
+        {/* Add Custom Exercise Button */}
+        <button
+          onClick={() => setShowAddCustomExercise(true)}
+          className="w-full px-4 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          <Plus className="w-5 h-5" />
+          Add Custom Exercise
+        </button>
       </div>
+
+      {showAddCustomExercise && (
+        <AddCustomExerciseModal
+          onConfirm={handleAddCustomExercise}
+          onCancel={() => setShowAddCustomExercise(false)}
+          suggestions={exerciseSuggestions}
+        />
+      )}
     </div>
   );
 }

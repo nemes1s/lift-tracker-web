@@ -45,6 +45,9 @@ export class LiftTrackerDatabase extends Dexie {
 
     // Version 4: Add rest timer fields to settings (no schema change needed, Dexie handles new fields automatically)
     this.version(4).stores({});
+
+    // Version 5: Add isCustom field to exerciseInstances (no schema change needed, Dexie handles new fields automatically)
+    this.version(5).stores({});
   }
 }
 

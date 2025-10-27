@@ -6,7 +6,7 @@ import { useAppStore } from '../store/appStore';
 import type { Workout, ExerciseInstance, SetRecord, SettingsModel } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
 import { calculateWorkoutStats } from '../utils/workoutStats';
-import { getExerciseNotes, hasSubstitutions } from '../data/exerciseSubstitutions';
+import { getExerciseNotes, hasSubstitutions, getAllExerciseNames } from '../data/exerciseSubstitutions';
 import { playTimerNotification, initAudioContext, playCountdownBeep } from '../utils/audio';
 import { WorkoutControlsSection } from './WorkoutRunner/WorkoutControlsSection';
 import { ExerciseHeaderSection } from './WorkoutRunner/ExerciseHeaderSection';
@@ -18,6 +18,7 @@ import { PreviousWorkoutsSection } from './WorkoutRunner/PreviousWorkoutsSection
 import { WorkoutStatsSection } from './WorkoutRunner/WorkoutStatsSection';
 import { ExerciseNavigationSection } from './WorkoutRunner/ExerciseNavigationSection';
 import { FinishWorkoutButton } from './WorkoutRunner/FinishWorkoutButton';
+import { AddCustomExerciseModal } from './shared/AddCustomExerciseModal';
 
 interface WorkoutRunnerProps {
   workout: Workout;
@@ -43,6 +44,10 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   // Exercise substitution state
   const [showSubstitutions, setShowSubstitutions] = useState(false);
   const [isSubstituting, setIsSubstituting] = useState(false);
+
+  // Custom exercise state
+  const [showAddCustomExercise, setShowAddCustomExercise] = useState(false);
+  const [exerciseSuggestions, setExerciseSuggestions] = useState<string[]>([]);
 
   // Rest timer state
   const [settings, setSettings] = useState<SettingsModel | null>(null);
@@ -81,6 +86,24 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
     loadExercises();
   }, [workout.id]);
+
+  // Load exercise suggestions for autocomplete
+  useEffect(() => {
+    const loadSuggestions = async () => {
+      const allExerciseNames = getAllExerciseNames();
+
+      // Also add current exercises in this workout
+      const currentExerciseNames = exercises
+        .map(ex => ex.name)
+        .filter(name => !allExerciseNames.includes(name)); // Only add if not already in substitutions
+
+      // Combine and sort
+      const combined = [...allExerciseNames, ...currentExerciseNames].sort();
+      setExerciseSuggestions(combined);
+    };
+
+    loadSuggestions();
+  }, [exercises]);
 
   // Load all sets for all exercises (for stats calculation)
   const loadAllSets = async () => {
@@ -474,6 +497,52 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     }
   };
 
+  const handleAddCustomExercise = async (exerciseName: string) => {
+    console.log('[WorkoutRunner] handleAddCustomExercise started', {
+      exerciseName,
+      workoutId: workout.id,
+    });
+
+    try {
+      // Create new exercise instance
+      const newExercise: ExerciseInstance = {
+        id: uuidv4(),
+        name: exerciseName,
+        workoutId: workout.id,
+        orderIndex: exercises.length,
+        targetSets: 3,
+        targetReps: '8-10',
+        isCustom: true,
+      };
+
+      console.log('[WorkoutRunner] Adding custom exercise to database');
+      await db.exerciseInstances.add(newExercise);
+
+      // Reload exercises
+      console.log('[WorkoutRunner] Reloading exercises for workout:', workout.id);
+      const updatedExercises = await db.exerciseInstances
+        .where('workoutId')
+        .equals(workout.id)
+        .sortBy('orderIndex');
+
+      console.log('[WorkoutRunner] Updated exercises loaded:', updatedExercises.length, 'exercises');
+      setExercises(updatedExercises);
+
+      // Navigate to the new exercise
+      setCurrentIndex(updatedExercises.length - 1);
+
+      // Close modal
+      setShowAddCustomExercise(false);
+
+      // Trigger a refresh to update any other views
+      console.log('[WorkoutRunner] Triggering refresh for other views');
+      triggerRefresh();
+    } catch (error) {
+      console.error('Error adding custom exercise:', error);
+      alert('Failed to add custom exercise. Please try again.');
+    }
+  };
+
   if (!currentExercise) {
     return <div className="text-center text-gray-600">No exercises in this workout.</div>;
   }
@@ -561,10 +630,19 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
         totalExercises={exercises.length}
         onPrevious={goPrevious}
         onNext={goNext}
+        onAddCustomExercise={() => setShowAddCustomExercise(true)}
       />
 
       {currentIndex === exercises.length - 1 && (
         <FinishWorkoutButton onFinish={handleFinishWorkout} />
+      )}
+
+      {showAddCustomExercise && (
+        <AddCustomExerciseModal
+          onConfirm={handleAddCustomExercise}
+          onCancel={() => setShowAddCustomExercise(false)}
+          suggestions={exerciseSuggestions}
+        />
       )}
     </div>
   );

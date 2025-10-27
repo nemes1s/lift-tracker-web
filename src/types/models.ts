@@ -44,6 +44,7 @@ export interface ExerciseInstance {
   targetSets: number;
   targetReps?: string;
   notes?: string;
+  isCustom?: boolean; // Whether this exercise was added manually during the workout
 }
 
 export interface SetRecord {
