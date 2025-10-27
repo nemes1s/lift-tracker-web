@@ -206,12 +206,12 @@ export function TodayView() {
           </div>
 
           {/* Day Picker */}
-          <div className={`grid grid-cols-${maxDayIndex + 1} gap-2`}>
+          <div className="flex gap-2">
             {Array.from({ length: maxDayIndex + 1 }, (_, idx) => (
               <button
                 key={idx}
                 onClick={() => setSelectedDayIndex(idx)}
-                className={`py-3 px-3 rounded-xl font-bold transition-all duration-200 transform ${
+                className={`flex-1 py-3 px-3 rounded-xl font-bold transition-all duration-200 transform ${
                   selectedDayIndex === idx
                     ? 'bg-primary-600 text-white shadow-lg scale-105'
                     : 'bg-white text-gray-700 hover:bg-gray-50 hover:scale-105 shadow-md'
