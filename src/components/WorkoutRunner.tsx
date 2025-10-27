@@ -205,10 +205,14 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
   // Handle stop (end workout immediately)
   const handleStopWorkout = async () => {
+    console.log('[WorkoutRunner] handleStopWorkout started', { workoutId: workout.id });
+
     // Check if any sets were logged
     const hasAnySets = allExercisesWithSets.some(ex => ex.sets.length > 0);
+    console.log('[WorkoutRunner] Has any sets logged:', hasAnySets);
 
     if (!hasAnySets) {
+      console.log('[WorkoutRunner] No sets logged, deleting workout');
       // No sets logged - delete the workout and all exercise instances
       const exerciseInstances = await db.exerciseInstances
         .where('workoutId')
@@ -223,26 +227,31 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       // Delete the workout
       await db.workouts.delete(workout.id);
 
+      console.log('[WorkoutRunner] Clearing activeWorkout and triggering refresh');
       setActiveWorkout(null);
       triggerRefresh();
       return;
     }
 
     // Sets were logged - save the workout
+    console.log('[WorkoutRunner] Sets were logged, saving workout');
     if (isPaused && pauseStartTime) {
       const pausedDuration = new Date().getTime() - pauseStartTime.getTime();
       const newTotalPausedMs = totalPausedMs + pausedDuration;
+      console.log('[WorkoutRunner] Saving with paused duration');
       await db.workouts.update(workout.id, {
         endedAt: new Date(),
         totalPausedMs: newTotalPausedMs
       });
     } else {
+      console.log('[WorkoutRunner] Saving without paused duration');
       await db.workouts.update(workout.id, {
         endedAt: new Date(),
         totalPausedMs
       });
     }
 
+    console.log('[WorkoutRunner] Clearing activeWorkout and triggering refresh');
     setActiveWorkout(null);
     triggerRefresh();
   };
@@ -356,10 +365,14 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   };
 
   const handleFinishWorkout = async () => {
+    console.log('[WorkoutRunner] handleFinishWorkout started', { workoutId: workout.id });
+
     // Check if any sets were logged
     const hasAnySets = allExercisesWithSets.some(ex => ex.sets.length > 0);
+    console.log('[WorkoutRunner] Has any sets logged:', hasAnySets);
 
     if (!hasAnySets) {
+      console.log('[WorkoutRunner] No sets logged, deleting workout');
       // No sets logged - delete the workout and all exercise instances
       const exerciseInstances = await db.exerciseInstances
         .where('workoutId')
@@ -374,6 +387,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       // Delete the workout
       await db.workouts.delete(workout.id);
 
+      console.log('[WorkoutRunner] Clearing activeWorkout and triggering refresh');
       setActiveWorkout(null);
       triggerRefresh();
       alert('Workout cancelled - no sets were logged.');
@@ -381,20 +395,24 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     }
 
     // Sets were logged - save the workout
+    console.log('[WorkoutRunner] Sets were logged, saving workout');
     if (isPaused && pauseStartTime) {
       const pausedDuration = new Date().getTime() - pauseStartTime.getTime();
       const newTotalPausedMs = totalPausedMs + pausedDuration;
+      console.log('[WorkoutRunner] Saving with paused duration');
       await db.workouts.update(workout.id, {
         endedAt: new Date(),
         totalPausedMs: newTotalPausedMs
       });
     } else {
+      console.log('[WorkoutRunner] Saving without paused duration');
       await db.workouts.update(workout.id, {
         endedAt: new Date(),
         totalPausedMs
       });
     }
 
+    console.log('[WorkoutRunner] Clearing activeWorkout and triggering refresh');
     setActiveWorkout(null);
     triggerRefresh();
   };
@@ -414,27 +432,39 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const handleSubstituteExercise = async (newExerciseName: string) => {
     if (!currentExercise) return;
 
+    console.log('[WorkoutRunner] handleSubstituteExercise started', {
+      oldExerciseId: currentExercise.id,
+      oldExerciseName: currentExercise.name,
+      newExerciseName,
+      workoutId: workout.id,
+    });
+
     setIsSubstituting(true);
 
     try {
       // Update only the current exercise instance
+      console.log('[WorkoutRunner] Updating exercise in database');
       await db.exerciseInstances.update(currentExercise.id, {
         name: newExerciseName,
         notes: getExerciseNotes(newExerciseName) || currentExercise.notes
       });
+      console.log('[WorkoutRunner] Exercise updated successfully');
 
       // Reload exercises to reflect the change
+      console.log('[WorkoutRunner] Reloading exercises for workout:', workout.id);
       const updatedExercises = await db.exerciseInstances
         .where('workoutId')
         .equals(workout.id)
         .sortBy('orderIndex');
 
+      console.log('[WorkoutRunner] Updated exercises loaded:', updatedExercises.length, 'exercises');
       setExercises(updatedExercises);
 
       // Close substitution menu
       setShowSubstitutions(false);
 
       // Trigger a refresh to update any other views
+      console.log('[WorkoutRunner] Triggering refresh for other views');
       triggerRefresh();
     } catch (error) {
       console.error('Error substituting exercise:', error);

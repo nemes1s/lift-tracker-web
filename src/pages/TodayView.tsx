@@ -34,6 +34,7 @@ export function TodayView() {
 
   useEffect(() => {
     const initializeProgram = async () => {
+      console.log('[TodayView] initializeProgram started, refreshTrigger:', refreshTrigger);
       setIsLoading(true);
       try {
         // Clean up abandoned workouts from previous days
@@ -44,12 +45,17 @@ export function TodayView() {
 
         // Get the active program
         const program = await getActiveProgram();
-        if (!program) return;
+        if (!program) {
+          console.log('[TodayView] No active program found');
+          return;
+        }
 
+        console.log('[TodayView] Active program:', { id: program.id, name: program.name });
         setActiveProgram(program);
 
         // Calculate current week
         const week = currentWeek(program.startDate, program.totalWeeks);
+        console.log('[TodayView] Current week:', week);
         setWeekNumber(week);
 
         // Get max day index
@@ -63,10 +69,12 @@ export function TodayView() {
 
         // Get recommended day
         const recDay = await recommendedDay(program);
+        console.log('[TodayView] Recommended day:', recDay);
         setSelectedDayIndex(recDay);
 
         // Check for active workout
         const activeW = await findActiveWorkoutForToday();
+        console.log('[TodayView] Found active workout:', activeW ? { id: activeW.id, name: activeW.name } : 'NONE');
         setActiveWorkout(activeW || null);
       } catch (error) {
         console.error('Error initializing program:', error);
@@ -80,16 +88,28 @@ export function TodayView() {
 
   useEffect(() => {
     const loadTemplate = async () => {
-      if (!activeProgram) return;
+      if (!activeProgram) {
+        console.log('[TodayView] loadTemplate skipped (no activeProgram)');
+        return;
+      }
 
+      console.log('[TodayView] loadTemplate called for day:', selectedDayIndex, 'week:', weekNumber);
       const tmpl = await selectTemplate(activeProgram.id, weekNumber, selectedDayIndex);
+      console.log('[TodayView] Selected template:', tmpl ? { id: tmpl.id, name: tmpl.name, dayIndex: tmpl.dayIndex } : 'NONE');
       setTemplate(tmpl || null);
 
       // Update active workout if it matches selected day
       if (activeWorkout && tmpl && activeWorkout.name !== tmpl.name) {
+        console.log('[TodayView] Clearing activeWorkout: workout name does not match template', {
+          workoutName: activeWorkout.name,
+          templateName: tmpl.name,
+        });
         setActiveWorkout(null);
       } else if (activeWorkout && tmpl && activeWorkout.name === tmpl.name) {
+        console.log('[TodayView] Keeping activeWorkout: names match', { name: activeWorkout.name });
         setActiveWorkout(activeWorkout);
+      } else if (activeWorkout && !tmpl) {
+        console.log('[TodayView] Template not found, clearing activeWorkout');
       }
     };
 

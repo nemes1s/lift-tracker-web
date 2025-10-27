@@ -224,17 +224,46 @@ export async function findActiveWorkoutForToday(): Promise<Workout | undefined> 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  console.log('[findActiveWorkoutForToday] Today date:', {
+    todayDate: today.toISOString(),
+    todayTime: today.getTime(),
+    currentTime: new Date().toISOString(),
+  });
+
   const workouts = await db.workouts
     .orderBy('startedAt')
     .reverse()
     .toArray();
 
-  return workouts.find((w) => {
-    if (w.endedAt) return false;
+  console.log('[findActiveWorkoutForToday] Total workouts in DB:', workouts.length);
+  console.log('[findActiveWorkoutForToday] Recent workouts:', workouts.slice(0, 5).map(w => ({
+    id: w.id,
+    name: w.name,
+    startedAt: w.startedAt,
+    endedAt: w.endedAt,
+    startedAtIso: new Date(w.startedAt).toISOString(),
+  })));
+
+  const result = workouts.find((w) => {
+    if (w.endedAt) {
+      console.log('[findActiveWorkoutForToday] Skipping workout (has endedAt):', w.id);
+      return false;
+    }
     const workoutDate = new Date(w.startedAt);
     workoutDate.setHours(0, 0, 0, 0);
-    return workoutDate.getTime() === today.getTime();
+    const isMatch = workoutDate.getTime() === today.getTime();
+    console.log('[findActiveWorkoutForToday] Checking workout:', {
+      id: w.id,
+      name: w.name,
+      workoutDate: workoutDate.toISOString(),
+      workoutTime: workoutDate.getTime(),
+      isMatch,
+    });
+    return isMatch;
   });
+
+  console.log('[findActiveWorkoutForToday] Result:', result ? { id: result.id, name: result.name } : 'NOT FOUND');
+  return result;
 }
 
 // Calculate adaptive percentage increase based on weight
