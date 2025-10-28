@@ -497,9 +497,11 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     }
   };
 
-  const handleAddCustomExercise = async (exerciseName: string) => {
+  const handleAddCustomExercise = async (exerciseName: string, targetSets?: number, targetReps?: string) => {
     console.log('[WorkoutRunner] handleAddCustomExercise started', {
       exerciseName,
+      targetSets,
+      targetReps,
       workoutId: workout.id,
     });
 
@@ -510,8 +512,8 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
         name: exerciseName,
         workoutId: workout.id,
         orderIndex: exercises.length,
-        targetSets: 3,
-        targetReps: '8-10',
+        targetSets: targetSets || 3,
+        targetReps: targetReps || '8-10',
         isCustom: true,
       };
 

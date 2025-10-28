@@ -1,4 +1,8 @@
+import { useState } from 'react';
+import { ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 import { estimate1RM } from '../../utils/oneRM';
+import { db } from '../../db/database';
+import { v4 as uuidv4 } from 'uuid';
 
 interface SetRecord {
   id: string;
@@ -18,9 +22,62 @@ interface ExerciseWithSets {
 interface ExerciseListSectionProps {
   exercises: ExerciseWithSets[];
   exercise1RMChanges: Map<string, any>;
+  workoutId?: string;
+  onSetLogged?: () => void;
 }
 
-export function ExerciseListSection({ exercises, exercise1RMChanges }: ExerciseListSectionProps) {
+export function ExerciseListSection({ exercises, exercise1RMChanges, workoutId, onSetLogged }: ExerciseListSectionProps) {
+  const [expandedExerciseId, setExpandedExerciseId] = useState<string | null>(null);
+  const [weight, setWeight] = useState('');
+  const [reps, setReps] = useState('');
+  const [rpe, setRpe] = useState('');
+
+  const handleLogSet = async (exerciseId: string) => {
+    if (!workoutId || !weight || !reps) {
+      alert('Please enter weight and reps');
+      return;
+    }
+
+    try {
+      const set = {
+        id: uuidv4(),
+        exerciseId,
+        weight: parseFloat(weight),
+        reps: parseInt(reps),
+        rpe: rpe ? parseFloat(rpe) : undefined,
+        timestamp: new Date(),
+        isWarmup: false,
+      };
+
+      await db.setRecords.add(set);
+
+      // Clear inputs
+      setWeight('');
+      setReps('');
+      setRpe('');
+      setExpandedExerciseId(null);
+
+      // Trigger refresh
+      if (onSetLogged) {
+        onSetLogged();
+      }
+    } catch (error) {
+      console.error('Error logging set:', error);
+      alert('Failed to log set');
+    }
+  };
+
+  const handleDeleteSet = async (setId: string) => {
+    try {
+      await db.setRecords.delete(setId);
+      if (onSetLogged) {
+        onSetLogged();
+      }
+    } catch (error) {
+      console.error('Error deleting set:', error);
+      alert('Failed to delete set');
+    }
+  };
   return (
     <div className="space-y-4">
       {exercises.map((exercise) => {
@@ -60,10 +117,93 @@ export function ExerciseListSection({ exercises, exercise1RMChanges }: ExerciseL
                         @{set.rpe}
                       </span>
                     )}
+                    {workoutId && (
+                      <button
+                        onClick={() => handleDeleteSet(set.id)}
+                        className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded text-red-600 dark:text-red-400 transition-colors"
+                        title="Delete set"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
+
+            {workoutId && (
+              <div className="mt-4">
+                <button
+                  onClick={() => setExpandedExerciseId(expandedExerciseId === exercise.id ? null : exercise.id)}
+                  className="w-full flex items-center justify-between py-2 px-4 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg text-emerald-700 dark:text-emerald-400 font-semibold transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <Plus className="w-4 h-4" />
+                    Log New Set
+                  </span>
+                  {expandedExerciseId === exercise.id ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
+                </button>
+
+                {expandedExerciseId === exercise.id && (
+                  <div className="mt-3 p-4 bg-gray-50 dark:bg-slate-700 rounded-lg space-y-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                        Weight (kg)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.5"
+                        value={weight}
+                        onChange={(e) => setWeight(e.target.value)}
+                        placeholder="e.g., 50.5"
+                        className="w-full px-3 py-2 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-primary-500 dark:focus:border-primary-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                        Reps
+                      </label>
+                      <input
+                        type="number"
+                        value={reps}
+                        onChange={(e) => setReps(e.target.value)}
+                        placeholder="e.g., 8"
+                        className="w-full px-3 py-2 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-primary-500 dark:focus:border-primary-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                        RPE (optional)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="6"
+                        max="10"
+                        value={rpe}
+                        onChange={(e) => setRpe(e.target.value)}
+                        placeholder="e.g., 8"
+                        className="w-full px-3 py-2 border-2 border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:border-primary-500 dark:focus:border-primary-400"
+                      />
+                    </div>
+
+                    <button
+                      onClick={() => handleLogSet(exercise.id)}
+                      disabled={!weight || !reps}
+                      className="w-full py-2 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+                    >
+                      Log Set
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {best1RM > 0 && (
               <div className="mt-4 bg-primary-50 dark:bg-primary-900/30 rounded-xl p-3">

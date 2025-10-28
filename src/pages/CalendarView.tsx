@@ -229,11 +229,13 @@ export function WorkoutDetail() {
     setExerciseSuggestions(combined);
   }, [exercises]);
 
-  const handleAddCustomExercise = async (exerciseName: string) => {
+  const handleAddCustomExercise = async (exerciseName: string, targetSets?: number, targetReps?: string) => {
     if (!workout) return;
 
     console.log('[WorkoutDetail] handleAddCustomExercise started', {
       exerciseName,
+      targetSets,
+      targetReps,
       workoutId: workout.id,
     });
 
@@ -244,8 +246,8 @@ export function WorkoutDetail() {
         name: exerciseName,
         workoutId: workout.id,
         orderIndex: exercises.length,
-        targetSets: 3,
-        targetReps: '8-10',
+        targetSets: targetSets || 3,
+        targetReps: targetReps || '8-10',
         isCustom: true,
       };
 
@@ -327,12 +329,50 @@ export function WorkoutDetail() {
         </div>
 
         {/* Exercises */}
-        <ExerciseListSection exercises={exercises} exercise1RMChanges={exercise1RMChanges} />
+        <ExerciseListSection
+          exercises={exercises}
+          exercise1RMChanges={exercise1RMChanges}
+          workoutId={workout.id}
+          onSetLogged={async () => {
+            // Reload exercises when a set is logged
+            const workoutId = window.location.pathname.split('/').pop();
+            if (!workoutId) return;
+
+            const exs = await db.exerciseInstances
+              .where('workoutId')
+              .equals(workoutId)
+              .sortBy('orderIndex');
+
+            const exercisesWithSets = await Promise.all(
+              exs.map(async (ex) => {
+                const sets = await db.setRecords
+                  .where('exerciseId')
+                  .equals(ex.id)
+                  .sortBy('timestamp');
+
+                return { ...ex, sets };
+              })
+            );
+
+            setExercises(exercisesWithSets);
+
+            // Recalculate 1RM changes
+            const changes = new Map();
+            for (const ex of exercisesWithSets) {
+              const workingSets = ex.sets.filter((s: any) => !s.isWarmup);
+              if (workingSets.length > 0) {
+                const change = await calculate1RMChange(ex.name, workingSets, workout.startedAt);
+                changes.set(ex.id, change);
+              }
+            }
+            setExercise1RMChanges(changes);
+          }}
+        />
 
         {/* Add Custom Exercise Button */}
         <button
           onClick={() => setShowAddCustomExercise(true)}
-          className="w-full px-4 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
+          className="w-full px-4 py-3 mb-5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
         >
           <Plus className="w-5 h-5" />
           Add Custom Exercise
@@ -344,6 +384,7 @@ export function WorkoutDetail() {
           onConfirm={handleAddCustomExercise}
           onCancel={() => setShowAddCustomExercise(false)}
           suggestions={exerciseSuggestions}
+          allowCustomSetsReps={true}
         />
       )}
     </div>
