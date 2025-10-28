@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings } from 'lucide-react';
+import { Settings, Sparkles } from 'lucide-react';
 import { DisclaimerModal } from '../components/DisclaimerModal';
+import { WhatsNewModal } from '../components/WhatsNewModal';
 import { db } from '../db/database';
 import {
   generate5DaySplitData,
@@ -13,6 +14,7 @@ import {
 import { parseCSV, readCSVFile } from '../utils/csvParser';
 import { exportProgramWithProgress, downloadCSV } from '../utils/csvExporter';
 import { useAppStore } from '../store/appStore';
+import { parseAllVersions, type VersionChanges } from '../utils/changelogParser';
 import type { Program, SettingsModel } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
 import { isPersisted, getStorageEstimate } from '../utils/persistence';
@@ -39,6 +41,8 @@ export function SettingsView() {
   const [editingProgramName, setEditingProgramName] = useState('');
   const [exportingProgramId, setExportingProgramId] = useState<string | null>(null);
   const [showDisclaimerModal, setShowDisclaimerModal] = useState(false);
+  const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
+  const [changelogData, setChangelogData] = useState<VersionChanges[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { triggerRefresh, darkMode, toggleDarkMode } = useAppStore();
 
@@ -267,6 +271,14 @@ export function SettingsView() {
     setShowDisclaimerModal(false);
   };
 
+  const handleShowWhatsNew = async () => {
+    const allVersions = await parseAllVersions();
+    if (allVersions.length > 0) {
+      setChangelogData(allVersions);
+      setShowWhatsNewModal(true);
+    }
+  };
+
   const handleRestTimerToggle = async (field: keyof SettingsModel, value: boolean) => {
     if (!settings) return;
     await db.settings.update(settings.id, { [field]: value });
@@ -313,6 +325,27 @@ export function SettingsView() {
         <PWAInstallSection />
 
         <DisclaimerSection onShowDisclaimer={() => setShowDisclaimerModal(true)} />
+
+        {/* What's New Section */}
+        <div className="card p-6 bg-white dark:bg-slate-800">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white">What's New</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">View latest changes and improvements</p>
+              </div>
+            </div>
+            <button
+              onClick={handleShowWhatsNew}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+            >
+              View Changes
+            </button>
+          </div>
+        </div>
 
         <StorageInfoSection persisted={persisted} storageInfo={storageInfo} />
 
@@ -367,6 +400,13 @@ export function SettingsView() {
           <DisclaimerModal
             onAccept={handleDisclaimerAccept}
             onDismiss={handleDisclaimerDismiss}
+          />
+        )}
+
+        {showWhatsNewModal && changelogData.length > 0 && (
+          <WhatsNewModal
+            changes={changelogData}
+            onClose={() => setShowWhatsNewModal(false)}
           />
         )}
       </div>

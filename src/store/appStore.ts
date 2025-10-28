@@ -9,6 +9,8 @@ interface AppState {
   weekNumber: number;
   showSplash: boolean;
   darkMode: boolean;
+  whatsNewOpen: boolean;
+  lastSeenVersion: string | null;
 
   setActiveProgram: (program: Program | null) => void;
   setActiveWorkout: (workout: Workout | null) => void;
@@ -17,6 +19,8 @@ interface AppState {
   setShowSplash: (show: boolean) => void;
   setDarkMode: (enabled: boolean) => void;
   toggleDarkMode: () => void;
+  setWhatsNewOpen: (open: boolean) => void;
+  setLastSeenVersion: (version: string) => void;
   refreshTrigger: number;
   triggerRefresh: () => void;
 }
@@ -30,6 +34,8 @@ export const useAppStore = create<AppState>()(
       weekNumber: 1,
       showSplash: true,
       darkMode: false,
+      whatsNewOpen: false,
+      lastSeenVersion: null,
       refreshTrigger: 0,
 
       setActiveProgram: (program) => set({ activeProgram: program }),
@@ -39,11 +45,13 @@ export const useAppStore = create<AppState>()(
       setShowSplash: (show) => set({ showSplash: show }),
       setDarkMode: (enabled) => set({ darkMode: enabled }),
       toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
+      setWhatsNewOpen: (open) => set({ whatsNewOpen: open }),
+      setLastSeenVersion: (version) => set({ lastSeenVersion: version }),
       triggerRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),
     }),
     {
       name: 'app-storage',
-      partialize: (state) => ({ darkMode: state.darkMode }),
+      partialize: (state) => ({ darkMode: state.darkMode, lastSeenVersion: state.lastSeenVersion }),
     }
   )
 );

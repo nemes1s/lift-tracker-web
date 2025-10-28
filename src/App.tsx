@@ -10,8 +10,11 @@ import { ProgramPreviewView } from './pages/ProgramPreviewView';
 import { InstallPrompt } from './components/InstallPrompt';
 import { UpdatePrompt } from './components/UpdatePrompt';
 import { DisclaimerModal } from './components/DisclaimerModal';
+import { WhatsNewModal } from './components/WhatsNewModal';
 import { useAppStore } from './store/appStore';
 import { initializePersistence } from './utils/persistence';
+import { parseAllVersions, type VersionChanges } from './utils/changelogParser';
+import { APP_VERSION } from './version';
 import { db } from './db/database';
 import { v4 as uuidv4 } from 'uuid';
 import { initAudioContext } from './utils/audio';
@@ -19,7 +22,13 @@ import { initAudioContext } from './utils/audio';
 function App() {
   const showSplash = useAppStore((state) => state.showSplash);
   const darkMode = useAppStore((state) => state.darkMode);
+  const whatsNewOpen = useAppStore((state) => state.whatsNewOpen);
+  const lastSeenVersion = useAppStore((state) => state.lastSeenVersion);
+  const setWhatsNewOpen = useAppStore((state) => state.setWhatsNewOpen);
+  const setLastSeenVersion = useAppStore((state) => state.setLastSeenVersion);
+
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [changelogData, setChangelogData] = useState<VersionChanges[]>([]);
 
   useEffect(() => {
     // Apply dark mode class to document
@@ -77,9 +86,23 @@ function App() {
       }
     };
 
+    // Check if there's a new version and show What's New modal
+    const checkWhatsNew = async () => {
+      // If version has changed, show the What's New modal
+      if (lastSeenVersion !== APP_VERSION) {
+        const allVersions = await parseAllVersions();
+        if (allVersions.length > 0) {
+          setChangelogData(allVersions);
+          setWhatsNewOpen(true);
+          setLastSeenVersion(APP_VERSION);
+        }
+      }
+    };
+
     initPersistence();
     checkDisclaimer();
-  }, []);
+    checkWhatsNew();
+  }, [lastSeenVersion, setWhatsNewOpen, setLastSeenVersion]);
 
   const handleDisclaimerAccept = async (dontShowAgain: boolean) => {
     const settings = await db.settings.toCollection().first();
@@ -115,6 +138,12 @@ function App() {
         <DisclaimerModal
           onAccept={handleDisclaimerAccept}
           onDismiss={handleDisclaimerDismiss}
+        />
+      )}
+      {whatsNewOpen && changelogData.length > 0 && (
+        <WhatsNewModal
+          changes={changelogData}
+          onClose={() => setWhatsNewOpen(false)}
         />
       )}
       <Routes>
