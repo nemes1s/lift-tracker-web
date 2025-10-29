@@ -5,13 +5,15 @@ interface WorkoutControlsSectionProps {
   onPause: () => void;
   onResume: () => void;
   onStop: () => void;
+  isQuickWorkout?: boolean;
 }
 
 export function WorkoutControlsSection({
   isPaused,
   onPause,
   onResume,
-  onStop
+  onStop,
+  isQuickWorkout
 }: WorkoutControlsSectionProps) {
   return (
     <div className={`card p-4 transition-all duration-200 ${isPaused ? 'bg-yellow-50 border-2 border-yellow-300' : 'bg-white'}`}>
@@ -24,6 +26,11 @@ export function WorkoutControlsSection({
           <h2 className={`text-lg font-bold ${isPaused ? 'text-yellow-700' : 'text-green-700'}`}>
             {isPaused ? 'Paused' : 'Running'}
           </h2>
+          {isQuickWorkout && (
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300">
+              ⚡ Quick
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {!isPaused ? (

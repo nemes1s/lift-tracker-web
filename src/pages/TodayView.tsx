@@ -134,10 +134,10 @@ export function TodayView() {
     loadTemplate();
   }, [activeProgram, weekNumber, selectedDayIndex, activeWorkout, setActiveWorkout]);
 
-  const handleStartWorkout = async () => {
+  const handleStartWorkout = async (isQuickWorkout: boolean = false) => {
     if (!template || !activeProgram) return;
 
-    const workout = await instantiateWorkout(template, activeProgram.name);
+    const workout = await instantiateWorkout(template, activeProgram.name, isQuickWorkout);
     setActiveWorkout(workout);
   };
 
@@ -231,13 +231,22 @@ export function TodayView() {
         ) : (
           <div className="card p-6">
             {template ? (
-              <button
-                onClick={handleStartWorkout}
-                className="btn-primary w-full text-lg flex items-center justify-center gap-3"
-              >
-                <Activity className="w-6 h-6" />
-                Start {template.name}
-              </button>
+              <div className="flex gap-2 sm:flex-row flex-col">
+                <button
+                  onClick={() => handleStartWorkout(false)}
+                  className="btn-primary flex-1 text-lg flex items-center justify-center gap-3"
+                >
+                  <Activity className="w-6 h-6" />
+                  Start {template.name}
+                </button>
+                <button
+                  onClick={() => handleStartWorkout(true)}
+                  className="flex-1 px-4 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                  title="Quick workout with ~70% of the usual volume"
+                >
+                  ⚡ Quick (~70% volume)
+                </button>
+              </div>
             ) : (
               <p className="text-center text-gray-600 py-4">
                 No workout template for Week {weekNumber}, Day {selectedDayIndex + 1}

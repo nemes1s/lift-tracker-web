@@ -18,6 +18,7 @@ interface ChartDataPoint {
   volume: number;
   oneRepMax: number;
   reps: number;
+  isQuickWorkout?: boolean;
 }
 
 interface WeightProgressionChartSectionProps {
@@ -61,7 +62,12 @@ export function WeightProgressionChartSection({ chartData }: WeightProgressionCh
               }}
               labelFormatter={(label) => {
                 const entry = chartData.find((d) => d.date === label);
-                return entry ? entry.fullDate : label;
+                if (entry) {
+                  const dateStr = entry.fullDate;
+                  const badge = entry.isQuickWorkout ? ' ⚡ Quick Workout' : '';
+                  return dateStr + badge;
+                }
+                return label;
               }}
             />
             <Legend />

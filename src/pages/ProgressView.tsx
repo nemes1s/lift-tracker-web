@@ -114,6 +114,7 @@ export function ProgressView() {
     volume: d.volume,
     oneRepMax: Math.round(d.oneRepMax * 10) / 10,
     reps: d.reps,
+    isQuickWorkout: d.isQuickWorkout ?? false,
   }));
 
   return (

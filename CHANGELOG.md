@@ -2,6 +2,20 @@
 
 All notable changes to LiftTracker Web are documented in this file.
 
+## [0.4.0] - 2025-10-29
+
+### Features
+- **Quick Workout Mode**: New quick workout option that reduces volume by ~30% for busy/tired days
+  - Dedicated "⚡ Quick" button on Today view for easy access
+  - Automatically reduces set counts while keeping rep targets and exercises the same
+  - Perfect for maintaining training consistency when time or energy is limited
+
+### Improvements
+- Better visual indicators for quick workouts throughout the app
+  - Quick badge displays in active workout header
+  - Calendar view shows "⚡ Quick" indicator for completed quick workouts
+  - Progress tracking distinguishes quick vs full workouts in charts
+
 ## [0.3.0] - 2025-10-28
 
 ### Features

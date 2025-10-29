@@ -8,6 +8,7 @@ export interface ExerciseProgressData {
   volume: number; // weight × reps
   oneRepMax: number; // Calculated 1RM
   exerciseName: string;
+  isQuickWorkout?: boolean; // Whether the workout was a quick workout
 }
 
 export interface ExerciseStats {
@@ -154,7 +155,46 @@ export async function getBestSetPerWorkout(exerciseName: string): Promise<Exerci
     bestSets.push(best);
   }
 
-  return bestSets.sort((a, b) => a.date.getTime() - b.date.getTime());
+  // Sort and then fetch workout info to add isQuickWorkout flag
+  const sorted = bestSets.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+  // Enrich with workout info
+  for (const set of sorted) {
+    // Find the exercise instance for this set
+    const exerciseInstance = await db.exerciseInstances
+      .filter(ex => ex.name === exerciseName)
+      .toArray();
+
+    // Find the set record matching this data
+    let workoutId: string | undefined;
+    for (const ex of exerciseInstance) {
+      const setRecord = await db.setRecords
+        .where('exerciseId')
+        .equals(ex.id)
+        .filter(s => {
+          const d = new Date(s.timestamp);
+          return d.getTime() === set.date.getTime() &&
+                 s.weight === set.weight &&
+                 s.reps === set.reps;
+        })
+        .first();
+
+      if (setRecord) {
+        workoutId = ex.workoutId;
+        break;
+      }
+    }
+
+    // Get the workout to check if it's a quick workout
+    if (workoutId) {
+      const workout = await db.workouts.get(workoutId);
+      if (workout) {
+        set.isQuickWorkout = workout.isQuickWorkout ?? false;
+      }
+    }
+  }
+
+  return sorted;
 }
 
 /**

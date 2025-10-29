@@ -307,9 +307,16 @@ export function WorkoutDetail() {
       <div className="max-w-2xl mx-auto p-6 space-y-6">
         {/* Workout Header */}
         <div className="card p-6 bg-white dark:bg-slate-800">
-          <h1 className="text-2xl font-bold text-primary-700 dark:text-primary-400 mb-3">
-            {workout.name}
-          </h1>
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <h1 className="text-2xl font-bold text-primary-700 dark:text-primary-400">
+              {workout.name}
+            </h1>
+            {workout.isQuickWorkout && (
+              <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border-2 border-blue-200 dark:border-blue-800 whitespace-nowrap">
+                ⚡ Quick Workout
+              </span>
+            )}
+          </div>
           <p className="text-gray-700 dark:text-gray-300 font-medium">
             {new Date(workout.startedAt).toLocaleDateString('en-US', {
               weekday: 'long',

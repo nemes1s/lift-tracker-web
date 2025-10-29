@@ -34,6 +34,7 @@ export interface Workout {
   endedAt?: Date;
   programNameSnapshot?: string;
   totalPausedMs?: number; // Total time workout was paused in milliseconds
+  isQuickWorkout?: boolean; // Whether this was a quick workout with reduced volume (~70% of sets)
 }
 
 export interface ExerciseInstance {

@@ -48,6 +48,9 @@ export class LiftTrackerDatabase extends Dexie {
 
     // Version 5: Add isCustom field to exerciseInstances (no schema change needed, Dexie handles new fields automatically)
     this.version(5).stores({});
+
+    // Version 6: Add isQuickWorkout field to workouts (no schema change needed, Dexie handles new fields automatically)
+    this.version(6).stores({});
   }
 }
 
