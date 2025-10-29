@@ -562,6 +562,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
         onPause={handlePause}
         onResume={handleResume}
         onStop={handleStopWorkout}
+        isQuickWorkout={workout.isQuickWorkout}
       />
 
       <ExerciseHeaderSection

@@ -85,7 +85,8 @@ export async function recommendedDay(program: Program): Promise<number> {
 // Create a new workout instance from a template
 export async function instantiateWorkout(
   template: WorkoutTemplate,
-  programName?: string
+  programName?: string,
+  isQuickWorkout?: boolean
 ): Promise<Workout> {
   const workoutId = uuidv4();
 
@@ -94,6 +95,7 @@ export async function instantiateWorkout(
     name: template.name,
     startedAt: new Date(),
     programNameSnapshot: programName,
+    isQuickWorkout: isQuickWorkout ?? false,
   };
 
   await db.workouts.add(workout);
@@ -107,12 +109,17 @@ export async function instantiateWorkout(
   // Create exercise instances
   for (let i = 0; i < exercises.length; i++) {
     const et = exercises[i];
+    // Reduce sets by 30% if quick workout (70% of original sets)
+    const targetSets = isQuickWorkout
+      ? Math.max(1, Math.ceil(et.targetSets * 0.7))
+      : et.targetSets;
+
     const ex: ExerciseInstance = {
       id: uuidv4(),
       name: et.name,
       workoutId,
       orderIndex: i,
-      targetSets: et.targetSets,
+      targetSets,
       targetReps: et.targetReps,
       notes: et.notes,
     };
