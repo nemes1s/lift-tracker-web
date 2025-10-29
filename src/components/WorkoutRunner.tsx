@@ -51,12 +51,18 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
   // Rest timer state
   const [settings, setSettings] = useState<SettingsModel | null>(null);
-  const [restTimerActive, setRestTimerActive] = useState(false);
-  const [restTimerSecondsLeft, setRestTimerSecondsLeft] = useState(0);
-  const [restTimerDuration, setRestTimerDuration] = useState(90);
-  const [restTimerCompleted, setRestTimerCompleted] = useState(false);
 
-  const { setActiveWorkout, triggerRefresh } = useAppStore();
+  const {
+    setActiveWorkout,
+    triggerRefresh,
+    restTimer,
+    setRestTimer,
+    startRestTimer: zustandStartRestTimer,
+    skipRestTimer: zustandSkipRestTimer,
+    addRestTime: zustandAddRestTime,
+    tickRestTimer,
+    resetRestTimer,
+  } = useAppStore();
 
   const currentExercise = exercises[currentIndex];
 
@@ -66,12 +72,15 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       const sett = await db.settings.toCollection().first();
       if (sett) {
         setSettings(sett);
-        setRestTimerDuration(sett.restTimerDuration || 90);
+        // Set the default timer duration from settings
+        if (restTimer.duration !== (sett.restTimerDuration || 90)) {
+          setRestTimer({ duration: sett.restTimerDuration || 90 });
+        }
       }
     };
 
     loadSettings();
-  }, []);
+  }, [setRestTimer]);
 
   // Load exercises
   useEffect(() => {
@@ -154,8 +163,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     setWeightText('');
     setRepsText('');
     setRpeText('');
-    // Clear rest timer when changing exercise
-    skipRestTimer();
+    // Keep rest timer running when changing exercise
   }, [currentExercise]);
 
   // Initial load of all sets
@@ -176,34 +184,31 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
   // Rest timer countdown - only runs when timer is active and workout not paused
   useEffect(() => {
-    if (!restTimerActive || isPaused || restTimerSecondsLeft <= 0) return;
+    if (!restTimer.isActive || isPaused || restTimer.secondsLeft <= 0) return;
 
     const interval = setInterval(() => {
-      setRestTimerSecondsLeft(prev => {
-        if (prev <= 1) {
-          // Timer completed
-          setRestTimerActive(false);
-          setRestTimerCompleted(true);
+      const nextSeconds = restTimer.secondsLeft - 1;
 
-          // Play notification if enabled
-          if (settings?.restTimerSound !== false) {
-            playTimerNotification(true);
-          }
+      if (nextSeconds <= 0) {
+        // Timer completed
+        setRestTimer({ isActive: false, secondsLeft: 0, isCompleted: true });
 
-          return 0;
+        // Play notification if enabled
+        if (settings?.restTimerSound !== false) {
+          playTimerNotification(true);
         }
-
+      } else {
         // Play countdown beeps at 2 and 1 seconds remaining
-        if ((prev === 2 || prev === 3) && settings?.restTimerSound !== false) {
+        if ((nextSeconds === 1 || nextSeconds === 2) && settings?.restTimerSound !== false) {
           playCountdownBeep();
         }
 
-        return prev - 1;
-      });
+        tickRestTimer();
+      }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [restTimerActive, isPaused, restTimerSecondsLeft, settings]);
+  }, [restTimer.isActive, restTimer.secondsLeft, isPaused, tickRestTimer, setRestTimer, settings]);
 
   // Handle pause
   const handlePause = async () => {
@@ -251,6 +256,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       await db.workouts.delete(workout.id);
 
       console.log('[WorkoutRunner] Clearing activeWorkout and triggering refresh');
+      resetRestTimer();
       setActiveWorkout(null);
       triggerRefresh();
       return;
@@ -275,6 +281,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     }
 
     console.log('[WorkoutRunner] Clearing activeWorkout and triggering refresh');
+    resetRestTimer();
     setActiveWorkout(null);
     triggerRefresh();
   };
@@ -348,25 +355,19 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     }
   };
 
-  // Rest timer functions
-  const startRestTimer = (duration: number = restTimerDuration) => {
+  // Rest timer functions (wrapped to use Zustand)
+  const startRestTimer = (duration: number = restTimer.duration) => {
     // Initialize audio context on user interaction (required for iOS)
     initAudioContext();
-
-    setRestTimerDuration(duration);
-    setRestTimerSecondsLeft(duration);
-    setRestTimerActive(true);
-    setRestTimerCompleted(false);
+    zustandStartRestTimer(duration);
   };
 
   const skipRestTimer = () => {
-    setRestTimerActive(false);
-    setRestTimerSecondsLeft(0);
-    setRestTimerCompleted(false);
+    zustandSkipRestTimer();
   };
 
   const addRestTime = (seconds: number) => {
-    setRestTimerSecondsLeft(prev => prev + seconds);
+    zustandAddRestTime(seconds);
   };
 
   const handleDeleteSet = async (setId: string) => {
@@ -411,6 +412,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       await db.workouts.delete(workout.id);
 
       console.log('[WorkoutRunner] Clearing activeWorkout and triggering refresh');
+      resetRestTimer();
       setActiveWorkout(null);
       triggerRefresh();
       alert('Workout cancelled - no sets were logged.');
@@ -436,6 +438,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     }
 
     console.log('[WorkoutRunner] Clearing activeWorkout and triggering refresh');
+    resetRestTimer();
     setActiveWorkout(null);
     triggerRefresh();
   };
@@ -585,24 +588,24 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
         onDeleteSet={handleDeleteSet}
       />
 
-      {(restTimerActive || restTimerCompleted) && settings?.restTimerEnabled !== false && (
+      {(restTimer.isActive || restTimer.isCompleted) && settings?.restTimerEnabled !== false && (
         <RestTimerSection
-          isActive={restTimerActive}
-          isCompleted={restTimerCompleted}
-          secondsLeft={restTimerSecondsLeft}
-          duration={restTimerDuration}
+          isActive={restTimer.isActive}
+          isCompleted={restTimer.isCompleted}
+          secondsLeft={restTimer.secondsLeft}
+          duration={restTimer.duration}
           onStart={startRestTimer}
           onSkip={skipRestTimer}
           onAddTime={addRestTime}
         />
       )}
 
-      {!restTimerActive && !restTimerCompleted && settings?.restTimerEnabled !== false && sets.length > 0 && (
+      {!restTimer.isActive && !restTimer.isCompleted && settings?.restTimerEnabled !== false && sets.length > 0 && (
         <RestTimerSection
           isActive={false}
           isCompleted={false}
           secondsLeft={0}
-          duration={restTimerDuration}
+          duration={restTimer.duration}
           onStart={startRestTimer}
           onSkip={skipRestTimer}
           onAddTime={addRestTime}

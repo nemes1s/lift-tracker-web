@@ -2,6 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Program, Workout } from '../types/models';
 
+interface RestTimerState {
+  isActive: boolean;
+  secondsLeft: number;
+  duration: number;
+  isCompleted: boolean;
+}
+
 interface AppState {
   activeProgram: Program | null;
   activeWorkout: Workout | null;
@@ -11,6 +18,7 @@ interface AppState {
   darkMode: boolean;
   whatsNewOpen: boolean;
   lastSeenVersion: string | null;
+  restTimer: RestTimerState;
 
   setActiveProgram: (program: Program | null) => void;
   setActiveWorkout: (workout: Workout | null) => void;
@@ -23,6 +31,14 @@ interface AppState {
   setLastSeenVersion: (version: string) => void;
   refreshTrigger: number;
   triggerRefresh: () => void;
+
+  // Timer actions
+  setRestTimer: (timer: Partial<RestTimerState>) => void;
+  startRestTimer: (duration: number) => void;
+  skipRestTimer: () => void;
+  addRestTime: (seconds: number) => void;
+  tickRestTimer: () => void;
+  resetRestTimer: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -37,6 +53,12 @@ export const useAppStore = create<AppState>()(
       whatsNewOpen: false,
       lastSeenVersion: null,
       refreshTrigger: 0,
+      restTimer: {
+        isActive: false,
+        secondsLeft: 0,
+        duration: 90,
+        isCompleted: false,
+      },
 
       setActiveProgram: (program) => set({ activeProgram: program }),
       setActiveWorkout: (workout) => set({ activeWorkout: workout }),
@@ -48,6 +70,47 @@ export const useAppStore = create<AppState>()(
       setWhatsNewOpen: (open) => set({ whatsNewOpen: open }),
       setLastSeenVersion: (version) => set({ lastSeenVersion: version }),
       triggerRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),
+
+      // Timer actions
+      setRestTimer: (timer) => set((state) => ({
+        restTimer: { ...state.restTimer, ...timer },
+      })),
+      startRestTimer: (duration) => set({
+        restTimer: {
+          isActive: true,
+          secondsLeft: duration,
+          duration,
+          isCompleted: false,
+        },
+      }),
+      skipRestTimer: () => set({
+        restTimer: {
+          isActive: false,
+          secondsLeft: 0,
+          duration: 90,
+          isCompleted: false,
+        },
+      }),
+      addRestTime: (seconds) => set((state) => ({
+        restTimer: {
+          ...state.restTimer,
+          secondsLeft: state.restTimer.secondsLeft + seconds,
+        },
+      })),
+      tickRestTimer: () => set((state) => ({
+        restTimer: {
+          ...state.restTimer,
+          secondsLeft: Math.max(0, state.restTimer.secondsLeft - 1),
+        },
+      })),
+      resetRestTimer: () => set({
+        restTimer: {
+          isActive: false,
+          secondsLeft: 0,
+          duration: 90,
+          isCompleted: false,
+        },
+      }),
     }),
     {
       name: 'app-storage',
