@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { db } from '../db/database';
 import { previousWorkoutInstances, getProgressiveOverloadSuggestion } from '../utils/programLogic';
 import type { ProgressiveOverloadSuggestion } from '../utils/programLogic';
@@ -25,6 +26,7 @@ interface WorkoutRunnerProps {
 }
 
 export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
+  const navigate = useNavigate();
   const [exercises, setExercises] = useState<ExerciseInstance[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sets, setSets] = useState<SetRecord[]>([]);
@@ -284,6 +286,10 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     resetRestTimer();
     setActiveWorkout(null);
     triggerRefresh();
+
+    // Navigate to the completed workout detail page
+    console.log('[WorkoutRunner] Navigating to workout detail page:', workout.id);
+    navigate(`/workout/${workout.id}`);
   };
 
   const handleLogSet = async () => {
@@ -441,6 +447,10 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     resetRestTimer();
     setActiveWorkout(null);
     triggerRefresh();
+
+    // Navigate to the completed workout detail page
+    console.log('[WorkoutRunner] Navigating to workout detail page:', workout.id);
+    navigate(`/workout/${workout.id}`);
   };
 
   const goNext = () => {
