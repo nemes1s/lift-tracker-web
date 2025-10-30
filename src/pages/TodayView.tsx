@@ -146,7 +146,7 @@ export function TodayView() {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
         </div>
       </div>
     );
@@ -156,7 +156,7 @@ export function TodayView() {
     return (
       <div className="flex items-center justify-center h-full p-6">
         <div className="text-center">
-          <p className="text-gray-600">No program found. Please create one in Settings.</p>
+          <p className="text-gray-600 dark:text-gray-400">No program found. Please create one in Settings.</p>
         </div>
       </div>
     );
@@ -166,13 +166,13 @@ export function TodayView() {
     <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto p-6 space-y-6">
         {/* Program Header */}
-        <div className="card p-6 bg-white">
+        <div className="card p-6 bg-white dark:bg-slate-800">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-3 bg-primary-600 rounded-2xl shadow-lg">
               <Activity className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-primary-700">
+              <h1 className="text-2xl font-bold text-primary-700 dark:text-primary-400">
                 {activeProgram.name}
               </h1>
               <p className="text-sm text-gray-500 mt-0.5 dark:text-gray-400">Let's crush it today!</p>
@@ -180,14 +180,14 @@ export function TodayView() {
           </div>
 
           {/* Week Progress */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 mb-5 shadow-inner-lg dark:bg-slate-800">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 mb-5 shadow-inner-lg dark:bg-slate-700">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">Training Week</span>
               <span className="font-bold text-lg text-primary-700 dark:text-primary-400">
                 {weekNumber} of {activeProgram.totalWeeks}
               </span>
             </div>
-            <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden">
+            <div className="relative h-3 bg-gray-200 dark:bg-slate-600 rounded-full overflow-hidden">
               <div
                 className="absolute h-full bg-primary-600 rounded-full transition-all duration-500"
                 style={{
@@ -214,7 +214,7 @@ export function TodayView() {
                 className={`flex-1 py-3 px-3 rounded-xl font-bold transition-all duration-200 transform ${
                   selectedDayIndex === idx
                     ? 'bg-primary-600 text-white shadow-lg scale-105'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 hover:scale-105 shadow-md'
+                    : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600 hover:scale-105 shadow-md'
                 }`}
               >
                 Day {idx + 1}
@@ -241,14 +241,14 @@ export function TodayView() {
                 </button>
                 <button
                   onClick={() => handleStartWorkout(true)}
-                  className="flex-1 px-4 py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                  className="flex-1 px-4 py-3 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-400 font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                   title="Quick workout with ~70% of the usual volume"
                 >
                   ⚡ Quick (~70% volume)
                 </button>
               </div>
             ) : (
-              <p className="text-center text-gray-600 py-4">
+              <p className="text-center text-gray-600 dark:text-gray-400 py-4">
                 No workout template for Week {weekNumber}, Day {selectedDayIndex + 1}
               </p>
             )}

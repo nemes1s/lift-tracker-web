@@ -79,15 +79,15 @@ export function CalendarGrid({
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="card p-5 bg-white">
+    <div className="card p-5 bg-white dark:bg-slate-800">
       {/* Month/Year Header with Navigation */}
       <div className="flex items-center justify-between mb-5">
         <button
           onClick={handlePreviousMonth}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-all"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-all"
           aria-label="Previous month"
         >
-          <ChevronLeft className="w-6 h-6 text-gray-700" />
+          <ChevronLeft className="w-6 h-6 text-gray-700 dark:text-gray-400" />
         </button>
 
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -96,10 +96,10 @@ export function CalendarGrid({
 
         <button
           onClick={handleNextMonth}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-all"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-all"
           aria-label="Next month"
         >
-          <ChevronRight className="w-6 h-6 text-gray-700" />
+          <ChevronRight className="w-6 h-6 text-gray-700 dark:text-gray-400" />
         </button>
       </div>
 
@@ -108,7 +108,7 @@ export function CalendarGrid({
         {dayNames.map((name) => (
           <div
             key={name}
-            className="text-center text-xs font-bold text-gray-500 uppercase tracking-wider py-2"
+            className="text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider py-2"
           >
             {name}
           </div>
@@ -137,10 +137,10 @@ export function CalendarGrid({
                 ${selected
                   ? 'bg-primary-600 text-white shadow-lg scale-105'
                   : today
-                  ? 'bg-primary-100 text-primary-700 hover:bg-primary-200'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                  ? 'bg-primary-100 text-primary-700 hover:bg-primary-200 dark:bg-primary-900/30 dark:text-primary-400 dark:hover:bg-primary-900/50'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600'
                 }
-                ${workout ? 'ring-2 ring-green-500 ring-offset-1' : ''}
+                ${workout ? 'ring-2 ring-green-500 ring-offset-1 dark:ring-green-400' : ''}
               `}
             >
               <span className="block">{day}</span>
@@ -157,13 +157,13 @@ export function CalendarGrid({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-4 mt-4 text-xs text-gray-600">
+      <div className="flex items-center justify-center gap-4 mt-4 text-xs text-gray-600 dark:text-gray-400">
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-full bg-primary-100 border-2 border-primary-200" />
+          <div className="w-3 h-3 rounded-full bg-primary-100 border-2 border-primary-200 dark:bg-primary-900/30 dark:border-primary-800" />
           <span>Today</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded-full bg-white ring-2 ring-green-500" />
+          <div className="w-3 h-3 rounded-full bg-white ring-2 ring-green-500 dark:bg-slate-700 dark:ring-green-400" />
           <span>Has workout</span>
         </div>
       </div>
