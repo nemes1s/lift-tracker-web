@@ -2,6 +2,25 @@
 
 All notable changes to LiftTracker Web are documented in this file.
 
+## [0.5.0] - 2025-10-30
+
+### Features
+- **Interactive Tour**: New guided tour for first-time users showcasing all main features
+  - Comprehensive 10-step tour covering Today view, Calendar, Progress, and Settings
+  - Auto-starts on first app launch with proper modal coordination
+  - Manual restart available from Settings via "Help & Tour" section
+  - Automatic page navigation between tour steps for seamless experience
+
+### Bug Fixes
+- Fixed tour navigation to properly advance through all 10 steps
+- Fixed tour state management to prevent accidental restarts
+- Fixed element detection and refresh timing for dynamic page transitions
+
+### Improvements
+- Enhanced onboarding experience with visual tour guidance
+- Better user guidance for discovering app features
+- Improved tour completion tracking with localStorage persistence
+
 ## [0.4.0] - 2025-10-29
 
 ### Features
