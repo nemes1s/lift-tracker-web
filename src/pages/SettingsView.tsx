@@ -20,7 +20,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { isPersisted, getStorageEstimate } from '../utils/persistence';
 import { APP_VERSION } from '../version';
 import { AppearanceSection } from '../components/SettingsView/AppearanceSection';
-import { PWAInstallSection, DisclaimerSection, FormulaSection } from '../components/SettingsView/SimpleSection';
+import { PWAInstallSection, DisclaimerSection, FormulaSection, TourSection } from '../components/SettingsView/SimpleSection';
 import { StorageInfoSection } from '../components/SettingsView/StorageInfoSection';
 import { RestTimerSettingsSection } from '../components/SettingsView/RestTimerSettingsSection';
 import { ActiveProgramSection } from '../components/SettingsView/ActiveProgramSection';
@@ -44,7 +44,7 @@ export function SettingsView() {
   const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
   const [changelogData, setChangelogData] = useState<VersionChanges[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { triggerRefresh, darkMode, toggleDarkMode } = useAppStore();
+  const { triggerRefresh, darkMode, toggleDarkMode, startTour } = useAppStore();
 
   useEffect(() => {
     loadData();
@@ -325,6 +325,8 @@ export function SettingsView() {
         <PWAInstallSection />
 
         <DisclaimerSection onShowDisclaimer={() => setShowDisclaimerModal(true)} />
+
+        <TourSection onStartTour={startTour} />
 
         {/* What's New Section */}
         <div className="card p-6 bg-white dark:bg-slate-800">

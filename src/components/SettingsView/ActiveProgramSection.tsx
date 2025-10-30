@@ -9,7 +9,7 @@ interface ActiveProgramSectionProps {
 
 export function ActiveProgramSection({ programs, settings, onSetActive }: ActiveProgramSectionProps) {
   return (
-    <div className="card p-6 bg-white dark:bg-slate-800">
+    <div className="card p-6 bg-white dark:bg-slate-800" data-tour="settings-programs">
       <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-4">Active Program</h2>
       {programs.length === 0 ? (
         <p className="text-gray-600 dark:text-gray-400 text-sm italic">No programs available. Create one below.</p>

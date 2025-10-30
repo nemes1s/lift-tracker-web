@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { SplashScreen } from './components/SplashScreen';
 import { Layout } from './components/Layout';
+import { Tour } from './components/Tour';
 import { TodayView } from './pages/TodayView';
 import { CalendarView, WorkoutDetail } from './pages/CalendarView';
 import { ProgressView } from './pages/ProgressView';
@@ -24,6 +25,8 @@ function App() {
   const darkMode = useAppStore((state) => state.darkMode);
   const whatsNewOpen = useAppStore((state) => state.whatsNewOpen);
   const lastSeenVersion = useAppStore((state) => state.lastSeenVersion);
+  const tourCompleted = useAppStore((state) => state.tourCompleted);
+  const tourActive = useAppStore((state) => state.tourActive);
   const setWhatsNewOpen = useAppStore((state) => state.setWhatsNewOpen);
   const setLastSeenVersion = useAppStore((state) => state.setLastSeenVersion);
 
@@ -104,6 +107,17 @@ function App() {
     checkWhatsNew();
   }, [lastSeenVersion, setWhatsNewOpen, setLastSeenVersion]);
 
+  // Auto-start tour on first app launch (only once when not completed and other modals are closed)
+  useEffect(() => {
+    if (!showSplash && !tourCompleted && !tourActive && !showDisclaimer && !whatsNewOpen) {
+      // Wait a bit for the page to fully render before starting the tour
+      const timer = setTimeout(() => {
+        useAppStore.getState().startTour();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSplash, tourCompleted, showDisclaimer, whatsNewOpen]);
+
   const handleDisclaimerAccept = async (dontShowAgain: boolean) => {
     const settings = await db.settings.toCollection().first();
     if (settings) {
@@ -132,6 +146,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Tour />
       <InstallPrompt />
       <UpdatePrompt />
       {showDisclaimer && (

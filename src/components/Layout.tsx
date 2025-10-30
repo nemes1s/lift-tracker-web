@@ -16,10 +16,10 @@ export function Layout() {
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg border-t border-gray-200/50 dark:border-slate-700/50 shadow-2xl safe-area-pb">
         <div className="flex justify-around items-center h-16 max-w-screen-xl mx-auto px-2">
-          <NavItem to="/" icon={Flame} label="Today" isActive={isActive('/')} />
-          <NavItem to="/calendar" icon={Calendar} label="Calendar" isActive={isActive('/calendar')} />
-          <NavItem to="/progress" icon={TrendingUp} label="Progress" isActive={isActive('/progress')} />
-          <NavItem to="/settings" icon={Settings} label="Settings" isActive={isActive('/settings')} />
+          <NavItem to="/" icon={Flame} label="Today" isActive={isActive('/')} tourKey="nav-today" />
+          <NavItem to="/calendar" icon={Calendar} label="Calendar" isActive={isActive('/calendar')} tourKey="nav-calendar" />
+          <NavItem to="/progress" icon={TrendingUp} label="Progress" isActive={isActive('/progress')} tourKey="nav-progress" />
+          <NavItem to="/settings" icon={Settings} label="Settings" isActive={isActive('/settings')} tourKey="nav-settings" />
         </div>
       </nav>
     </div>
@@ -31,12 +31,14 @@ interface NavItemProps {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   isActive: boolean;
+  tourKey?: string;
 }
 
-function NavItem({ to, icon: Icon, label, isActive }: NavItemProps) {
+function NavItem({ to, icon: Icon, label, isActive, tourKey }: NavItemProps) {
   return (
     <Link
       to={to}
+      data-tour={tourKey}
       className={`flex flex-col items-center justify-center flex-1 h-full transition-all duration-200 relative ${
         isActive ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
       }`}

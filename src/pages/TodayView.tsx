@@ -166,7 +166,7 @@ export function TodayView() {
     <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto p-6 space-y-6">
         {/* Program Header */}
-        <div className="card p-6 bg-white dark:bg-slate-800">
+        <div className="card p-6 bg-white dark:bg-slate-800" data-tour="welcome">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-3 bg-primary-600 rounded-2xl shadow-lg">
               <Activity className="w-7 h-7 text-white" />
@@ -206,7 +206,7 @@ export function TodayView() {
           </div>
 
           {/* Day Picker */}
-          <div className="flex gap-2">
+          <div className="flex gap-2" data-tour="select-day">
             {Array.from({ length: maxDayIndex + 1 }, (_, idx) => (
               <button
                 key={idx}
@@ -231,7 +231,7 @@ export function TodayView() {
         ) : (
           <div className="card p-6">
             {template ? (
-              <div className="flex gap-2 sm:flex-row flex-col">
+              <div className="flex gap-2 sm:flex-row flex-col" data-tour="start-workout">
                 <button
                   onClick={() => handleStartWorkout(false)}
                   className="btn-primary flex-1 text-lg flex items-center justify-center gap-3"

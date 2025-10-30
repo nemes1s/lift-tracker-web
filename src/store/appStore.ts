@@ -19,6 +19,8 @@ interface AppState {
   whatsNewOpen: boolean;
   lastSeenVersion: string | null;
   restTimer: RestTimerState;
+  tourCompleted: boolean;
+  tourActive: boolean;
 
   setActiveProgram: (program: Program | null) => void;
   setActiveWorkout: (workout: Workout | null) => void;
@@ -29,6 +31,10 @@ interface AppState {
   toggleDarkMode: () => void;
   setWhatsNewOpen: (open: boolean) => void;
   setLastSeenVersion: (version: string) => void;
+  setTourCompleted: (completed: boolean) => void;
+  setTourActive: (active: boolean) => void;
+  startTour: () => void;
+  completeTour: () => void;
   refreshTrigger: number;
   triggerRefresh: () => void;
 
@@ -52,6 +58,8 @@ export const useAppStore = create<AppState>()(
       darkMode: false,
       whatsNewOpen: false,
       lastSeenVersion: null,
+      tourCompleted: false,
+      tourActive: false,
       refreshTrigger: 0,
       restTimer: {
         isActive: false,
@@ -69,6 +77,10 @@ export const useAppStore = create<AppState>()(
       toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
       setWhatsNewOpen: (open) => set({ whatsNewOpen: open }),
       setLastSeenVersion: (version) => set({ lastSeenVersion: version }),
+      setTourCompleted: (completed) => set({ tourCompleted: completed }),
+      setTourActive: (active) => set({ tourActive: active }),
+      startTour: () => set({ tourActive: true, tourCompleted: false }),
+      completeTour: () => set({ tourActive: false, tourCompleted: true }),
       triggerRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),
 
       // Timer actions
@@ -114,7 +126,7 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'app-storage',
-      partialize: (state) => ({ darkMode: state.darkMode, lastSeenVersion: state.lastSeenVersion }),
+      partialize: (state) => ({ darkMode: state.darkMode, lastSeenVersion: state.lastSeenVersion, tourCompleted: state.tourCompleted }),
     }
   )
 );

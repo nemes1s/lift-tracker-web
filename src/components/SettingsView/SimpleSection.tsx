@@ -1,6 +1,6 @@
 // Reusable components for simple settings sections
 
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, HelpCircle } from 'lucide-react';
 import { InstallButton } from '../InstallPrompt';
 
 export function PWAInstallSection() {
@@ -60,6 +60,27 @@ export function FormulaSection({ useEpley, onUpdate }: { useEpley: boolean; onUp
           <span className="font-bold text-gray-900 dark:text-gray-100">Brzycki</span>
         </label>
       </div>
+    </div>
+  );
+}
+
+export function TourSection({ onStartTour }: { onStartTour: () => void }) {
+  return (
+    <div className="card p-6 bg-white dark:bg-slate-800">
+      <div className="flex items-center gap-2 mb-3">
+        <HelpCircle className="w-6 h-6 text-blue-600 dark:text-blue-500" />
+        <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Help & Tour</h2>
+      </div>
+      <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+        Restart the interactive tour to learn about all the features of LiftTracker.
+      </p>
+      <button
+        onClick={onStartTour}
+        className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700"
+      >
+        <HelpCircle className="w-5 h-5" />
+        Start Tour
+      </button>
     </div>
   );
 }

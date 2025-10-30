@@ -48,7 +48,7 @@ export function ProgramsManagementSection({
   onDeleteAll
 }: ProgramsManagementSectionProps) {
   return (
-    <div className="card p-6 bg-white dark:bg-slate-800">
+    <div className="card p-6 bg-white dark:bg-slate-800" data-tour="program-preview">
       <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-4">Programs</h2>
 
       {programs.length === 0 ? (
@@ -104,6 +104,7 @@ export function ProgramsManagementSection({
         <button
           onClick={onImportClick}
           disabled={isImporting}
+          data-tour="import-program"
           className="w-full flex items-center gap-3 px-5 py-3 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-2 border-green-200 dark:border-green-800"
         >
           <Upload className="w-5 h-5" />

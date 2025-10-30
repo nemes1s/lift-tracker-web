@@ -134,6 +134,7 @@ export function ProgramCard({
           <button
             onClick={onExport}
             disabled={isExporting}
+            data-tour="export-program"
             className="text-primary-600 dark:text-primary-400 cursor-pointer hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             title="Export program as CSV"
           >
