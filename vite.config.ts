@@ -1,11 +1,27 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import fs from 'fs'
+
+// Get the current app version
+const versionFile = fs.readFileSync('./src/version.ts', 'utf-8')
+const versionMatch = versionFile.match(/export const APP_VERSION = '([^']+)'/)
+const APP_VERSION = versionMatch ? versionMatch[1] : '0.0.0'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
+    // Custom plugin to inject version into HTML
+    {
+      name: 'inject-version',
+      transformIndexHtml: {
+        order: 'pre',
+        handler: (html) => {
+          return html.replace(/__APP_VERSION__/g, APP_VERSION)
+        }
+      }
+    },
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon-192.png', 'icon-512.png'],
@@ -34,12 +50,13 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        cacheId: `lifttracker-v${APP_VERSION}`,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'google-fonts-cache',
+              cacheName: `google-fonts-v${APP_VERSION}`,
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
