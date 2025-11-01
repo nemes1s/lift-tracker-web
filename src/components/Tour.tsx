@@ -217,12 +217,25 @@ export function Tour() {
           }
 
           // Update state to mark tour as completed
+          console.log('[Tour] Marking tour as completed');
           completeTour();
           setTourActive(false);
+
+          // Verify the state was set correctly
+          setTimeout(() => {
+            const state = useAppStore.getState();
+            console.log('[Tour] State after completion:', { tourCompleted: state.tourCompleted, tourActive: state.tourActive });
+          }, 100);
+
           isCleaningUp.current = false;
         },
         onDestroyStarted: () => {
+          console.log('[Tour] onDestroyStarted called, isCleaningUp:', isCleaningUp.current);
+          // If we're not already cleaning up (from onCloseClick), mark tour as completed
+          // This handles both explicit close (X button) and natural completion (finishing all steps)
           if (!isCleaningUp.current) {
+            console.log('[Tour] Tour destroyed, marking as completed');
+            completeTour();
             setTourActive(false);
           }
         },

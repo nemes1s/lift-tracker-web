@@ -113,9 +113,12 @@ function App() {
   useEffect(() => {
     // Only auto-start tour if the store has been hydrated from localStorage
     // This ensures tourCompleted value is accurate on mobile
+    console.log('[App] Auto-start tour check:', { isHydrated, showSplash, tourCompleted, tourActive, showDisclaimer, whatsNewOpen });
     if (isHydrated && !showSplash && !tourCompleted && !tourActive && !showDisclaimer && !whatsNewOpen) {
+      console.log('[App] Conditions met, starting tour');
       // Wait a bit for the page to fully render before starting the tour
       const timer = setTimeout(() => {
+        console.log('[App] Calling startTour');
         useAppStore.getState().startTour();
       }, 1000);
       return () => clearTimeout(timer);

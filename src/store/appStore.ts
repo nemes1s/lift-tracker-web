@@ -80,11 +80,29 @@ export const useAppStore = create<AppState>()(
       toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
       setWhatsNewOpen: (open) => set({ whatsNewOpen: open }),
       setLastSeenVersion: (version) => set({ lastSeenVersion: version }),
-      setTourCompleted: (completed) => set({ tourCompleted: completed }),
+      setTourCompleted: (completed) => {
+        console.log('[AppStore] setTourCompleted:', completed);
+        set({ tourCompleted: completed });
+      },
       setTourActive: (active) => set({ tourActive: active }),
-      setIsHydrated: (hydrated) => set({ isHydrated: hydrated }),
-      startTour: () => set({ tourActive: true, tourCompleted: false }),
-      completeTour: () => set({ tourActive: false, tourCompleted: true }),
+      setIsHydrated: (hydrated) => {
+        console.log('[AppStore] setIsHydrated:', hydrated);
+        set({ isHydrated: hydrated });
+      },
+      startTour: () => {
+        console.log('[AppStore] startTour called');
+        set({ tourActive: true, tourCompleted: false });
+      },
+      completeTour: () => {
+        console.log('[AppStore] completeTour called');
+        set({ tourActive: false, tourCompleted: true });
+        // Verify persistence after state change
+        setTimeout(() => {
+          const state = useAppStore.getState();
+          const stored = localStorage.getItem('app-storage');
+          console.log('[AppStore] After completeTour:', { stateValue: state.tourCompleted, storageValue: stored });
+        }, 100);
+      },
       triggerRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),
 
       // Timer actions
@@ -133,7 +151,13 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({ darkMode: state.darkMode, lastSeenVersion: state.lastSeenVersion, tourCompleted: state.tourCompleted }),
       onRehydrateStorage: () => (state) => {
         // Mark the store as hydrated after localStorage has been loaded
-        state?.setIsHydrated(true);
+        // Return modified state to set isHydrated flag
+        console.log('[AppStore] onRehydrateStorage callback:', state);
+        if (state) {
+          state.isHydrated = true;
+          console.log('[AppStore] tourCompleted loaded from storage:', state.tourCompleted);
+        }
+        return state;
       },
     }
   )
