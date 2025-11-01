@@ -28,6 +28,7 @@ function App() {
   const lastSeenVersion = useAppStore((state) => state.lastSeenVersion);
   const tourCompleted = useAppStore((state) => state.tourCompleted);
   const tourActive = useAppStore((state) => state.tourActive);
+  const isHydrated = useAppStore((state) => state.isHydrated);
   const setWhatsNewOpen = useAppStore((state) => state.setWhatsNewOpen);
   const setLastSeenVersion = useAppStore((state) => state.setLastSeenVersion);
 
@@ -110,14 +111,16 @@ function App() {
 
   // Auto-start tour on first app launch (only once when not completed and other modals are closed)
   useEffect(() => {
-    if (!showSplash && !tourCompleted && !tourActive && !showDisclaimer && !whatsNewOpen) {
+    // Only auto-start tour if the store has been hydrated from localStorage
+    // This ensures tourCompleted value is accurate on mobile
+    if (isHydrated && !showSplash && !tourCompleted && !tourActive && !showDisclaimer && !whatsNewOpen) {
       // Wait a bit for the page to fully render before starting the tour
       const timer = setTimeout(() => {
         useAppStore.getState().startTour();
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [showSplash, tourCompleted, showDisclaimer, whatsNewOpen]);
+  }, [isHydrated, showSplash, tourCompleted, showDisclaimer, whatsNewOpen]);
 
   const handleDisclaimerAccept = async (dontShowAgain: boolean) => {
     const settings = await db.settings.toCollection().first();

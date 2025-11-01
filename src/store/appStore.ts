@@ -21,6 +21,7 @@ interface AppState {
   restTimer: RestTimerState;
   tourCompleted: boolean;
   tourActive: boolean;
+  isHydrated: boolean;
 
   setActiveProgram: (program: Program | null) => void;
   setActiveWorkout: (workout: Workout | null) => void;
@@ -35,6 +36,7 @@ interface AppState {
   setTourActive: (active: boolean) => void;
   startTour: () => void;
   completeTour: () => void;
+  setIsHydrated: (hydrated: boolean) => void;
   refreshTrigger: number;
   triggerRefresh: () => void;
 
@@ -60,6 +62,7 @@ export const useAppStore = create<AppState>()(
       lastSeenVersion: null,
       tourCompleted: false,
       tourActive: false,
+      isHydrated: false,
       refreshTrigger: 0,
       restTimer: {
         isActive: false,
@@ -79,6 +82,7 @@ export const useAppStore = create<AppState>()(
       setLastSeenVersion: (version) => set({ lastSeenVersion: version }),
       setTourCompleted: (completed) => set({ tourCompleted: completed }),
       setTourActive: (active) => set({ tourActive: active }),
+      setIsHydrated: (hydrated) => set({ isHydrated: hydrated }),
       startTour: () => set({ tourActive: true, tourCompleted: false }),
       completeTour: () => set({ tourActive: false, tourCompleted: true }),
       triggerRefresh: () => set((state) => ({ refreshTrigger: state.refreshTrigger + 1 })),
@@ -127,6 +131,10 @@ export const useAppStore = create<AppState>()(
     {
       name: 'app-storage',
       partialize: (state) => ({ darkMode: state.darkMode, lastSeenVersion: state.lastSeenVersion, tourCompleted: state.tourCompleted }),
+      onRehydrateStorage: () => (state) => {
+        // Mark the store as hydrated after localStorage has been loaded
+        state?.setIsHydrated(true);
+      },
     }
   )
 );
