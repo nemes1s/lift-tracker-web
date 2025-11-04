@@ -333,6 +333,68 @@ export async function getMonthlyVolumeTrend(): Promise<MonthlyVolume[]> {
 }
 
 /**
+ * Get weekly volume trend for the last 12 weeks
+ */
+export async function getWeeklyVolumeTrend(): Promise<MonthlyVolume[]> {
+  const workouts = await db.workouts
+    .filter(w => w.endedAt !== undefined)
+    .toArray();
+
+  const weeklyData = new Map<string, { volume: number; workouts: number }>();
+
+  for (const workout of workouts) {
+    const weekKey = getWeekKey(new Date(workout.startedAt));
+
+    const exercises = await db.exerciseInstances
+      .where('workoutId')
+      .equals(workout.id)
+      .toArray();
+
+    const exercisesWithSets = await Promise.all(
+      exercises.map(async (ex) => {
+        const sets = await db.setRecords
+          .where('exerciseId')
+          .equals(ex.id)
+          .toArray();
+        return { sets };
+      })
+    );
+
+    const stats = calculateWorkoutStats(exercisesWithSets, workout.startedAt, workout.endedAt, workout.totalPausedMs);
+
+    if (!weeklyData.has(weekKey)) {
+      weeklyData.set(weekKey, { volume: 0, workouts: 0 });
+    }
+
+    const data = weeklyData.get(weekKey)!;
+    data.volume += stats.totalVolume;
+    data.workouts++;
+  }
+
+  // Get last 12 weeks
+  const result: MonthlyVolume[] = [];
+  const now = new Date();
+
+  for (let i = 11; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(now.getDate() - (i * 7));
+    const weekKey = getWeekKey(date);
+    const weekNumber = weekKey.split('-W')[1];
+    const year = weekKey.split('-')[0];
+    const weekLabel = `W${weekNumber} '${year.slice(-2)}`;
+
+    const data = weeklyData.get(weekKey);
+    result.push({
+      month: weekLabel,
+      volume: data?.volume || 0,
+      workouts: data?.workouts || 0,
+    });
+  }
+
+  return result;
+}
+
+/**
  * Get rep PRs for a specific exercise
  * Returns best weight achieved for different rep ranges
  */

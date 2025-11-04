@@ -11,6 +11,7 @@ import {
   getGlobalStats,
   getWeeklyComparison,
   getMonthlyVolumeTrend,
+  getWeeklyVolumeTrend,
   getRepPRs,
   getExerciseConsistency,
   type GlobalStats,
@@ -21,6 +22,7 @@ import {
 import { GlobalOverviewSection } from '../components/ProgressView/GlobalOverviewSection';
 import { WeeklyComparisonSection } from '../components/ProgressView/WeeklyComparisonSection';
 import { MonthlyVolumeTrendSection } from '../components/ProgressView/MonthlyVolumeTrendSection';
+import { WeeklyVolumeTrendSection } from '../components/ProgressView/WeeklyVolumeTrendSection';
 import { ExerciseSelectorSection } from '../components/ProgressView/ExerciseSelectorSection';
 import { ExerciseStatsSection } from '../components/ProgressView/ExerciseStatsSection';
 import { RepPRsSection } from '../components/ProgressView/RepPRsSection';
@@ -39,6 +41,7 @@ export function ProgressView() {
   const [globalStats, setGlobalStats] = useState<GlobalStats | null>(null);
   const [weeklyComparison, setWeeklyComparison] = useState<WeeklyComparison | null>(null);
   const [monthlyTrend, setMonthlyTrend] = useState<MonthlyVolume[]>([]);
+  const [weeklyTrend, setWeeklyTrend] = useState<MonthlyVolume[]>([]);
 
   // Exercise-specific enhanced metrics
   const [repPRs, setRepPRs] = useState<RepPR[]>([]);
@@ -64,6 +67,9 @@ export function ProgressView() {
 
       const mTrend = await getMonthlyVolumeTrend();
       setMonthlyTrend(mTrend);
+
+      const wTrend = await getWeeklyVolumeTrend();
+      setWeeklyTrend(wTrend);
 
       setLoading(false);
     };
@@ -141,6 +147,9 @@ export function ProgressView() {
 
         {/* Monthly Volume Trend */}
         <MonthlyVolumeTrendSection monthlyTrend={monthlyTrend} />
+
+        {/* Weekly Volume Trend */}
+        <WeeklyVolumeTrendSection weeklyTrend={weeklyTrend} />
 
         {/* Exercise Selector */}
         <ExerciseSelectorSection
