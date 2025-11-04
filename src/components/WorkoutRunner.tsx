@@ -20,6 +20,7 @@ import { WorkoutStatsSection } from './WorkoutRunner/WorkoutStatsSection';
 import { ExerciseNavigationSection } from './WorkoutRunner/ExerciseNavigationSection';
 import { FinishWorkoutButton } from './WorkoutRunner/FinishWorkoutButton';
 import { AddCustomExerciseModal } from './shared/AddCustomExerciseModal';
+import { WorkoutExportMenu } from './shared/WorkoutExportMenu';
 
 interface WorkoutRunnerProps {
   workout: Workout;
@@ -660,7 +661,18 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       />
 
       {currentExerciseIndex === exercises.length - 1 && (
-        <FinishWorkoutButton onFinish={handleFinishWorkout} />
+        <div className="space-y-3">
+          <FinishWorkoutButton onFinish={handleFinishWorkout} />
+          <div className="flex justify-center">
+            <WorkoutExportMenu
+              workout={workout}
+              exercisesWithSets={allExercisesWithSets.map((exWithSets, idx) => ({
+                exercise: exercises[idx],
+                sets: exWithSets.sets,
+              }))}
+            />
+          </div>
+        </div>
       )}
 
       {showAddCustomExercise && (

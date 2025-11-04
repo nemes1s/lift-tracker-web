@@ -11,6 +11,7 @@ import { DeleteConfirmModal } from '../components/CalendarView/DeleteConfirmModa
 import { WorkoutStatsSection } from '../components/CalendarView/WorkoutStatsSection';
 import { ExerciseListSection } from '../components/CalendarView/ExerciseListSection';
 import { AddCustomExerciseModal } from '../components/shared/AddCustomExerciseModal';
+import { WorkoutExportMenu } from '../components/shared/WorkoutExportMenu';
 import { getAllExerciseNames } from '../data/exerciseSubstitutions';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -333,6 +334,17 @@ export function WorkoutDetail() {
 
           {/* Workout Summary Stats */}
           <WorkoutStatsSection stats={stats} hasEndTime={!!workout.endedAt} />
+
+          {/* Export Menu */}
+          <div className="mt-4 flex justify-center">
+            <WorkoutExportMenu
+              workout={workout}
+              exercisesWithSets={exercises.map((ex) => ({
+                exercise: ex,
+                sets: ex.sets,
+              }))}
+            />
+          </div>
         </div>
 
         {/* Exercises */}
