@@ -37,6 +37,8 @@ export interface RepPR {
  */
 export async function getGlobalStats(): Promise<GlobalStats> {
   const workouts = await db.workouts.toArray();
+  const settings = await db.settings.toCollection().first();
+  const targetWorkoutsPerWeek = settings?.targetWorkoutsPerWeek ?? 3;
 
   if (workouts.length === 0) {
     return {
@@ -60,8 +62,8 @@ export async function getGlobalStats(): Promise<GlobalStats> {
     ? new Date(sortedWorkouts[0].startedAt)
     : null;
 
-  // Calculate streaks
-  const { current, longest } = calculateStreaks(sortedWorkouts);
+  // Calculate streaks (now weekly streaks)
+  const { current, longest } = calculateWeeklyStreaks(sortedWorkouts, targetWorkoutsPerWeek);
 
   // Calculate total volume and calories
   let totalVolume = 0;
@@ -107,79 +109,98 @@ export async function getGlobalStats(): Promise<GlobalStats> {
 }
 
 /**
- * Calculate current and longest streaks
- * A streak is consecutive days with at least one workout
+ * Helper: Get the week key (YYYY-Www) for a date
+ * Uses Sunday as the start of week (ISO week system)
  */
-function calculateStreaks(workouts: any[]): { current: number; longest: number } {
+function getWeekKey(date: Date): string {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+
+  // Get the Monday of the week this date falls in
+  const dayOfWeek = d.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Monday = day 1
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - daysToMonday);
+
+  // Get ISO week number
+  const jan4 = new Date(monday.getFullYear(), 0, 4);
+  const jan4DayOfWeek = jan4.getDay();
+  const jan4Monday = new Date(jan4);
+  jan4Monday.setDate(4 - (jan4DayOfWeek === 0 ? 6 : jan4DayOfWeek - 1));
+
+  const weekNumber = Math.round((monday.getTime() - jan4Monday.getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1;
+
+  return `${monday.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
+}
+
+/**
+ * Calculate current and longest streaks based on weekly goals
+ * A week counts as a streak if the user completes >= targetWorkoutsPerWeek workouts
+ */
+function calculateWeeklyStreaks(workouts: any[], targetWorkoutsPerWeek: number): { current: number; longest: number } {
   if (workouts.length === 0) return { current: 0, longest: 0 };
 
-  // Get unique workout dates (day level)
-  const workoutDates = new Set<string>();
+  // Group workouts by week
+  const workoutsByWeek = new Map<string, number>();
+
   workouts.forEach(w => {
-    const date = new Date(w.startedAt);
-    const dateKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-    workoutDates.add(dateKey);
+    const weekKey = getWeekKey(new Date(w.startedAt));
+    workoutsByWeek.set(weekKey, (workoutsByWeek.get(weekKey) ?? 0) + 1);
   });
 
-  const sortedDates = Array.from(workoutDates)
-    .map(key => {
-      const [year, month, day] = key.split('-').map(Number);
-      return new Date(year, month - 1, day);
-    })
-    .sort((a, b) => a.getTime() - b.getTime());
+  // Get sorted weeks
+  const sortedWeeks = Array.from(workoutsByWeek.keys()).sort();
 
-  let currentStreak = 0;
   let longestStreak = 0;
-  let tempStreak = 1;
+  let currentStreak = 0;
+  let tempStreak = 0;
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // Calculate longest streak and identify consecutive weeks that meet the goal
+  const streakWeeks: string[] = [];
 
-  // Calculate longest streak
-  for (let i = 1; i < sortedDates.length; i++) {
-    const prevDate = sortedDates[i - 1];
-    const currDate = sortedDates[i];
+  for (const week of sortedWeeks) {
+    const workoutCount = workoutsByWeek.get(week) ?? 0;
 
-    const dayDiff = Math.floor(
-      (currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    if (dayDiff === 1) {
+    if (workoutCount >= targetWorkoutsPerWeek) {
       tempStreak++;
+      streakWeeks.push(week);
     } else {
-      longestStreak = Math.max(longestStreak, tempStreak);
-      tempStreak = 1;
+      if (tempStreak > 0) {
+        longestStreak = Math.max(longestStreak, tempStreak);
+      }
+      tempStreak = 0;
+      streakWeeks.length = 0;
     }
   }
+
+  // Don't forget to check the final streak
   longestStreak = Math.max(longestStreak, tempStreak);
 
   // Calculate current streak
-  const lastWorkoutDate = sortedDates[sortedDates.length - 1];
-  lastWorkoutDate.setHours(0, 0, 0, 0);
+  // Get current week
+  const today = new Date();
+  const currentWeekKey = getWeekKey(today);
 
-  const daysSinceLastWorkout = Math.floor(
-    (today.getTime() - lastWorkoutDate.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  // Find the last consecutive weeks from now that met the goal
+  let checkWeekIndex = sortedWeeks.length - 1;
+  currentStreak = 0;
 
-  if (daysSinceLastWorkout <= 1) {
-    // Count backwards from last workout
-    currentStreak = 1;
-    for (let i = sortedDates.length - 2; i >= 0; i--) {
-      const prevDate = sortedDates[i];
-      const currDate = sortedDates[i + 1];
+  while (checkWeekIndex >= 0) {
+    const week = sortedWeeks[checkWeekIndex];
+    const workoutCount = workoutsByWeek.get(week) ?? 0;
 
-      const dayDiff = Math.floor(
-        (currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24)
-      );
-
-      if (dayDiff === 1) {
-        currentStreak++;
+    if (workoutCount >= targetWorkoutsPerWeek) {
+      currentStreak++;
+      checkWeekIndex--;
+    } else {
+      // Check if this is the current week - if so, it's not broken yet
+      if (week === currentWeekKey && currentStreak === 0) {
+        // Current week hasn't met goal yet, but we can still show progress
+        checkWeekIndex--;
       } else {
         break;
       }
     }
-  } else {
-    currentStreak = 0;
   }
 
   return { current: currentStreak, longest: longestStreak };

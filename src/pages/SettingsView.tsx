@@ -23,6 +23,7 @@ import { AppearanceSection } from '../components/SettingsView/AppearanceSection'
 import { PWAInstallSection, DisclaimerSection, FormulaSection, TourSection } from '../components/SettingsView/SimpleSection';
 import { StorageInfoSection } from '../components/SettingsView/StorageInfoSection';
 import { RestTimerSettingsSection } from '../components/SettingsView/RestTimerSettingsSection';
+import { WeeklyGoalSection } from '../components/SettingsView/WeeklyGoalSection';
 import { ActiveProgramSection } from '../components/SettingsView/ActiveProgramSection';
 import { ProgramsManagementSection } from '../components/SettingsView/ProgramsManagementSection';
 import { DeleteConfirmModals } from '../components/SettingsView/DeleteConfirmModals';
@@ -297,6 +298,13 @@ export function SettingsView() {
     await loadData();
   };
 
+  const handleWeeklyGoalUpdate = async (goal: number) => {
+    if (!settings) return;
+    await db.settings.update(settings.id, { targetWorkoutsPerWeek: goal });
+    await loadData();
+    triggerRefresh();
+  };
+
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto p-6 space-y-6">
@@ -357,6 +365,11 @@ export function SettingsView() {
           settings={settings}
           onToggle={handleRestTimerToggle}
           onDurationChange={handleRestTimerDuration}
+        />
+
+        <WeeklyGoalSection
+          settings={settings}
+          onGoalChange={handleWeeklyGoalUpdate}
         />
 
         <ActiveProgramSection

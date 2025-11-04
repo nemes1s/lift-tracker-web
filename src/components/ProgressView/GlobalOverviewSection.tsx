@@ -23,7 +23,7 @@ export function GlobalOverviewSection({ globalStats }: GlobalOverviewSectionProp
             <Zap className="w-5 h-5 text-primary-600 dark:text-primary-400" />
             <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">Current Streak</span>
           </div>
-          <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">{globalStats.currentStreak} days</p>
+          <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">{globalStats.currentStreak} weeks</p>
         </div>
 
         <div className="bg-gradient-to-br from-green-50 to-white dark:from-green-900/20 dark:to-slate-800 rounded-xl p-4 border-2 border-green-100 dark:border-green-800">
@@ -31,7 +31,7 @@ export function GlobalOverviewSection({ globalStats }: GlobalOverviewSectionProp
             <Trophy className="w-5 h-5 text-green-600 dark:text-green-400" />
             <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">Longest Streak</span>
           </div>
-          <p className="text-2xl font-bold text-green-700 dark:text-green-400">{globalStats.longestStreak} days</p>
+          <p className="text-2xl font-bold text-green-700 dark:text-green-400">{globalStats.longestStreak} weeks</p>
         </div>
 
         <div className="bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/20 dark:to-slate-800 rounded-xl p-4 border-2 border-orange-100 dark:border-orange-800">

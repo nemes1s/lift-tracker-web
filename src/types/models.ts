@@ -77,6 +77,8 @@ export interface SettingsModel {
   restTimerAutoStart?: boolean; // Auto-start timer after logging set (default: true)
   restTimerDuration?: number; // Default rest duration in seconds (default: 90)
   restTimerSound?: boolean; // Play sound when timer completes (default: true)
+  // Weekly streak settings
+  targetWorkoutsPerWeek?: number; // Target number of workouts per week for streak calculation (default: 3)
 }
 
 // Enum for split days
