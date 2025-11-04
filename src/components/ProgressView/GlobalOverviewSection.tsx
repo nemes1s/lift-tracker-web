@@ -1,5 +1,6 @@
 import { Trophy, Zap, Activity, Flame, Calendar, Target } from 'lucide-react';
 import { CollapsibleCard } from '../CollapsibleCard';
+import { StreakBadge } from '../StreakBadge';
 import { formatVolume, formatDuration } from '../../utils/workoutStats';
 import type { GlobalStats } from '../../utils/globalStats';
 
@@ -19,11 +20,14 @@ export function GlobalOverviewSection({ globalStats }: GlobalOverviewSectionProp
     >
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
         <div className="bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/20 dark:to-slate-800 rounded-xl p-4 border-2 border-primary-100 dark:border-primary-800">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-3">
             <Zap className="w-5 h-5 text-primary-600 dark:text-primary-400" />
             <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">Current Streak</span>
           </div>
-          <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">{globalStats.currentStreak} weeks</p>
+          <p className="text-2xl font-bold text-primary-700 dark:text-primary-400 mb-3">{globalStats.currentStreak} weeks</p>
+          {globalStats.currentStreak > 0 && (
+            <StreakBadge weeks={globalStats.currentStreak} interactive={true} />
+          )}
         </div>
 
         <div className="bg-gradient-to-br from-green-50 to-white dark:from-green-900/20 dark:to-slate-800 rounded-xl p-4 border-2 border-green-100 dark:border-green-800">
