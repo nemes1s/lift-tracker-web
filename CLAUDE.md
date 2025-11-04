@@ -268,3 +268,7 @@ Database schema versions are managed in `src/db/database.ts`:
 - Version 4: Added rest timer fields (no schema change)
 
 Dexie automatically handles schema migrations. New optional fields don't require schema changes.
+
+## Dark mode
+
+Implemented components should be dark-mode ready. `dark:` prefix should be used to define styling for dark mode.
