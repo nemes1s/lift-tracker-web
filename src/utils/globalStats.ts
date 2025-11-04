@@ -431,6 +431,46 @@ export async function getRepPRs(exerciseName: string): Promise<RepPR[]> {
 }
 
 /**
+ * Check if a new set is a personal record
+ * Returns true if:
+ * - It's a weight PR for this rep count (heavier than any previous set at this rep count)
+ * - It's a rep PR for this weight (more reps than any previous set at this weight)
+ */
+export async function isSetAPR(exerciseName: string, weight: number, reps: number): Promise<boolean> {
+  const exerciseInstances = await db.exerciseInstances
+    .filter(ex => ex.name === exerciseName)
+    .toArray();
+
+  if (exerciseInstances.length === 0) return true; // First set of this exercise is a PR
+
+  // Get all previous sets for this exercise
+  const allSets: any[] = [];
+  for (const instance of exerciseInstances) {
+    const sets = await db.setRecords
+      .where('exerciseId')
+      .equals(instance.id)
+      .toArray();
+    allSets.push(...sets.filter(s => !s.isWarmup));
+  }
+
+  if (allSets.length === 0) return true; // First workset is a PR
+
+  // Check if this is a weight PR for this rep count
+  const setsAtThisRepCount = allSets.filter(s => s.reps === reps);
+  if (setsAtThisRepCount.length === 0 || weight > Math.max(...setsAtThisRepCount.map(s => s.weight))) {
+    return true;
+  }
+
+  // Check if this is a rep PR for this weight (more reps at this weight)
+  const setsAtThisWeight = allSets.filter(s => s.weight === weight);
+  if (setsAtThisWeight.length === 0 || reps > Math.max(...setsAtThisWeight.map(s => s.reps))) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Calculate consistency score for an exercise (days between workouts)
  */
 export async function getExerciseConsistency(exerciseName: string): Promise<number | null> {

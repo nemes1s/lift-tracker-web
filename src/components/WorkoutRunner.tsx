@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { db } from '../db/database';
 import { previousWorkoutInstances, getProgressiveOverloadSuggestion } from '../utils/programLogic';
 import type { ProgressiveOverloadSuggestion } from '../utils/programLogic';
+import { isSetAPR } from '../utils/globalStats';
 import { useAppStore } from '../store/appStore';
 import type { Workout, ExerciseInstance, SetRecord, SettingsModel } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,6 +18,7 @@ import { RestTimerSection } from './WorkoutRunner/RestTimerSection';
 import { SetLoggerSection } from './WorkoutRunner/SetLoggerSection';
 import { PreviousWorkoutsSection } from './WorkoutRunner/PreviousWorkoutsSection';
 import { WorkoutStatsSection } from './WorkoutRunner/WorkoutStatsSection';
+// import { PRSummarySection } from './WorkoutRunner/PRSummarySection';
 import { ExerciseNavigationSection } from './WorkoutRunner/ExerciseNavigationSection';
 import { FinishWorkoutButton } from './WorkoutRunner/FinishWorkoutButton';
 import { AddCustomExerciseModal } from './shared/AddCustomExerciseModal';
@@ -313,6 +315,9 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     // Initialize audio context on user interaction (required for iOS)
     initAudioContext();
 
+    // Check if this set is a PR
+    const isPR = await isSetAPR(currentExercise.name, weight, reps);
+
     const set: SetRecord = {
       id: uuidv4(),
       exerciseId: currentExercise.id,
@@ -321,6 +326,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       rpe,
       timestamp: new Date(),
       isWarmup: false,
+      isPR,
     };
 
     await db.setRecords.add(set);
@@ -608,6 +614,8 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
         sets={sets}
         onDeleteSet={handleDeleteSet}
       />
+
+      {/* <PRSummarySection sets={sets} /> */}
 
       {(restTimer.isActive || restTimer.isCompleted) && settings?.restTimerEnabled !== false && (
         <RestTimerSection

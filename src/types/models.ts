@@ -56,6 +56,7 @@ export interface SetRecord {
   rpe?: number; // 6.0...10.0
   timestamp: Date;
   isWarmup: boolean;
+  isPR?: boolean; // Whether this set is a personal record
 }
 
 export interface PersonalRecord {
