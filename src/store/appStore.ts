@@ -13,6 +13,7 @@ interface AppState {
   activeProgram: Program | null;
   activeWorkout: Workout | null;
   selectedDayIndex: number;
+  currentExerciseIndex: number;
   weekNumber: number;
   showSplash: boolean;
   darkMode: boolean;
@@ -26,6 +27,7 @@ interface AppState {
   setActiveProgram: (program: Program | null) => void;
   setActiveWorkout: (workout: Workout | null) => void;
   setSelectedDayIndex: (index: number) => void;
+  setCurrentExerciseIndex: (index: number) => void;
   setWeekNumber: (week: number) => void;
   setShowSplash: (show: boolean) => void;
   setDarkMode: (enabled: boolean) => void;
@@ -55,6 +57,7 @@ export const useAppStore = create<AppState>()(
       activeProgram: null,
       activeWorkout: null,
       selectedDayIndex: 0,
+      currentExerciseIndex: 0,
       weekNumber: 1,
       showSplash: true,
       darkMode: false,
@@ -74,6 +77,7 @@ export const useAppStore = create<AppState>()(
       setActiveProgram: (program) => set({ activeProgram: program }),
       setActiveWorkout: (workout) => set({ activeWorkout: workout }),
       setSelectedDayIndex: (index) => set({ selectedDayIndex: index }),
+      setCurrentExerciseIndex: (index) => set({ currentExerciseIndex: index }),
       setWeekNumber: (week) => set({ weekNumber: week }),
       setShowSplash: (show) => set({ showSplash: show }),
       setDarkMode: (enabled) => set({ darkMode: enabled }),

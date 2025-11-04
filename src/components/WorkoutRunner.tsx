@@ -28,7 +28,6 @@ interface WorkoutRunnerProps {
 export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const navigate = useNavigate();
   const [exercises, setExercises] = useState<ExerciseInstance[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [sets, setSets] = useState<SetRecord[]>([]);
   const [weightText, setWeightText] = useState('');
   const [repsText, setRepsText] = useState('');
@@ -57,6 +56,8 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const {
     setActiveWorkout,
     triggerRefresh,
+    currentExerciseIndex,
+    setCurrentExerciseIndex,
     restTimer,
     setRestTimer,
     startRestTimer: zustandStartRestTimer,
@@ -66,7 +67,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     resetRestTimer,
   } = useAppStore();
 
-  const currentExercise = exercises[currentIndex];
+  const currentExercise = exercises[currentExerciseIndex];
 
   // Load settings
   useEffect(() => {
@@ -93,10 +94,15 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
         .sortBy('orderIndex');
 
       setExercises(exs);
+
+      // Ensure currentExerciseIndex is within valid bounds
+      if (currentExerciseIndex >= exs.length) {
+        setCurrentExerciseIndex(0);
+      }
     };
 
     loadExercises();
-  }, [workout.id]);
+  }, [workout.id, currentExerciseIndex, setCurrentExerciseIndex]);
 
   // Load exercise suggestions for autocomplete
   useEffect(() => {
@@ -260,6 +266,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       console.log('[WorkoutRunner] Clearing activeWorkout and triggering refresh');
       resetRestTimer();
       setActiveWorkout(null);
+      setCurrentExerciseIndex(0);
       triggerRefresh();
       return;
     }
@@ -285,6 +292,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     console.log('[WorkoutRunner] Clearing activeWorkout and triggering refresh');
     resetRestTimer();
     setActiveWorkout(null);
+    setCurrentExerciseIndex(0);
     triggerRefresh();
 
     // Navigate to the completed workout detail page
@@ -335,9 +343,9 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     }
 
     // Auto-advance if target sets reached
-    if (updatedSets.length >= currentExercise.targetSets && currentIndex < exercises.length - 1) {
+    if (updatedSets.length >= currentExercise.targetSets && currentExerciseIndex < exercises.length - 1) {
       setTimeout(() => {
-        setCurrentIndex(currentIndex + 1);
+        setCurrentExerciseIndex(currentExerciseIndex + 1);
       }, 300);
     }
   };
@@ -420,6 +428,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       console.log('[WorkoutRunner] Clearing activeWorkout and triggering refresh');
       resetRestTimer();
       setActiveWorkout(null);
+      setCurrentExerciseIndex(0);
       triggerRefresh();
       alert('Workout cancelled - no sets were logged.');
       return;
@@ -446,6 +455,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     console.log('[WorkoutRunner] Clearing activeWorkout and triggering refresh');
     resetRestTimer();
     setActiveWorkout(null);
+    setCurrentExerciseIndex(0);
     triggerRefresh();
 
     // Navigate to the completed workout detail page
@@ -454,14 +464,14 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   };
 
   const goNext = () => {
-    if (currentIndex < exercises.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+    if (currentExerciseIndex < exercises.length - 1) {
+      setCurrentExerciseIndex(currentExerciseIndex + 1);
     }
   };
 
   const goPrevious = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
+    if (currentExerciseIndex > 0) {
+      setCurrentExerciseIndex(currentExerciseIndex - 1);
     }
   };
 
@@ -544,7 +554,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       setExercises(updatedExercises);
 
       // Navigate to the new exercise
-      setCurrentIndex(updatedExercises.length - 1);
+      setCurrentExerciseIndex(updatedExercises.length - 1);
 
       // Close modal
       setShowAddCustomExercise(false);
@@ -642,14 +652,14 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       <WorkoutStatsSection stats={stats} />
 
       <ExerciseNavigationSection
-        currentIndex={currentIndex}
+        currentIndex={currentExerciseIndex}
         totalExercises={exercises.length}
         onPrevious={goPrevious}
         onNext={goNext}
         onAddCustomExercise={() => setShowAddCustomExercise(true)}
       />
 
-      {currentIndex === exercises.length - 1 && (
+      {currentExerciseIndex === exercises.length - 1 && (
         <FinishWorkoutButton onFinish={handleFinishWorkout} />
       )}
 
