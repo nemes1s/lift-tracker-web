@@ -124,7 +124,7 @@ export async function seedTestData(options: {
 
     // Add exercises and sets for this workout
     const exercises = EXERCISES_BY_DAY[dayIndex];
-    const weekNumber = Math.min(1 + Math.floor((dayOffset / 7) * 1.5), 12);
+    // const weekNumber = Math.min(1 + Math.floor((dayOffset / 7) * 1.5), 12);
 
     for (let exIdx = 0; exIdx < exercises.length; exIdx++) {
       const ex = exercises[exIdx];
