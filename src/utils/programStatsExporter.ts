@@ -1,7 +1,65 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { createElement } from 'react';
+import { createRoot } from 'react-dom/client';
+import { ExportChartsRenderer } from '../components/ExportChartsRenderer';
 import type { ProgramStats } from './programStatsAggregator';
 import { formatDate, formatVolume } from './programStatsAggregator';
+
+/**
+ * Render React charts component and capture as canvas
+ */
+async function renderChartsToCanvas(stats: ProgramStats): Promise<HTMLCanvasElement | null> {
+  if (stats.exerciseStats.length === 0) {
+    return null;
+  }
+
+  const container = document.createElement('div');
+  container.style.position = 'fixed';
+  container.style.left = '-9999px';
+  container.style.top = '0';
+  container.style.width = '1200px';
+  document.body.appendChild(container);
+
+  try {
+    const root = createRoot(container);
+
+    // Render the React component
+    await new Promise<void>((resolve) => {
+      root.render(
+        createElement(ExportChartsRenderer, {
+          exerciseStats: stats.exerciseStats,
+          programName: stats.program.name,
+          programVolume: stats.totalVolume,
+        })
+      );
+
+      // Wait for charts to render
+      setTimeout(() => resolve(), 1500);
+    });
+
+    // Capture the rendered charts
+    const chartsElement = container.querySelector('#export-charts-container');
+    if (!chartsElement) {
+      root.unmount();
+      return null;
+    }
+
+    const canvas = await html2canvas(chartsElement as HTMLElement, {
+      backgroundColor: '#111827',
+      scale: 2,
+      logging: false,
+    });
+
+    root.unmount();
+    return canvas;
+  } catch (error) {
+    console.error('Failed to render charts:', error);
+    return null;
+  } finally {
+    document.body.removeChild(container);
+  }
+}
 
 /**
  * Export program stats as plain text
@@ -230,10 +288,37 @@ export function generateProgramStatsHTML(stats: ProgramStats): string {
 }
 
 /**
+ * Combine two canvases vertically
+ */
+function combineCanvasesVertically(canvas1: HTMLCanvasElement, canvas2: HTMLCanvasElement | null): HTMLCanvasElement {
+  if (!canvas2) {
+    return canvas1;
+  }
+
+  const combinedCanvas = document.createElement('canvas');
+  combinedCanvas.width = Math.max(canvas1.width, canvas2.width);
+  combinedCanvas.height = canvas1.height + canvas2.height;
+
+  const ctx = combinedCanvas.getContext('2d')!;
+
+  // Fill with background color
+  ctx.fillStyle = '#111827';
+  ctx.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height);
+
+  // Draw first canvas
+  ctx.drawImage(canvas1, 0, 0);
+
+  // Draw second canvas below
+  ctx.drawImage(canvas2, 0, canvas1.height);
+
+  return combinedCanvas;
+}
+
+/**
  * Export program stats as PNG image
  */
 export async function exportAsImage(stats: ProgramStats): Promise<Blob> {
-  // Create a temporary container
+  // Create a temporary container for stats
   const container = document.createElement('div');
   container.style.position = 'fixed';
   container.style.left = '-9999px';
@@ -242,16 +327,22 @@ export async function exportAsImage(stats: ProgramStats): Promise<Blob> {
   document.body.appendChild(container);
 
   try {
-    // Generate canvas from HTML
-    const canvas = await html2canvas(container.querySelector('#program-stats-export')! as HTMLElement, {
+    // Generate canvas from stats HTML
+    const statsCanvas = await html2canvas(container.querySelector('#program-stats-export')! as HTMLElement, {
       backgroundColor: '#111827',
       scale: 2, // Higher quality
       logging: false,
     });
 
+    // Generate canvas from charts
+    const chartsCanvas = await renderChartsToCanvas(stats);
+
+    // Combine canvases
+    const finalCanvas = combineCanvasesVertically(statsCanvas, chartsCanvas);
+
     // Convert to blob
     return new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob((blob) => {
+      finalCanvas.toBlob((blob) => {
         if (blob) {
           resolve(blob);
         } else {
@@ -269,7 +360,7 @@ export async function exportAsImage(stats: ProgramStats): Promise<Blob> {
  * Export program stats as PDF
  */
 export async function exportAsPDF(stats: ProgramStats): Promise<Blob> {
-  // Create a temporary container
+  // Create a temporary container for stats
   const container = document.createElement('div');
   container.style.position = 'fixed';
   container.style.left = '-9999px';
@@ -278,12 +369,18 @@ export async function exportAsPDF(stats: ProgramStats): Promise<Blob> {
   document.body.appendChild(container);
 
   try {
-    // Generate canvas from HTML
-    const canvas = await html2canvas(container.querySelector('#program-stats-export')! as HTMLElement, {
+    // Generate canvas from stats HTML
+    const statsCanvas = await html2canvas(container.querySelector('#program-stats-export')! as HTMLElement, {
       backgroundColor: '#111827',
       scale: 2,
       logging: false,
     });
+
+    // Generate canvas from charts
+    const chartsCanvas = await renderChartsToCanvas(stats);
+
+    // Combine canvases
+    const canvas = combineCanvasesVertically(statsCanvas, chartsCanvas);
 
     // A4 dimensions in mm
     const pageWidth = 210;
