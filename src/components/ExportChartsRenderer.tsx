@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import type { ExerciseStats } from '../utils/programStatsAggregator';
 
 interface ExportChartsRendererProps {
@@ -7,13 +7,18 @@ interface ExportChartsRendererProps {
   programVolume: number;
 }
 
+// Colors for the pie chart
+const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+
 /**
  * Component that renders charts for export (used in hidden DOM for html2canvas)
  * This component is designed to be rendered off-screen and captured as an image
  */
 export function ExportChartsRenderer({ exerciseStats, programName }: ExportChartsRendererProps) {
-  // Prepare chart data for top exercises (up to 6 exercises)
-  const topExercises = exerciseStats.slice(0, 6);
+  // Format date for display
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
 
   return (
     <div id="export-charts-container" style={{
@@ -23,177 +28,312 @@ export function ExportChartsRenderer({ exerciseStats, programName }: ExportChart
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     }}>
       <h2 style={{
-        fontSize: '24px',
+        fontSize: '28px',
         fontWeight: '700',
-        marginBottom: '32px',
+        marginBottom: '40px',
         color: '#fff',
         textAlign: 'center',
+        borderBottom: '2px solid #374151',
+        paddingBottom: '16px',
       }}>
-        {programName} - Visual Progress
+        {programName} - Progress Charts
       </h2>
 
-      {/* Exercise Volume Comparison Chart */}
-      <div style={{ marginBottom: '48px' }}>
-        <h3 style={{
-          fontSize: '18px',
-          fontWeight: '600',
-          marginBottom: '16px',
-          color: '#fff',
-        }}>
-          Total Volume by Exercise (Top 6)
-        </h3>
-        <div style={{ width: '100%', height: '350px' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={topExercises.map(ex => ({
-                name: ex.exerciseName.length > 20 ? ex.exerciseName.substring(0, 20) + '...' : ex.exerciseName,
-                volume: Math.round(ex.totalVolume),
-              }))}
-              margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis
-                dataKey="name"
-                stroke="#9ca3af"
-                angle={-45}
-                textAnchor="end"
-                height={100}
-                style={{ fontSize: '12px' }}
-              />
-              <YAxis
-                stroke="#9ca3af"
-                style={{ fontSize: '12px' }}
-                label={{ value: 'Volume (kg)', angle: -90, position: 'insideLeft', fill: '#9ca3af' }}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#1f2937',
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
-                  color: '#f3f4f6',
-                }}
-                formatter={(value: number) => `${value.toLocaleString()} kg`}
-              />
-              <Bar dataKey="volume" fill="#3b82f6" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      {/* Individual Exercise Progress Charts */}
+      {exerciseStats.map((exercise, idx) => {
+        // Prepare chart data from progressData
+        const chartData = exercise.progressData.map(point => ({
+          date: formatDate(point.date),
+          fullDate: new Date(point.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          weight: point.weight,
+          volume: point.volume,
+          oneRepMax: Math.round(point.oneRepMax * 10) / 10,
+          reps: point.reps,
+        }));
 
-      {/* 1RM Progress Comparison Chart */}
-      <div style={{ marginBottom: '48px' }}>
-        <h3 style={{
-          fontSize: '18px',
-          fontWeight: '600',
-          marginBottom: '16px',
-          color: '#fff',
-        }}>
-          Estimated 1RM Progress (Top 6)
-        </h3>
-        <div style={{ width: '100%', height: '350px' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={topExercises.map(ex => {
-                const first = ex.progressData[0];
-                const last = ex.progressData[ex.progressData.length - 1];
-                const improvement = first && last ? ((last.oneRepMax - first.oneRepMax) / first.oneRepMax * 100) : 0;
+        const hasData = chartData.length > 0;
+        const first = exercise.progressData[0];
+        const last = exercise.progressData[exercise.progressData.length - 1];
+        const improvement1RM = first && last ? ((last.oneRepMax - first.oneRepMax) / first.oneRepMax * 100) : 0;
 
-                return {
-                  name: ex.exerciseName.length > 20 ? ex.exerciseName.substring(0, 20) + '...' : ex.exerciseName,
-                  start: first ? Math.round(first.oneRepMax * 10) / 10 : 0,
-                  current: last ? Math.round(last.oneRepMax * 10) / 10 : 0,
-                  improvement: Math.round(improvement * 10) / 10,
-                };
-              })}
-              margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis
-                dataKey="name"
-                stroke="#9ca3af"
-                angle={-45}
-                textAnchor="end"
-                height={100}
-                style={{ fontSize: '12px' }}
-              />
-              <YAxis
-                stroke="#9ca3af"
-                style={{ fontSize: '12px' }}
-                label={{ value: '1RM (kg)', angle: -90, position: 'insideLeft', fill: '#9ca3af' }}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#1f2937',
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
-                  color: '#f3f4f6',
-                }}
-                formatter={(value: number, name: string) => {
-                  if (name === 'start') return [`${value} kg`, 'Starting 1RM'];
-                  if (name === 'current') return [`${value} kg`, 'Current 1RM'];
-                  if (name === 'improvement') return [`+${value}%`, 'Improvement'];
-                  return value;
-                }}
-              />
-              <Legend
-                wrapperStyle={{ color: '#9ca3af', paddingTop: '16px' }}
-                iconType="square"
-              />
-              <Bar dataKey="start" fill="#6b7280" name="Starting 1RM" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="current" fill="#10b981" name="Current 1RM" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+        return (
+          <div key={idx} style={{
+            marginBottom: '48px',
+            background: 'rgba(255, 255, 255, 0.03)',
+            padding: '24px',
+            borderRadius: '12px',
+            border: '1px solid #374151',
+          }}>
+            {/* Exercise Header */}
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h3 style={{
+                  fontSize: '20px',
+                  fontWeight: '600',
+                  color: '#fff',
+                  margin: 0,
+                }}>
+                  {idx + 1}. {exercise.exerciseName}
+                </h3>
+                {improvement1RM > 0 && (
+                  <span style={{
+                    background: 'rgba(16, 185, 129, 0.2)',
+                    color: '#10b981',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                  }}>
+                    +{improvement1RM.toFixed(1)}% 1RM
+                  </span>
+                )}
+              </div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                gap: '12px',
+                fontSize: '13px',
+              }}>
+                <div>
+                  <span style={{ color: '#9ca3af' }}>Workouts: </span>
+                  <span style={{ color: '#fff', fontWeight: '600' }}>{exercise.totalWorkouts}</span>
+                </div>
+                <div>
+                  <span style={{ color: '#9ca3af' }}>Sets: </span>
+                  <span style={{ color: '#fff', fontWeight: '600' }}>{exercise.totalSets}</span>
+                </div>
+                <div>
+                  <span style={{ color: '#9ca3af' }}>Best Weight: </span>
+                  <span style={{ color: '#fff', fontWeight: '600' }}>{exercise.bestWeight}kg</span>
+                </div>
+                <div>
+                  <span style={{ color: '#9ca3af' }}>Best 1RM: </span>
+                  <span style={{ color: '#fff', fontWeight: '600' }}>{exercise.best1RM.toFixed(1)}kg</span>
+                </div>
+              </div>
+            </div>
 
-      {/* Exercise Frequency */}
-      <div style={{ marginBottom: '32px' }}>
-        <h3 style={{
-          fontSize: '18px',
-          fontWeight: '600',
-          marginBottom: '16px',
-          color: '#fff',
+            {/* Weight & 1RM Progress Chart */}
+            {hasData && (
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#9ca3af',
+                  marginBottom: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}>
+                  Weight & 1RM Progression
+                </h4>
+                <div style={{ width: '100%', height: '250px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis
+                        dataKey="date"
+                        stroke="#9ca3af"
+                        style={{ fontSize: '11px' }}
+                        angle={-45}
+                        textAnchor="end"
+                        height={60}
+                      />
+                      <YAxis
+                        stroke="#9ca3af"
+                        style={{ fontSize: '11px' }}
+                        label={{ value: 'Weight (kg)', angle: -90, position: 'insideLeft', fill: '#9ca3af', style: { fontSize: '11px' } }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#1f2937',
+                          border: '1px solid #374151',
+                          borderRadius: '8px',
+                          color: '#f3f4f6',
+                          fontSize: '12px',
+                        }}
+                        labelFormatter={(label, payload) => {
+                          if (payload && payload[0]) {
+                            return payload[0].payload.fullDate;
+                          }
+                          return label;
+                        }}
+                        formatter={(value: number, name: string) => {
+                          if (name === 'weight') return [`${value}kg`, 'Weight'];
+                          if (name === 'oneRepMax') return [`${value}kg`, 'Est. 1RM'];
+                          return value;
+                        }}
+                      />
+                      <Legend
+                        wrapperStyle={{ fontSize: '12px', paddingTop: '8px' }}
+                        iconType="line"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="weight"
+                        stroke="#3b82f6"
+                        strokeWidth={2}
+                        dot={{ fill: '#3b82f6', r: 3 }}
+                        name="Weight"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="oneRepMax"
+                        stroke="#10b981"
+                        strokeWidth={2}
+                        strokeDasharray="5 5"
+                        dot={{ fill: '#10b981', r: 3 }}
+                        name="Est. 1RM"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+
+            {/* Volume Progress Chart */}
+            {hasData && (
+              <div>
+                <h4 style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#9ca3af',
+                  marginBottom: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}>
+                  Volume Progression
+                </h4>
+                <div style={{ width: '100%', height: '220px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis
+                        dataKey="date"
+                        stroke="#9ca3af"
+                        style={{ fontSize: '11px' }}
+                        angle={-45}
+                        textAnchor="end"
+                        height={60}
+                      />
+                      <YAxis
+                        stroke="#9ca3af"
+                        style={{ fontSize: '11px' }}
+                        label={{ value: 'Volume (kg)', angle: -90, position: 'insideLeft', fill: '#9ca3af', style: { fontSize: '11px' } }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#1f2937',
+                          border: '1px solid #374151',
+                          borderRadius: '8px',
+                          color: '#f3f4f6',
+                          fontSize: '12px',
+                        }}
+                        labelFormatter={(label, payload) => {
+                          if (payload && payload[0]) {
+                            return payload[0].payload.fullDate;
+                          }
+                          return label;
+                        }}
+                        formatter={(value: number) => [`${value}kg`, 'Volume']}
+                      />
+                      <Bar
+                        dataKey="volume"
+                        fill="#f59e0b"
+                        radius={[6, 6, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Exercise Volume Distribution Pie Chart */}
+      {exerciseStats.length > 0 && (
+        <div style={{
+          marginTop: '48px',
+          background: 'rgba(255, 255, 255, 0.03)',
+          padding: '32px',
+          borderRadius: '12px',
+          border: '1px solid #374151',
         }}>
-          Workout Frequency Distribution (Top 6)
-        </h3>
-        <div style={{ width: '100%', height: '300px' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={topExercises.map(ex => ({
-                name: ex.exerciseName.length > 20 ? ex.exerciseName.substring(0, 20) + '...' : ex.exerciseName,
-                workouts: ex.totalWorkouts,
-              }))}
-              margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
-              layout="horizontal"
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis
-                dataKey="name"
-                stroke="#9ca3af"
-                angle={-45}
-                textAnchor="end"
-                height={100}
-                style={{ fontSize: '12px' }}
-              />
-              <YAxis
-                stroke="#9ca3af"
-                style={{ fontSize: '12px' }}
-                label={{ value: 'Workouts', angle: -90, position: 'insideLeft', fill: '#9ca3af' }}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#1f2937',
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
-                  color: '#f3f4f6',
-                }}
-                formatter={(value: number) => [`${value}`, 'Workouts']}
-              />
-              <Bar dataKey="workouts" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <h3 style={{
+            fontSize: '24px',
+            fontWeight: '600',
+            color: '#fff',
+            marginBottom: '32px',
+            textAlign: 'center',
+          }}>
+            Exercise Volume Distribution
+          </h3>
+
+          <div style={{ width: '100%', height: '500px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={exerciseStats.map(ex => ({
+                    name: ex.exerciseName,
+                    value: Math.round(ex.totalVolume),
+                  }))}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={true}
+                  label={(entry: any) => {
+                    const value = typeof entry.value === 'number' ? entry.value : 0;
+                    const percent = typeof entry.percent === 'number' ? entry.percent : 0;
+                    return `${entry.name}: ${value.toLocaleString()}kg (${(percent * 100).toFixed(1)}%)`;
+                  }}
+                  outerRadius={150}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {exerciseStats.map((_exercise, index) => (
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    color: '#f3f4f6',
+                    fontSize: '14px',
+                  }}
+                  formatter={(value: number) => `${value.toLocaleString()} kg`}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Legend */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: '12px',
+            marginTop: '24px',
+          }}>
+            {exerciseStats.map((exercise, index) => (
+              <div key={index} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '13px',
+              }}>
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '4px',
+                  backgroundColor: PIE_COLORS[index % PIE_COLORS.length],
+                  flexShrink: 0,
+                }} />
+                <span style={{ color: '#d1d5db' }}>{exercise.exerciseName}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
