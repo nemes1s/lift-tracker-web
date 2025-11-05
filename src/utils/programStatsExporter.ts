@@ -47,8 +47,9 @@ async function renderChartsToCanvas(stats: ProgramStats): Promise<HTMLCanvasElem
 
     const canvas = await html2canvas(chartsElement as HTMLElement, {
       backgroundColor: '#111827',
-      scale: 2,
+      scale: 1.5, // Reduced from 2 for better file size and readability
       logging: false,
+      width: 1200,
     });
 
     root.unmount();
@@ -330,8 +331,9 @@ export async function exportAsImage(stats: ProgramStats): Promise<Blob> {
     // Generate canvas from stats HTML
     const statsCanvas = await html2canvas(container.querySelector('#program-stats-export')! as HTMLElement, {
       backgroundColor: '#111827',
-      scale: 2, // Higher quality
+      scale: 1.5, // Reduced from 2 for better file size
       logging: false,
+      width: 1200,
     });
 
     // Generate canvas from charts
@@ -372,8 +374,9 @@ export async function exportAsPDF(stats: ProgramStats): Promise<Blob> {
     // Generate canvas from stats HTML
     const statsCanvas = await html2canvas(container.querySelector('#program-stats-export')! as HTMLElement, {
       backgroundColor: '#111827',
-      scale: 2,
+      scale: 1.5, // Reduced for better PDF size
       logging: false,
+      width: 1200,
     });
 
     // Generate canvas from charts

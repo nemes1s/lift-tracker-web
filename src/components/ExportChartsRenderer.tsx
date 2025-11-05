@@ -269,7 +269,7 @@ export function ExportChartsRenderer({ exerciseStats, programName }: ExportChart
             Exercise Volume Distribution
           </h3>
 
-          <div style={{ width: '100%', height: '500px' }}>
+          <div style={{ width: '100%', height: '600px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -278,16 +278,21 @@ export function ExportChartsRenderer({ exerciseStats, programName }: ExportChart
                     value: Math.round(ex.totalVolume),
                   }))}
                   cx="50%"
-                  cy="50%"
-                  labelLine={true}
-                  label={(entry: any) => {
-                    const value = typeof entry.value === 'number' ? entry.value : 0;
-                    const percent = typeof entry.percent === 'number' ? entry.percent : 0;
-                    return `${entry.name}: ${value.toLocaleString()}kg (${(percent * 100).toFixed(1)}%)`;
+                  cy="45%"
+                  labelLine={{
+                    stroke: '#9ca3af',
+                    strokeWidth: 1,
                   }}
-                  outerRadius={150}
+                  label={(entry: any) => {
+                    const percent = typeof entry.percent === 'number' ? entry.percent : 0;
+                    // Only show label if percentage is significant enough (> 3%)
+                    if (percent < 0.03) return '';
+                    return `${(percent * 100).toFixed(1)}%`;
+                  }}
+                  outerRadius={160}
                   fill="#8884d8"
                   dataKey="value"
+                  style={{ fontSize: '16px', fontWeight: '700', fill: '#fff' }}
                 >
                   {exerciseStats.map((_exercise, index) => (
                     <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
@@ -301,36 +306,68 @@ export function ExportChartsRenderer({ exerciseStats, programName }: ExportChart
                     color: '#f3f4f6',
                     fontSize: '14px',
                   }}
-                  formatter={(value: number) => `${value.toLocaleString()} kg`}
+                  formatter={(value: number, _name: string, props: any) => {
+                    const percent = props.payload.percent || 0;
+                    return [`${value.toLocaleString()} kg (${(percent * 100).toFixed(1)}%)`, props.payload.name];
+                  }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Legend */}
+          {/* Legend with percentages */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: '12px',
-            marginTop: '24px',
+            marginTop: '32px',
+            paddingTop: '24px',
+            borderTop: '1px solid #374151',
           }}>
-            {exerciseStats.map((exercise, index) => (
-              <div key={index} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '13px',
-              }}>
-                <div style={{
-                  width: '16px',
-                  height: '16px',
-                  borderRadius: '4px',
-                  backgroundColor: PIE_COLORS[index % PIE_COLORS.length],
-                  flexShrink: 0,
-                }} />
-                <span style={{ color: '#d1d5db' }}>{exercise.exerciseName}</span>
-              </div>
-            ))}
+            {exerciseStats.map((exercise, index) => {
+              const totalVolume = exerciseStats.reduce((sum, ex) => sum + ex.totalVolume, 0);
+              const percent = (exercise.totalVolume / totalVolume) * 100;
+
+              return (
+                <div key={index} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '12px',
+                  fontSize: '14px',
+                  padding: '8px',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  borderRadius: '6px',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      width: '16px',
+                      height: '16px',
+                      borderRadius: '4px',
+                      backgroundColor: PIE_COLORS[index % PIE_COLORS.length],
+                      flexShrink: 0,
+                    }} />
+                    <span style={{ color: '#d1d5db', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {exercise.exerciseName}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
+                    <span style={{ color: '#9ca3af', fontSize: '13px' }}>
+                      {exercise.totalVolume.toLocaleString()}kg
+                    </span>
+                    <span style={{
+                      color: '#fff',
+                      fontWeight: '700',
+                      fontSize: '14px',
+                      minWidth: '50px',
+                      textAlign: 'right',
+                    }}>
+                      {percent.toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
