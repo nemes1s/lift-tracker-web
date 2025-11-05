@@ -13,6 +13,8 @@ public/CHANGELOG.md
 seed-data.html
 dist-ssr
 *.local
+.playwright-mcp
+.claude
 
 # Editor directories and files
 .vscode/*

@@ -272,3 +272,8 @@ Dexie automatically handles schema migrations. New optional fields don't require
 ## Dark mode
 
 Implemented components should be dark-mode ready. `dark:` prefix should be used to define styling for dark mode.
+
+
+## Changelog.md
+
+Changelog should contain only records of major and minor version release data. Keep that in mind when updating changelog.

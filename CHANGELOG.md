@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.0] - 2024-11-04
 
-### Added
+### Features
 - Streak badges system for consistent workout tracking
 - Weekly volume trend chart alongside monthly volume trend
 - Exercise state persistence across navigation (selected exercise no longer lost when navigating away)
 - Celebration animation on set completion
 - Workout export functionality (text and image formats)
 
-### Changed
+### Improvements
 - Improved progress tracking with additional trend visualization
 
 ## [0.5.0] - Earlier releases
