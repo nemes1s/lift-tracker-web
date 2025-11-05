@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "prebuild": "node scripts/copy-changelog.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "version:bump": "node scripts/bump-version.js"

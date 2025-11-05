@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 dist
+public/CHANGELOG.md
 dist-ssr
 *.local
 
