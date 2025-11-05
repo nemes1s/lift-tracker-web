@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LiftTracker - Seed Test Data</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin-top: 0;
+      color: #333;
+    }
+    .form-group {
+      margin: 20px 0;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+    }
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .btn-seed {
+      background: #10b981;
+      color: white;
+    }
+    .btn-clear {
+      background: #ef4444;
+      color: white;
+    }
+    .btn-close {
+      background: #6b7280;
+      color: white;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 4px;
+      display: none;
+    }
+    .status.success {
+      display: block;
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+    }
+    .status.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+    .info {
+      background: #ede9fe;
+      color: #5b21b6;
+      padding: 15px;
+      border-radius: 4px;
+      border: 1px solid #d8b4fe;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏋️ LiftTracker Data Seeder</h1>
+
+    <div class="info">
+      <strong>Instructions:</strong> This tool populates your local LiftTracker database with realistic test data. The data will be created in IndexedDB and accessible in your running app immediately.
+    </div>
+
+    <div class="form-group">
+      <label for="days">Days to Populate:</label>
+      <input type="number" id="days" value="90" min="1" max="365">
+      <small style="color: #999;">How many days back to generate workouts for</small>
+    </div>
+
+    <div class="form-group">
+      <label for="frequency">Workouts Per Week:</label>
+      <input type="number" id="frequency" value="3" min="1" max="7">
+      <small style="color: #999;">3 = Mon/Wed/Fri, 4 = Upper/Lower split, etc.</small>
+    </div>
+
+    <div class="button-group">
+      <button class="btn-seed" onclick="seedData()">Seed Data</button>
+      <button class="btn-clear" onclick="clearData()">Clear All Data</button>
+      <button class="btn-close" onclick="window.close()">Close</button>
+    </div>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    // Use IndexedDB directly without imports
+    const DB_NAME = 'LiftTrackerDB';
+
+    function generateId() {
+      return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    async function openDB() {
+      return new Promise((resolve, reject) => {
+        // Don't specify version - let the browser use the existing one
+        const request = indexedDB.open(DB_NAME);
+
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          // Create stores if they don't exist
+          const stores = ['programs', 'workoutTemplates', 'exerciseTemplates', 'workouts', 'exerciseInstances', 'setRecords', 'personalRecords', 'settings'];
+          stores.forEach(store => {
+            if (!db.objectStoreNames.contains(store)) {
+              db.createObjectStore(store, { keyPath: 'id' });
+            }
+          });
+        };
+      });
+    }
+
+    async function addToStore(db, storeName, item) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+        const request = store.add(item);
+
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+      });
+    }
+
+    async function clearStore(db, storeName) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+        const request = store.clear();
+
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve();
+      });
+    }
+
+    const EXERCISES_BY_DAY = {
+      0: [
+        { name: 'Bench Press', targetSets: 4, targetReps: '6-8' },
+        { name: 'Incline Dumbbell Press', targetSets: 3, targetReps: '8-10' },
+        { name: 'Tricep Dips', targetSets: 3, targetReps: '6-10' },
+      ],
+      1: [
+        { name: 'Barbell Rows', targetSets: 4, targetReps: '6-8' },
+        { name: 'Lat Pulldowns', targetSets: 3, targetReps: '8-10' },
+        { name: 'Barbell Curls', targetSets: 3, targetReps: '8-10' },
+      ],
+      2: [
+        { name: 'Barbell Squats', targetSets: 4, targetReps: '6-8' },
+        { name: 'Romanian Deadlifts', targetSets: 3, targetReps: '8-10' },
+        { name: 'Leg Press', targetSets: 3, targetReps: '10-12' },
+      ],
+    };
+
+    const DAY_NAMES = ['Chest & Triceps', 'Back & Biceps', 'Legs'];
+
+    async function seedData() {
+      const days = parseInt(document.getElementById('days').value);
+      const frequency = parseInt(document.getElementById('frequency').value);
+      const status = document.getElementById('status');
+
+      try {
+        status.className = 'status';
+        status.innerHTML = '⏳ Seeding data...';
+
+        const db = await openDB();
+
+        // Create program
+        const programId = generateId();
+        const now = new Date();
+        const program = {
+          id: programId,
+          name: 'Test Strength Program',
+          createdAt: new Date(now.getTime() - days * 24 * 60 * 60 * 1000),
+          updatedAt: now,
+          startDate: new Date(now.getTime() - days * 24 * 60 * 60 * 1000),
+          totalWeeks: 12,
+        };
+
+        await addToStore(db, 'programs', program);
+
+        // Create workout templates
+        const templates = [];
+        for (let dayIndex = 0; dayIndex < 3; dayIndex++) {
+          for (const weekNumber of [1, 5, 9]) {
+            const template = {
+              id: generateId(),
+              name: DAY_NAMES[dayIndex],
+              dayIndex,
+              weekNumber,
+              programId,
+            };
+            await addToStore(db, 'workoutTemplates', template);
+            templates.push(template);
+
+            // Add exercise templates
+            const exercises = EXERCISES_BY_DAY[dayIndex];
+            for (let idx = 0; idx < exercises.length; idx++) {
+              const ex = exercises[idx];
+              const exerciseTemplate = {
+                id: generateId(),
+                name: ex.name,
+                targetSets: ex.targetSets,
+                targetReps: ex.targetReps,
+                orderIndex: idx,
+                workoutTemplateId: template.id,
+              };
+              await addToStore(db, 'exerciseTemplates', exerciseTemplate);
+            }
+          }
+        }
+
+        // Generate historical workouts
+        const startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - days);
+
+        let workoutCount = 0;
+        for (let dayOffset = 0; dayOffset < days; dayOffset += 7 / frequency) {
+          const workoutDate = new Date(startDate);
+          workoutDate.setDate(workoutDate.getDate() + dayOffset);
+
+          const dayOfWeek = workoutDate.getDay();
+          const dayIndex = dayOfWeek === 0 ? 2 : (dayOfWeek - 1) % 3;
+
+          const workoutId = generateId();
+          const endTime = new Date(workoutDate.getTime() + 50 * 60 * 1000 + Math.random() * 40 * 60 * 1000);
+
+          const workout = {
+            id: workoutId,
+            name: DAY_NAMES[dayIndex],
+            startedAt: workoutDate,
+            endedAt: endTime,
+            programNameSnapshot: program.name,
+          };
+
+          await addToStore(db, 'workouts', workout);
+
+          // Add exercises and sets for this workout
+          const exercises = EXERCISES_BY_DAY[dayIndex];
+
+          for (let exIdx = 0; exIdx < exercises.length; exIdx++) {
+            const ex = exercises[exIdx];
+            const exerciseId = generateId();
+
+            const exerciseInstance = {
+              id: exerciseId,
+              name: ex.name,
+              workoutId,
+              orderIndex: exIdx,
+              targetSets: ex.targetSets,
+              targetReps: ex.targetReps,
+            };
+
+            await addToStore(db, 'exerciseInstances', exerciseInstance);
+
+            // Generate sets with realistic progression
+            const baseWeight = 80 + dayIndex * 20;
+            const progressionMultiplier = 1 + (dayOffset / days) * 0.15;
+
+            for (let setIdx = 0; setIdx < ex.targetSets; setIdx++) {
+              const weight = Math.round(baseWeight * progressionMultiplier * 10) / 10;
+              const [minReps, maxReps] = ex.targetReps.split('-').map(Number);
+              const reps = minReps + Math.floor(Math.random() * (maxReps - minReps + 1));
+
+              const setTime = new Date(workoutDate.getTime() + (exIdx * 10 + setIdx * 3) * 60 * 1000);
+
+              const setRecord = {
+                id: generateId(),
+                exerciseId,
+                weight,
+                reps,
+                rpe: 6 + Math.random() * 4,
+                timestamp: setTime,
+                isWarmup: setIdx === 0 && workoutCount > 5,
+                isPR: workoutCount > 15 && setIdx === ex.targetSets - 1 && Math.random() > 0.85,
+              };
+
+              await addToStore(db, 'setRecords', setRecord);
+            }
+          }
+
+          workoutCount++;
+        }
+
+        db.close();
+
+        status.className = 'status success';
+        status.innerHTML = `✅ <strong>Success!</strong> Seeded ${workoutCount} workouts with realistic progression data. Refresh your app to see the data.`;
+
+      } catch (error) {
+        console.error('Seeding failed:', error);
+        status.className = 'status error';
+        status.innerHTML = `❌ <strong>Error:</strong> ${error.message}`;
+      }
+    }
+
+    async function clearData() {
+      if (!confirm('Are you sure? This will delete all workouts, exercises, and programs.')) {
+        return;
+      }
+
+      const status = document.getElementById('status');
+
+      try {
+        status.className = 'status';
+        status.innerHTML = '⏳ Clearing data...';
+
+        const db = await openDB();
+
+        await Promise.all([
+          clearStore(db, 'workouts'),
+          clearStore(db, 'exerciseInstances'),
+          clearStore(db, 'setRecords'),
+          clearStore(db, 'workoutTemplates'),
+          clearStore(db, 'exerciseTemplates'),
+          clearStore(db, 'programs'),
+          clearStore(db, 'personalRecords'),
+        ]);
+
+        db.close();
+
+        status.className = 'status success';
+        status.innerHTML = '✅ All data cleared. Refresh your app to see the changes.';
+
+      } catch (error) {
+        console.error('Clear failed:', error);
+        status.className = 'status error';
+        status.innerHTML = `❌ <strong>Error:</strong> ${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
