@@ -29,7 +29,7 @@ export function GlobalOverviewSection({ globalStats }: GlobalOverviewSectionProp
 
         {globalStats.currentStreak > 0 && (
           <div className="bg-gradient-to-br from-primary-50 to-white dark:from-primary-900/20 dark:to-slate-800 rounded-xl p-4 border-2 border-primary-100 dark:border-primary-800 flex items-center justify-center">
-            <StreakBadge weeks={globalStats.currentStreak} interactive={true} />
+            <StreakBadge weeks={globalStats.currentStreak} />
           </div>
         )}
 
@@ -43,7 +43,7 @@ export function GlobalOverviewSection({ globalStats }: GlobalOverviewSectionProp
 
         {globalStats.longestStreak > 0 && (
           <div className="bg-gradient-to-br from-green-50 to-white dark:from-green-900/20 dark:to-slate-800 rounded-xl p-4 border-2 border-green-100 dark:border-green-800 flex items-center justify-center">
-            <StreakBadge weeks={globalStats.longestStreak} interactive={true} />
+            <StreakBadge weeks={globalStats.longestStreak} />
           </div>
         )}
       </div>
