@@ -20,6 +20,31 @@ export function ExportChartsRenderer({ exerciseStats, programName }: ExportChart
     return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
+  // Custom label for pie chart
+  const renderPieLabel = (entry: any) => {
+    const percent = typeof entry.percent === 'number' ? entry.percent : 0;
+    // Only show label if percentage is significant enough (> 3%)
+    if (percent < 0.03) return null;
+
+    const RADIAN = Math.PI / 180;
+    const radius = entry.outerRadius + 30;
+    const x = entry.cx + radius * Math.cos(-entry.midAngle * RADIAN);
+    const y = entry.cy + radius * Math.sin(-entry.midAngle * RADIAN);
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="#fff"
+        textAnchor={x > entry.cx ? 'start' : 'end'}
+        dominantBaseline="central"
+        style={{ fontSize: '16px', fontWeight: '700' }}
+      >
+        {`${(percent * 100).toFixed(1)}%`}
+      </text>
+    );
+  };
+
   return (
     <div id="export-charts-container" style={{
       background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
@@ -283,16 +308,11 @@ export function ExportChartsRenderer({ exerciseStats, programName }: ExportChart
                     stroke: '#9ca3af',
                     strokeWidth: 1,
                   }}
-                  label={(entry: any) => {
-                    const percent = typeof entry.percent === 'number' ? entry.percent : 0;
-                    // Only show label if percentage is significant enough (> 3%)
-                    if (percent < 0.03) return '';
-                    return `${(percent * 100).toFixed(1)}%`;
-                  }}
+                  label={renderPieLabel}
                   outerRadius={160}
-                  fill="#8884d8"
                   dataKey="value"
-                  style={{ fontSize: '16px', fontWeight: '700', fill: '#fff' }}
+                  startAngle={90}
+                  endAngle={450}
                 >
                   {exerciseStats.map((_exercise, index) => (
                     <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
