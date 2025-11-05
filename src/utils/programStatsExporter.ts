@@ -285,20 +285,59 @@ export async function exportAsPDF(stats: ProgramStats): Promise<Blob> {
       logging: false,
     });
 
-    // Calculate PDF dimensions
-    const imgWidth = 210; // A4 width in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    // A4 dimensions in mm
+    const pageWidth = 210;
+    const pageHeight = 297;
+
+    // Calculate how the image fits on the page
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * pageWidth) / canvas.width;
 
     // Create PDF
     const pdf = new jsPDF({
-      orientation: imgHeight > imgWidth ? 'portrait' : 'portrait',
+      orientation: 'portrait',
       unit: 'mm',
       format: 'a4',
     });
 
-    // Add image to PDF
     const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+    // If content fits on one page, add it directly
+    if (imgHeight <= pageHeight) {
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    } else {
+      // Content needs multiple pages
+      // Calculate how many pages we need
+      const numPages = Math.ceil(imgHeight / pageHeight);
+
+      // For each page, we need to crop the canvas
+      for (let i = 0; i < numPages; i++) {
+        if (i > 0) {
+          pdf.addPage();
+        }
+
+        // Calculate the portion of the canvas to show on this page
+        const sourceY = (canvas.height / numPages) * i;
+        const sourceHeight = canvas.height / numPages;
+
+        // Create a temporary canvas for this page
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = sourceHeight;
+
+        const pageCtx = pageCanvas.getContext('2d')!;
+        pageCtx.drawImage(
+          canvas,
+          0, sourceY,           // source x, y
+          canvas.width, sourceHeight,  // source width, height
+          0, 0,                 // dest x, y
+          canvas.width, sourceHeight   // dest width, height
+        );
+
+        const pageImgData = pageCanvas.toDataURL('image/png');
+        pdf.addImage(pageImgData, 'PNG', 0, 0, pageWidth, pageHeight);
+      }
+    }
 
     // Return as blob
     return pdf.output('blob');
