@@ -20,31 +20,6 @@ export function ExportChartsRenderer({ exerciseStats, programName }: ExportChart
     return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  // Custom label for pie chart
-  const renderPieLabel = (entry: any) => {
-    const percent = typeof entry.percent === 'number' ? entry.percent : 0;
-    // Only show label if percentage is significant enough (> 3%)
-    if (percent < 0.03) return null;
-
-    const RADIAN = Math.PI / 180;
-    const radius = entry.outerRadius + 30;
-    const x = entry.cx + radius * Math.cos(-entry.midAngle * RADIAN);
-    const y = entry.cy + radius * Math.sin(-entry.midAngle * RADIAN);
-
-    return (
-      <text
-        x={x}
-        y={y}
-        fill="#fff"
-        textAnchor={x > entry.cx ? 'start' : 'end'}
-        dominantBaseline="central"
-        style={{ fontSize: '16px', fontWeight: '700' }}
-      >
-        {`${(percent * 100).toFixed(1)}%`}
-      </text>
-    );
-  };
-
   return (
     <div id="export-charts-container" style={{
       background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
@@ -294,7 +269,7 @@ export function ExportChartsRenderer({ exerciseStats, programName }: ExportChart
             Exercise Volume Distribution
           </h3>
 
-          <div style={{ width: '100%', height: '600px' }}>
+          <div style={{ width: '100%', height: '550px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -303,19 +278,28 @@ export function ExportChartsRenderer({ exerciseStats, programName }: ExportChart
                     value: Math.round(ex.totalVolume),
                   }))}
                   cx="50%"
-                  cy="45%"
+                  cy="50%"
+                  innerRadius={0}
+                  outerRadius={180}
+                  paddingAngle={2}
+                  dataKey="value"
+                  label={(entry: any) => {
+                    const percent = typeof entry.percent === 'number' ? entry.percent : 0;
+                    if (percent < 0.03) return '';
+                    return `${(percent * 100).toFixed(1)}%`;
+                  }}
                   labelLine={{
                     stroke: '#9ca3af',
-                    strokeWidth: 1,
+                    strokeWidth: 2,
                   }}
-                  label={renderPieLabel}
-                  outerRadius={160}
-                  dataKey="value"
-                  startAngle={90}
-                  endAngle={450}
                 >
                   {exerciseStats.map((_exercise, index) => (
-                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={PIE_COLORS[index % PIE_COLORS.length]}
+                      stroke="#1f2937"
+                      strokeWidth={2}
+                    />
                   ))}
                 </Pie>
                 <Tooltip

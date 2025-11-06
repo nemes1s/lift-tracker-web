@@ -18,7 +18,7 @@ async function renderChartsToCanvas(stats: ProgramStats): Promise<HTMLCanvasElem
   container.style.position = 'fixed';
   container.style.left = '-9999px';
   container.style.top = '0';
-  container.style.width = '1200px';
+  container.style.width = '1600px'; // Increased from 1200px
   document.body.appendChild(container);
 
   try {
@@ -35,7 +35,7 @@ async function renderChartsToCanvas(stats: ProgramStats): Promise<HTMLCanvasElem
       );
 
       // Wait for charts to render
-      setTimeout(() => resolve(), 1500);
+      setTimeout(() => resolve(), 2000); // Increased from 1500ms
     });
 
     // Capture the rendered charts
@@ -47,9 +47,9 @@ async function renderChartsToCanvas(stats: ProgramStats): Promise<HTMLCanvasElem
 
     const canvas = await html2canvas(chartsElement as HTMLElement, {
       backgroundColor: '#111827',
-      scale: 1.5, // Reduced from 2 for better file size and readability
+      scale: 1, // Reduced from 1.5 for much better readability
       logging: false,
-      width: 1200,
+      width: 1600,
     });
 
     root.unmount();
@@ -331,7 +331,7 @@ export async function exportAsImage(stats: ProgramStats): Promise<Blob> {
     // Generate canvas from stats HTML
     const statsCanvas = await html2canvas(container.querySelector('#program-stats-export')! as HTMLElement, {
       backgroundColor: '#111827',
-      scale: 1.5, // Reduced from 2 for better file size
+      scale: 1, // Reduced from 1.5 for better readability
       logging: false,
       width: 1200,
     });
@@ -342,7 +342,7 @@ export async function exportAsImage(stats: ProgramStats): Promise<Blob> {
     // Combine canvases
     const finalCanvas = combineCanvasesVertically(statsCanvas, chartsCanvas);
 
-    // Convert to blob
+    // Convert to blob with quality setting
     return new Promise<Blob>((resolve, reject) => {
       finalCanvas.toBlob((blob) => {
         if (blob) {
@@ -350,7 +350,7 @@ export async function exportAsImage(stats: ProgramStats): Promise<Blob> {
         } else {
           reject(new Error('Failed to create image blob'));
         }
-      }, 'image/png');
+      }, 'image/png', 1.0); // Maximum quality
     });
   } finally {
     // Cleanup
@@ -374,7 +374,7 @@ export async function exportAsPDF(stats: ProgramStats): Promise<Blob> {
     // Generate canvas from stats HTML
     const statsCanvas = await html2canvas(container.querySelector('#program-stats-export')! as HTMLElement, {
       backgroundColor: '#111827',
-      scale: 1.5, // Reduced for better PDF size
+      scale: 1, // Reduced from 1.5 for better readability
       logging: false,
       width: 1200,
     });
@@ -400,7 +400,7 @@ export async function exportAsPDF(stats: ProgramStats): Promise<Blob> {
       format: 'a4',
     });
 
-    const imgData = canvas.toDataURL('image/png');
+    const imgData = canvas.toDataURL('image/png', 1.0); // Maximum quality
 
     // If content fits on one page, add it directly
     if (imgHeight <= pageHeight) {
@@ -434,7 +434,7 @@ export async function exportAsPDF(stats: ProgramStats): Promise<Blob> {
           canvas.width, sourceHeight   // dest width, height
         );
 
-        const pageImgData = pageCanvas.toDataURL('image/png');
+        const pageImgData = pageCanvas.toDataURL('image/png', 1.0); // Maximum quality
         pdf.addImage(pageImgData, 'PNG', 0, 0, pageWidth, pageHeight);
       }
     }
