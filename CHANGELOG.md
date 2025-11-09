@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2025-11-09
+
+### Features
+- **Enhanced Exercise Search**: Expanded exercise alternatives feature with comprehensive search functionality
+  - Search through 100+ exercises from the entire exercise database
+  - Results grouped by muscle group (chest, back, shoulders, biceps, triceps, quads, hamstrings, glutes, calves, core)
+  - Maintained "Suggested Alternatives" section for quick access to recommended exercises
+  - Real-time search filtering with visual muscle group organization
+  - Full dark mode support for new UI elements
+
+### Improvements
+- Improved exercise substitution modal with scrollable interface
+- Better visual distinction between suggested alternatives and search results
+
 ## [0.6.0] - 2024-11-04
 
 ### Features
