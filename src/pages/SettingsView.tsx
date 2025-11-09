@@ -26,6 +26,7 @@ import { RestTimerSettingsSection } from '../components/SettingsView/RestTimerSe
 import { WeeklyGoalSection } from '../components/SettingsView/WeeklyGoalSection';
 import { ActiveProgramSection } from '../components/SettingsView/ActiveProgramSection';
 import { ProgramsManagementSection } from '../components/SettingsView/ProgramsManagementSection';
+import { ProgramStatsExportSection } from '../components/SettingsView/ProgramStatsExportSection';
 import { DeleteConfirmModals } from '../components/SettingsView/DeleteConfirmModals';
 
 export function SettingsView() {
@@ -273,10 +274,16 @@ export function SettingsView() {
   };
 
   const handleShowWhatsNew = async () => {
-    const allVersions = await parseAllVersions();
-    if (allVersions.length > 0) {
-      setChangelogData(allVersions);
-      setShowWhatsNewModal(true);
+    try {
+      const allVersions = await parseAllVersions();
+      if (allVersions && allVersions.length > 0) {
+        setChangelogData(allVersions);
+        setShowWhatsNewModal(true);
+      } else {
+        console.warn('No changelog data found');
+      }
+    } catch (error) {
+      console.error('Failed to load changelog:', error);
     }
   };
 
@@ -400,6 +407,8 @@ export function SettingsView() {
           onCreateProgram={handleCreateProgram}
           onDeleteAll={() => setShowDeleteConfirm(true)}
         />
+
+        <ProgramStatsExportSection programs={programs} />
 
         <DeleteConfirmModals
           deletingProgramId={deletingProgramId}

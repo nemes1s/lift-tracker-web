@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 public/CHANGELOG.md
+.playwright-mcp
 seed-data.html
 dist-ssr
 *.local
