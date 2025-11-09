@@ -274,10 +274,16 @@ export function SettingsView() {
   };
 
   const handleShowWhatsNew = async () => {
-    const allVersions = await parseAllVersions();
-    if (allVersions.length > 0) {
-      setChangelogData(allVersions);
-      setShowWhatsNewModal(true);
+    try {
+      const allVersions = await parseAllVersions();
+      if (allVersions && allVersions.length > 0) {
+        setChangelogData(allVersions);
+        setShowWhatsNewModal(true);
+      } else {
+        console.warn('No changelog data found');
+      }
+    } catch (error) {
+      console.error('Failed to load changelog:', error);
     }
   };
 

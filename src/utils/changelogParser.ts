@@ -92,11 +92,11 @@ function parseChangelogContent(content: string, version: string): VersionChanges
 
   const versionContent = content.substring(versionStartIdx, versionEndIdx);
 
-  // Parse sections
-  const features = parseSection(versionContent, 'Features');
-  const bugFixes = parseSection(versionContent, 'Bug Fixes');
-  const improvements = parseSection(versionContent, 'Improvements');
-  const breakingChanges = parseSection(versionContent, 'Breaking Changes');
+  // Parse sections - try both old and new names for backward compatibility
+  const features = parseSection(versionContent, 'Features') || parseSection(versionContent, 'Added');
+  const bugFixes = parseSection(versionContent, 'Bug Fixes') || parseSection(versionContent, 'Fixed');
+  const improvements = parseSection(versionContent, 'Improvements') || parseSection(versionContent, 'Changed');
+  const breakingChanges = parseSection(versionContent, 'Breaking Changes') || parseSection(versionContent, 'Removed');
 
   return {
     version,

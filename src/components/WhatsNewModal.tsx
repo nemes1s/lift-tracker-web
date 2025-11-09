@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { X, Sparkles, Bug, Zap, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { type VersionChanges } from '../utils/changelogParser';
 
@@ -10,6 +10,7 @@ interface WhatsNewModalProps {
 export function WhatsNewModal({ changes, onClose }: WhatsNewModalProps) {
   const allVersions = Array.isArray(changes) ? changes : [changes];
   const [currentIndex, setCurrentIndex] = useState(0);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const currentChange = allVersions[currentIndex];
   const hasMultipleVersions = allVersions.length > 1;
@@ -34,19 +35,39 @@ export function WhatsNewModal({ changes, onClose }: WhatsNewModalProps) {
     }
   };
 
-  if (!hasAnyChanges) {
+  // If no changes but we have a version, still render the modal but show a message
+  // If no version at all, return null
+  if (!currentChange) {
+    console.log('[WhatsNewModal] No current change, returning null');
     return null;
   }
 
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Only close if clicking outside the modal content
+    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={handleOverlayClick}
+    >
+      <div
+        ref={modalRef}
+        className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-labelledby="whats-new-title"
+        aria-modal="true"
+      >
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 px-6 py-6 flex items-center justify-between border-b border-blue-600 dark:border-blue-700">
           <div className="flex items-center gap-3">
             <Sparkles className="w-6 h-6 text-white" />
             <div>
-              <h2 className="text-2xl font-bold text-white">What's New</h2>
+              <h2 id="whats-new-title" className="text-2xl font-bold text-white">What's New</h2>
               <p className="text-blue-100 text-sm">Version {currentChange.version}</p>
             </div>
           </div>
@@ -65,6 +86,12 @@ export function WhatsNewModal({ changes, onClose }: WhatsNewModalProps) {
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Released on {currentChange.date}
           </p>
+
+          {!hasAnyChanges && (
+            <p className="text-gray-600 dark:text-gray-400 text-center py-8">
+              No changes documented for this version. See git history for details on previous versions.
+            </p>
+          )}
 
           {/* Features Section */}
           {currentChange.features.length > 0 && (
@@ -118,7 +145,10 @@ export function WhatsNewModal({ changes, onClose }: WhatsNewModalProps) {
             {hasMultipleVersions && (
               <div className="flex items-center gap-2">
                 <button
-                  onClick={handleNext}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNext();
+                  }}
                   disabled={isFirstVersion}
                   className="p-2 hover:bg-gray-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
                   aria-label="Previous version"
@@ -130,7 +160,10 @@ export function WhatsNewModal({ changes, onClose }: WhatsNewModalProps) {
                   {currentIndex + 1} of {allVersions.length}
                 </span>
                 <button
-                  onClick={handlePrevious}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePrevious();
+                  }}
                   disabled={isLastVersion}
                   className="p-2 hover:bg-gray-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
                   aria-label="Next version"
@@ -141,7 +174,10 @@ export function WhatsNewModal({ changes, onClose }: WhatsNewModalProps) {
               </div>
             )}
             <button
-              onClick={onClose}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
               className="ml-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
             >
               Got It!
