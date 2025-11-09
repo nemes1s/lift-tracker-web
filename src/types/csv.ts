@@ -19,6 +19,8 @@ export interface CSVExerciseData {
   targetReps: string;
   notes?: string;
   orderIndex: number;
+  isMyoreps?: boolean;
+  isLengthenedPartials?: boolean;
 }
 
 export interface CSVParseResult {

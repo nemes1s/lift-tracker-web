@@ -123,6 +123,8 @@ function parseSimpleCSV(lines: string[], delimiter: string): CSVParseResult {
     const sets = parseInt(parts[3]);
     const reps = parts[4];
     const notes = parts[5] || undefined;
+    const isMyoreps = parts[6]?.toLowerCase() === 'true' || parts[6] === '1' ? true : undefined;
+    const isLengthenedPartials = parts[7]?.toLowerCase() === 'true' || parts[7] === '1' ? true : undefined;
 
     // Validate
     if (isNaN(dayIndex) || dayIndex < 0 || dayIndex > 6) {
@@ -164,6 +166,8 @@ function parseSimpleCSV(lines: string[], delimiter: string): CSVParseResult {
       targetReps: reps,
       notes: notes && notes.length > 0 ? notes : undefined,
       orderIndex: day.exercises.length,
+      isMyoreps,
+      isLengthenedPartials,
     });
   }
 
@@ -208,6 +212,8 @@ function parseWeekBasedCSV(lines: string[], delimiter: string): CSVParseResult {
   const setsIdx = header.indexOf('target_sets');
   const repsIdx = header.indexOf('target_reps');
   const notesIdx = header.indexOf('notes');
+  const myorepsIdx = header.indexOf('is_myoreps');
+  const lengthenedIdx = header.indexOf('is_lengthened_partials');
 
   if (weekIdx === -1 || dayIdx === -1 || workoutIdx === -1 || exerciseIdx === -1 || setsIdx === -1 || repsIdx === -1) {
     return {
@@ -232,6 +238,8 @@ function parseWeekBasedCSV(lines: string[], delimiter: string): CSVParseResult {
     const sets = parseInt(parts[setsIdx]);
     const reps = parts[repsIdx];
     const notes = notesIdx >= 0 && parts[notesIdx] ? parts[notesIdx] : undefined;
+    const isMyoreps = myorepsIdx >= 0 && (parts[myorepsIdx]?.toLowerCase() === 'true' || parts[myorepsIdx] === '1') ? true : undefined;
+    const isLengthenedPartials = lengthenedIdx >= 0 && (parts[lengthenedIdx]?.toLowerCase() === 'true' || parts[lengthenedIdx] === '1') ? true : undefined;
 
     // Validation
     if (isNaN(week) || week < 1) continue;
@@ -261,6 +269,8 @@ function parseWeekBasedCSV(lines: string[], delimiter: string): CSVParseResult {
       targetReps: reps,
       notes: notes && notes.length > 0 ? notes : undefined,
       orderIndex: day.exercises.length,
+      isMyoreps,
+      isLengthenedPartials,
     });
   }
 

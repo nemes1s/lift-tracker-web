@@ -25,6 +25,8 @@ export interface ExerciseTemplate {
   notes?: string;
   orderIndex: number;
   workoutTemplateId: string;
+  isMyoreps?: boolean; // Whether this exercise uses myoreps (rest-pause) technique
+  isLengthenedPartials?: boolean; // Whether this exercise uses lengthened partials technique
 }
 
 export interface Workout {
@@ -46,6 +48,8 @@ export interface ExerciseInstance {
   targetReps?: string;
   notes?: string;
   isCustom?: boolean; // Whether this exercise was added manually during the workout
+  isMyoreps?: boolean; // Whether this exercise uses myoreps (rest-pause) technique
+  isLengthenedPartials?: boolean; // Whether this exercise uses lengthened partials technique
 }
 
 export interface SetRecord {

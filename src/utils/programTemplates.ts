@@ -31,7 +31,7 @@ export async function create5DaySplit(): Promise<Program> {
     name: string;
     idx: number;
     weekNumber: number;
-    exercises: Array<Pick<ExerciseTemplate, 'name' | 'targetSets' | 'targetReps' | 'orderIndex'> & { notes?: string }>;
+    exercises: Array<Pick<ExerciseTemplate, 'name' | 'targetSets' | 'targetReps' | 'orderIndex'> & { notes?: string; isMyoreps?: boolean; isLengthenedPartials?: boolean }>;
   }> = [
     // Weeks 1-4: Base Phase
     {
@@ -43,9 +43,9 @@ export async function create5DaySplit(): Promise<Program> {
         { name: 'Barbell Row',             targetSets: 4, targetReps: '6-8',   orderIndex: 1, notes: 'Primary horizontal pull' },
         { name: 'Overhead Press',          targetSets: 3, targetReps: '6-10',  orderIndex: 2 },
         { name: 'Lat Pulldown',            targetSets: 3, targetReps: '8-12',  orderIndex: 3 },
-        { name: 'Lateral Raise',           targetSets: 3, targetReps: '12-15', orderIndex: 4 },
-        { name: 'Dumbbell Curl',           targetSets: 3, targetReps: '10-12', orderIndex: 5 },
-        { name: 'Triceps Pushdown',        targetSets: 3, targetReps: '10-12', orderIndex: 6 },
+        { name: 'Lateral Raise',           targetSets: 3, targetReps: '12-15', orderIndex: 4, isMyoreps: true },
+        { name: 'Dumbbell Curl',           targetSets: 3, targetReps: '10-12', orderIndex: 5, isMyoreps: true, isLengthenedPartials: true },
+        { name: 'Triceps Pushdown',        targetSets: 3, targetReps: '10-12', orderIndex: 6, isMyoreps: true },
       ],
     },
     {
@@ -54,11 +54,11 @@ export async function create5DaySplit(): Promise<Program> {
       weekNumber: 1,
       exercises: [
         { name: 'Barbell Squat',           targetSets: 4, targetReps: '5-8',   orderIndex: 0, notes: 'Primary squat pattern' },
-        { name: 'Romanian Deadlift',       targetSets: 3, targetReps: '6-10',  orderIndex: 1 },
+        { name: 'Romanian Deadlift',       targetSets: 3, targetReps: '6-10',  orderIndex: 1, isLengthenedPartials: true },
         { name: 'Leg Press',               targetSets: 3, targetReps: '10-12', orderIndex: 2 },
-        { name: 'Seated Leg Curl',         targetSets: 3, targetReps: '10-12', orderIndex: 3 },
-        { name: 'Standing Calf Raise',     targetSets: 4, targetReps: '12-15', orderIndex: 4 },
-        { name: 'Cable Crunch',            targetSets: 3, targetReps: '12-15', orderIndex: 5 },
+        { name: 'Seated Leg Curl',         targetSets: 3, targetReps: '10-12', orderIndex: 3, isMyoreps: true, isLengthenedPartials: true },
+        { name: 'Standing Calf Raise',     targetSets: 4, targetReps: '12-15', orderIndex: 4, isMyoreps: true, isLengthenedPartials: true },
+        { name: 'Cable Crunch',            targetSets: 3, targetReps: '12-15', orderIndex: 5, isMyoreps: true },
       ],
     },
     {
@@ -69,9 +69,9 @@ export async function create5DaySplit(): Promise<Program> {
         { name: 'Deadlift',                 targetSets: 3, targetReps: '3-5',   orderIndex: 0, notes: 'Keep 1–2 reps in reserve' },
         { name: 'Weighted Pull-Ups',        targetSets: 4, targetReps: '5-8',   orderIndex: 1 },
         { name: 'Chest-Supported Row',      targetSets: 3, targetReps: '8-10',  orderIndex: 2 },
-        { name: 'Face Pulls',               targetSets: 3, targetReps: '12-15', orderIndex: 3 },
-        { name: 'Incline Dumbbell Curl',    targetSets: 3, targetReps: '10-12', orderIndex: 4 },
-        { name: 'Hammer Curl',              targetSets: 2, targetReps: '10-12', orderIndex: 5 },
+        { name: 'Face Pulls',               targetSets: 3, targetReps: '12-15', orderIndex: 3, isMyoreps: true },
+        { name: 'Incline Dumbbell Curl',    targetSets: 3, targetReps: '10-12', orderIndex: 4, isMyoreps: true, isLengthenedPartials: true },
+        { name: 'Hammer Curl',              targetSets: 2, targetReps: '10-12', orderIndex: 5, isMyoreps: true, isLengthenedPartials: true },
       ],
     },
     {
@@ -82,10 +82,10 @@ export async function create5DaySplit(): Promise<Program> {
         { name: 'Incline Barbell Press',    targetSets: 4, targetReps: '6-8',   orderIndex: 0 },
         { name: 'Dumbbell Bench Press',     targetSets: 3, targetReps: '8-10',  orderIndex: 1 },
         { name: 'Seated Dumbbell Press',    targetSets: 3, targetReps: '8-10',  orderIndex: 2 },
-        { name: 'Cable Fly',                targetSets: 3, targetReps: '12-15', orderIndex: 3 },
-        { name: 'Lateral Raise (Cable)',    targetSets: 3, targetReps: '12-15', orderIndex: 4 },
+        { name: 'Cable Fly',                targetSets: 3, targetReps: '12-15', orderIndex: 3, isLengthenedPartials: true },
+        { name: 'Lateral Raise (Cable)',    targetSets: 3, targetReps: '12-15', orderIndex: 4, isMyoreps: true },
         { name: 'Dip (Assisted if needed)', targetSets: 3, targetReps: '6-10',  orderIndex: 5 },
-        { name: 'Overhead Triceps Ext.',    targetSets: 3, targetReps: '10-12', orderIndex: 6 },
+        { name: 'Overhead Triceps Ext.',    targetSets: 3, targetReps: '10-12', orderIndex: 6, isMyoreps: true, isLengthenedPartials: true },
       ],
     },
     {
@@ -95,9 +95,9 @@ export async function create5DaySplit(): Promise<Program> {
       exercises: [
         { name: 'Front Squat',              targetSets: 4, targetReps: '5-8',   orderIndex: 0 },
         { name: 'Bulgarian Split Squat',    targetSets: 3, targetReps: '8-10',  orderIndex: 1 },
-        { name: 'Leg Extension',            targetSets: 3, targetReps: '10-12', orderIndex: 2 },
+        { name: 'Leg Extension',            targetSets: 3, targetReps: '10-12', orderIndex: 2, isMyoreps: true, isLengthenedPartials: true },
         { name: 'Hip Thrust',               targetSets: 3, targetReps: '8-12',  orderIndex: 3 },
-        { name: 'Seated Calf Raise',        targetSets: 4, targetReps: '15-20', orderIndex: 4 },
+        { name: 'Seated Calf Raise',        targetSets: 4, targetReps: '15-20', orderIndex: 4, isMyoreps: true, isLengthenedPartials: true },
         { name: 'Plank',                    targetSets: 3, targetReps: '45-60s',orderIndex: 5 },
       ],
     },
@@ -111,9 +111,9 @@ export async function create5DaySplit(): Promise<Program> {
         { name: 'T-Bar Row',                targetSets: 4, targetReps: '8-10',  orderIndex: 1 },
         { name: 'Arnold Press',             targetSets: 3, targetReps: '8-12',  orderIndex: 2 },
         { name: 'Cable Row',                targetSets: 3, targetReps: '10-12', orderIndex: 3 },
-        { name: 'Cable Lateral Raise',      targetSets: 3, targetReps: '15-20', orderIndex: 4 },
-        { name: 'EZ Bar Curl',              targetSets: 3, targetReps: '10-12', orderIndex: 5 },
-        { name: 'Rope Triceps Extension',   targetSets: 3, targetReps: '12-15', orderIndex: 6 },
+        { name: 'Cable Lateral Raise',      targetSets: 3, targetReps: '15-20', orderIndex: 4, isMyoreps: true },
+        { name: 'EZ Bar Curl',              targetSets: 3, targetReps: '10-12', orderIndex: 5, isMyoreps: true, isLengthenedPartials: true },
+        { name: 'Rope Triceps Extension',   targetSets: 3, targetReps: '12-15', orderIndex: 6, isMyoreps: true, isLengthenedPartials: true },
       ],
     },
     {
@@ -122,11 +122,11 @@ export async function create5DaySplit(): Promise<Program> {
       weekNumber: 5,
       exercises: [
         { name: 'Goblet Squat',            targetSets: 4, targetReps: '8-12',  orderIndex: 0 },
-        { name: 'Good Morning',            targetSets: 3, targetReps: '8-10',  orderIndex: 1 },
+        { name: 'Good Morning',            targetSets: 3, targetReps: '8-10',  orderIndex: 1, isLengthenedPartials: true },
         { name: 'Walking Lunges',          targetSets: 3, targetReps: '10-12', orderIndex: 2 },
-        { name: 'Lying Leg Curl',          targetSets: 3, targetReps: '10-12', orderIndex: 3 },
-        { name: 'Seated Calf Raise',       targetSets: 4, targetReps: '15-20', orderIndex: 4 },
-        { name: 'Hanging Leg Raise',       targetSets: 3, targetReps: '10-15', orderIndex: 5 },
+        { name: 'Lying Leg Curl',          targetSets: 3, targetReps: '10-12', orderIndex: 3, isMyoreps: true, isLengthenedPartials: true },
+        { name: 'Seated Calf Raise',       targetSets: 4, targetReps: '15-20', orderIndex: 4, isMyoreps: true, isLengthenedPartials: true },
+        { name: 'Hanging Leg Raise',       targetSets: 3, targetReps: '10-15', orderIndex: 5, isMyoreps: true },
       ],
     },
     {
@@ -137,9 +137,9 @@ export async function create5DaySplit(): Promise<Program> {
         { name: 'Trap Bar Deadlift',        targetSets: 3, targetReps: '5-8',   orderIndex: 0 },
         { name: 'Chin-Ups',                 targetSets: 4, targetReps: '6-10',  orderIndex: 1 },
         { name: 'Dumbbell Row',             targetSets: 3, targetReps: '8-12',  orderIndex: 2 },
-        { name: 'Rear Delt Fly',            targetSets: 3, targetReps: '12-15', orderIndex: 3 },
-        { name: 'Cable Curl',               targetSets: 3, targetReps: '12-15', orderIndex: 4 },
-        { name: 'Reverse Curl',             targetSets: 2, targetReps: '12-15', orderIndex: 5 },
+        { name: 'Rear Delt Fly',            targetSets: 3, targetReps: '12-15', orderIndex: 3, isMyoreps: true, isLengthenedPartials: true },
+        { name: 'Cable Curl',               targetSets: 3, targetReps: '12-15', orderIndex: 4, isMyoreps: true, isLengthenedPartials: true },
+        { name: 'Reverse Curl',             targetSets: 2, targetReps: '12-15', orderIndex: 5, isMyoreps: true, isLengthenedPartials: true },
       ],
     },
     {
@@ -148,12 +148,12 @@ export async function create5DaySplit(): Promise<Program> {
       weekNumber: 5,
       exercises: [
         { name: 'Flat Dumbbell Press',     targetSets: 4, targetReps: '8-10',  orderIndex: 0 },
-        { name: 'Incline Dumbbell Fly',    targetSets: 3, targetReps: '10-12', orderIndex: 1 },
+        { name: 'Incline Dumbbell Fly',    targetSets: 3, targetReps: '10-12', orderIndex: 1, isLengthenedPartials: true },
         { name: 'Standing Military Press', targetSets: 3, targetReps: '8-10',  orderIndex: 2 },
-        { name: 'Pec Deck',                targetSets: 3, targetReps: '12-15', orderIndex: 3 },
+        { name: 'Pec Deck',                targetSets: 3, targetReps: '12-15', orderIndex: 3, isLengthenedPartials: true },
         { name: 'Upright Row',             targetSets: 3, targetReps: '10-12', orderIndex: 4 },
         { name: 'Diamond Push-Ups',        targetSets: 3, targetReps: 'AMRAP', orderIndex: 5 },
-        { name: 'Cable Triceps Kickback',  targetSets: 3, targetReps: '12-15', orderIndex: 6 },
+        { name: 'Cable Triceps Kickback',  targetSets: 3, targetReps: '12-15', orderIndex: 6, isMyoreps: true, isLengthenedPartials: true },
       ],
     },
     {
@@ -163,9 +163,9 @@ export async function create5DaySplit(): Promise<Program> {
       exercises: [
         { name: 'Hack Squat',              targetSets: 4, targetReps: '8-10',  orderIndex: 0 },
         { name: 'Single Leg Press',        targetSets: 3, targetReps: '10-12', orderIndex: 1 },
-        { name: 'Sissy Squat',             targetSets: 3, targetReps: '10-15', orderIndex: 2 },
-        { name: 'Glute Ham Raise',         targetSets: 3, targetReps: '8-10',  orderIndex: 3 },
-        { name: 'Donkey Calf Raise',       targetSets: 4, targetReps: '15-20', orderIndex: 4 },
+        { name: 'Sissy Squat',             targetSets: 3, targetReps: '10-15', orderIndex: 2, isLengthenedPartials: true },
+        { name: 'Glute Ham Raise',         targetSets: 3, targetReps: '8-10',  orderIndex: 3, isLengthenedPartials: true },
+        { name: 'Donkey Calf Raise',       targetSets: 4, targetReps: '15-20', orderIndex: 4, isMyoreps: true, isLengthenedPartials: true },
         { name: 'Ab Wheel Rollout',        targetSets: 3, targetReps: '8-12',  orderIndex: 5 },
       ],
     },
@@ -179,8 +179,8 @@ export async function create5DaySplit(): Promise<Program> {
         { name: 'Pendlay Row',             targetSets: 4, targetReps: '5-8',   orderIndex: 1 },
         { name: 'Close-Grip Bench Press',  targetSets: 3, targetReps: '6-8',   orderIndex: 2 },
         { name: 'Weighted Pull-Ups',       targetSets: 3, targetReps: '5-8',   orderIndex: 3 },
-        { name: 'Barbell Curl',            targetSets: 3, targetReps: '8-10',  orderIndex: 4 },
-        { name: 'Skull Crushers',          targetSets: 3, targetReps: '8-10',  orderIndex: 5 },
+        { name: 'Barbell Curl',            targetSets: 3, targetReps: '8-10',  orderIndex: 4, isMyoreps: true, isLengthenedPartials: true },
+        { name: 'Skull Crushers',          targetSets: 3, targetReps: '8-10',  orderIndex: 5, isMyoreps: true, isLengthenedPartials: true },
       ],
     },
     {
@@ -191,8 +191,8 @@ export async function create5DaySplit(): Promise<Program> {
         { name: 'Barbell Squat',           targetSets: 5, targetReps: '3-5',   orderIndex: 0, notes: 'Heavy weight, low reps' },
         { name: 'Barbell Hip Thrust',      targetSets: 4, targetReps: '6-8',   orderIndex: 1 },
         { name: 'Front Squat',             targetSets: 3, targetReps: '6-8',   orderIndex: 2 },
-        { name: 'Nordic Hamstring Curl',   targetSets: 3, targetReps: '5-8',   orderIndex: 3 },
-        { name: 'Standing Calf Raise',     targetSets: 5, targetReps: '8-10',  orderIndex: 4 },
+        { name: 'Nordic Hamstring Curl',   targetSets: 3, targetReps: '5-8',   orderIndex: 3, isLengthenedPartials: true },
+        { name: 'Standing Calf Raise',     targetSets: 5, targetReps: '8-10',  orderIndex: 4, isMyoreps: true, isLengthenedPartials: true },
         { name: 'Weighted Plank',          targetSets: 3, targetReps: '60s',   orderIndex: 5 },
       ],
     },
@@ -204,9 +204,9 @@ export async function create5DaySplit(): Promise<Program> {
         { name: 'Deadlift',                 targetSets: 5, targetReps: '1-3',   orderIndex: 0, notes: 'Maximum effort' },
         { name: 'Pull-Ups',                 targetSets: 4, targetReps: '6-8',   orderIndex: 1 },
         { name: 'Barbell Row',              targetSets: 4, targetReps: '6-8',   orderIndex: 2 },
-        { name: 'Face Pulls',               targetSets: 3, targetReps: '15-20', orderIndex: 3 },
-        { name: 'Preacher Curl',            targetSets: 3, targetReps: '8-10',  orderIndex: 4 },
-        { name: 'Concentration Curl',       targetSets: 2, targetReps: '10-12', orderIndex: 5 },
+        { name: 'Face Pulls',               targetSets: 3, targetReps: '15-20', orderIndex: 3, isMyoreps: true },
+        { name: 'Preacher Curl',            targetSets: 3, targetReps: '8-10',  orderIndex: 4, isMyoreps: true, isLengthenedPartials: true },
+        { name: 'Concentration Curl',       targetSets: 2, targetReps: '10-12', orderIndex: 5, isMyoreps: true, isLengthenedPartials: true },
       ],
     },
     {
@@ -218,7 +218,7 @@ export async function create5DaySplit(): Promise<Program> {
         { name: 'Overhead Press',           targetSets: 4, targetReps: '5-8',   orderIndex: 1 },
         { name: 'Dips',                     targetSets: 3, targetReps: '6-10',  orderIndex: 2 },
         { name: 'Flat Dumbbell Press',      targetSets: 3, targetReps: '8-10',  orderIndex: 3 },
-        { name: 'Lateral Raise',            targetSets: 3, targetReps: '12-15', orderIndex: 4 },
+        { name: 'Lateral Raise',            targetSets: 3, targetReps: '12-15', orderIndex: 4, isMyoreps: true },
         { name: 'Close-Grip Bench Press',   targetSets: 3, targetReps: '6-8',   orderIndex: 5 },
       ],
     },
@@ -228,11 +228,11 @@ export async function create5DaySplit(): Promise<Program> {
       weekNumber: 9,
       exercises: [
         { name: 'Front Squat',              targetSets: 5, targetReps: '4-6',   orderIndex: 0 },
-        { name: 'Romanian Deadlift',        targetSets: 4, targetReps: '6-8',   orderIndex: 1 },
+        { name: 'Romanian Deadlift',        targetSets: 4, targetReps: '6-8',   orderIndex: 1, isLengthenedPartials: true },
         { name: 'Leg Press',                targetSets: 3, targetReps: '8-10',  orderIndex: 2 },
-        { name: 'Seated Leg Curl',          targetSets: 3, targetReps: '10-12', orderIndex: 3 },
-        { name: 'Calf Press on Leg Press',  targetSets: 4, targetReps: '12-15', orderIndex: 4 },
-        { name: 'Cable Crunch',             targetSets: 3, targetReps: '15-20', orderIndex: 5 },
+        { name: 'Seated Leg Curl',          targetSets: 3, targetReps: '10-12', orderIndex: 3, isMyoreps: true, isLengthenedPartials: true },
+        { name: 'Calf Press on Leg Press',  targetSets: 4, targetReps: '12-15', orderIndex: 4, isMyoreps: true, isLengthenedPartials: true },
+        { name: 'Cable Crunch',             targetSets: 3, targetReps: '15-20', orderIndex: 5, isMyoreps: true },
       ],
     },
   ];
@@ -258,6 +258,8 @@ export async function create5DaySplit(): Promise<Program> {
         orderIndex: ex.orderIndex,
         workoutTemplateId: templateId,
         notes: ex.notes,
+        isMyoreps: ex.isMyoreps,
+        isLengthenedPartials: ex.isLengthenedPartials,
       };
       await db.exerciseTemplates.add(exercise);
     }
