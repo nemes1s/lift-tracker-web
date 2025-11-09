@@ -7,6 +7,7 @@ interface RestTimerState {
   secondsLeft: number;
   duration: number;
   isCompleted: boolean;
+  startTimestamp: number | null; // Unix timestamp in milliseconds when timer started
 }
 
 interface AppState {
@@ -72,6 +73,7 @@ export const useAppStore = create<AppState>()(
         secondsLeft: 0,
         duration: 90,
         isCompleted: false,
+        startTimestamp: null,
       },
 
       setActiveProgram: (program) => set({ activeProgram: program }),
@@ -119,6 +121,7 @@ export const useAppStore = create<AppState>()(
           secondsLeft: duration,
           duration,
           isCompleted: false,
+          startTimestamp: Date.now(),
         },
       }),
       skipRestTimer: () => set({
@@ -127,12 +130,17 @@ export const useAppStore = create<AppState>()(
           secondsLeft: 0,
           duration: 90,
           isCompleted: false,
+          startTimestamp: null,
         },
       }),
       addRestTime: (seconds) => set((state) => ({
         restTimer: {
           ...state.restTimer,
           secondsLeft: state.restTimer.secondsLeft + seconds,
+          // Adjust startTimestamp backwards to account for added time
+          startTimestamp: state.restTimer.startTimestamp
+            ? state.restTimer.startTimestamp - (seconds * 1000)
+            : null,
         },
       })),
       tickRestTimer: () => set((state) => ({
@@ -147,12 +155,18 @@ export const useAppStore = create<AppState>()(
           secondsLeft: 0,
           duration: 90,
           isCompleted: false,
+          startTimestamp: null,
         },
       }),
     }),
     {
       name: 'app-storage',
-      partialize: (state) => ({ darkMode: state.darkMode, lastSeenVersion: state.lastSeenVersion, tourCompleted: state.tourCompleted }),
+      partialize: (state) => ({
+        darkMode: state.darkMode,
+        lastSeenVersion: state.lastSeenVersion,
+        tourCompleted: state.tourCompleted,
+        restTimer: state.restTimer,
+      }),
       onRehydrateStorage: () => (state) => {
         // Mark the store as hydrated after localStorage has been loaded
         // Return modified state to set isHydrated flag
