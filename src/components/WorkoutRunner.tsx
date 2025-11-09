@@ -66,7 +66,6 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     startRestTimer: zustandStartRestTimer,
     skipRestTimer: zustandSkipRestTimer,
     addRestTime: zustandAddRestTime,
-    tickRestTimer,
     resetRestTimer,
   } = useAppStore();
 
@@ -193,33 +192,60 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     return () => clearInterval(interval);
   }, [isPaused]);
 
-  // Rest timer countdown - only runs when timer is active and workout not paused
+  // Rest timer countdown - uses timestamp-based calculation for accuracy across app close/reopen
   useEffect(() => {
-    if (!restTimer.isActive || isPaused || restTimer.secondsLeft <= 0) return;
+    if (!restTimer.isActive || isPaused || !restTimer.startTimestamp) return;
 
     const interval = setInterval(() => {
-      const nextSeconds = restTimer.secondsLeft - 1;
+      const now = Date.now();
+      const elapsedMs = now - restTimer.startTimestamp!;
+      const elapsedSeconds = Math.floor(elapsedMs / 1000);
+      const remainingSeconds = Math.max(0, restTimer.duration - elapsedSeconds);
 
-      if (nextSeconds <= 0) {
+      if (remainingSeconds <= 0) {
         // Timer completed
-        setRestTimer({ isActive: false, secondsLeft: 0, isCompleted: true });
+        setRestTimer({ isActive: false, secondsLeft: 0, isCompleted: true, startTimestamp: null });
 
         // Play notification if enabled
         if (settings?.restTimerSound !== false) {
           playTimerNotification(true);
         }
       } else {
-        // Play countdown beeps at 2 and 1 seconds remaining
-        if ((nextSeconds === 1 || nextSeconds === 2) && settings?.restTimerSound !== false) {
-          playCountdownBeep();
+        // Update secondsLeft based on actual elapsed time
+        if (restTimer.secondsLeft !== remainingSeconds) {
+          setRestTimer({ secondsLeft: remainingSeconds });
         }
 
-        tickRestTimer();
+        // Play countdown beeps at 2 and 1 seconds remaining
+        if ((remainingSeconds === 1 || remainingSeconds === 2) && settings?.restTimerSound !== false) {
+          playCountdownBeep();
+        }
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [restTimer.isActive, restTimer.secondsLeft, isPaused, tickRestTimer, setRestTimer, settings]);
+  }, [restTimer.isActive, restTimer.startTimestamp, restTimer.duration, isPaused, setRestTimer, settings]);
+
+  // Check timer state on mount/resume to handle app close/reopen
+  useEffect(() => {
+    if (restTimer.isActive && restTimer.startTimestamp && !isPaused) {
+      const now = Date.now();
+      const elapsedMs = now - restTimer.startTimestamp;
+      const elapsedSeconds = Math.floor(elapsedMs / 1000);
+      const remainingSeconds = Math.max(0, restTimer.duration - elapsedSeconds);
+
+      if (remainingSeconds <= 0) {
+        // Timer has already completed while app was closed
+        setRestTimer({ isActive: false, secondsLeft: 0, isCompleted: true, startTimestamp: null });
+        if (settings?.restTimerSound !== false) {
+          playTimerNotification(true);
+        }
+      } else if (restTimer.secondsLeft !== remainingSeconds) {
+        // Update to correct remaining time
+        setRestTimer({ secondsLeft: remainingSeconds });
+      }
+    }
+  }, []); // Run only on mount
 
   // Handle pause
   const handlePause = async () => {
