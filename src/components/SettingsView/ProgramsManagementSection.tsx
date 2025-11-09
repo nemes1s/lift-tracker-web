@@ -1,4 +1,4 @@
-import { Plus, Trash2, Upload } from 'lucide-react';
+import { Plus, Trash2, Upload, Wrench } from 'lucide-react';
 import type { Program } from '../../types/models';
 import { ProgramCard } from './ProgramCard';
 
@@ -22,6 +22,7 @@ interface ProgramsManagementSectionProps {
   onImportClick: () => void;
   onFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onCreateProgram: (type: string) => void;
+  onBuildCustom: () => void;
   onDeleteAll: () => void;
 }
 
@@ -45,6 +46,7 @@ export function ProgramsManagementSection({
   onImportClick,
   onFileSelect,
   onCreateProgram,
+  onBuildCustom,
   onDeleteAll
 }: ProgramsManagementSectionProps) {
   return (
@@ -109,6 +111,14 @@ export function ProgramsManagementSection({
         >
           <Upload className="w-5 h-5" />
           <span>{isImporting ? 'Importing...' : 'Import from CSV'}</span>
+        </button>
+
+        <button
+          onClick={onBuildCustom}
+          className="w-full flex items-center gap-3 px-5 py-3 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md transform hover:-translate-y-0.5 border-2 border-blue-200 dark:border-blue-800"
+        >
+          <Wrench className="w-5 h-5" />
+          <span>Build Custom Program</span>
         </button>
 
         <div className="border-t-2 border-gray-200 dark:border-slate-700 my-4"></div>

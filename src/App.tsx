@@ -8,6 +8,7 @@ import { CalendarView, WorkoutDetail } from './pages/CalendarView';
 import { ProgressView } from './pages/ProgressView';
 import { SettingsView } from './pages/SettingsView';
 import { ProgramPreviewView } from './pages/ProgramPreviewView';
+import { ProgramBuilderView } from './pages/ProgramBuilderView';
 import { NotFoundView } from './pages/NotFoundView';
 import { InstallPrompt } from './components/InstallPrompt';
 import { UpdatePrompt } from './components/UpdatePrompt';
@@ -176,6 +177,7 @@ function App() {
           <Route path="progress" element={<ProgressView />} />
           <Route path="settings" element={<SettingsView />} />
           <Route path="program/preview" element={<ProgramPreviewView />} />
+          <Route path="program/builder" element={<ProgramBuilderView />} />
           <Route path="*" element={<NotFoundView />} />
         </Route>
       </Routes>

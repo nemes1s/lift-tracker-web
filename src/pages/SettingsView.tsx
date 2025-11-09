@@ -103,6 +103,10 @@ export function SettingsView() {
     });
   };
 
+  const handleBuildCustomProgram = () => {
+    navigate('/program/builder');
+  };
+
   const handleSetActive = async (programId: string) => {
     if (!settings) return;
 
@@ -405,6 +409,7 @@ export function SettingsView() {
           onImportClick={handleImportClick}
           onFileSelect={handleFileSelect}
           onCreateProgram={handleCreateProgram}
+          onBuildCustom={handleBuildCustomProgram}
           onDeleteAll={() => setShowDeleteConfirm(true)}
         />
 
