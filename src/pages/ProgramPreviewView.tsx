@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Eye, CheckCircle, X, Dumbbell, Calendar, Activity } from 'lucide-react';
+import { Eye, CheckCircle, X, Dumbbell, Calendar, Activity, Edit3, Save, Zap, Maximize2 } from 'lucide-react';
 import { db } from '../db/database';
 import { saveProgramPreviewData, type ProgramPreviewData } from '../utils/programTemplates';
 import type { WorkoutTemplate, ExerciseTemplate } from '../types/models';
@@ -21,6 +21,8 @@ export function ProgramPreviewView() {
   const [programData, setProgramData] = useState<ProgramPreviewData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedExercises, setEditedExercises] = useState<Map<string, { isMyoreps?: boolean; isLengthenedPartials?: boolean }>>(new Map());
 
   useEffect(() => {
     const loadData = async () => {
@@ -107,6 +109,99 @@ export function ProgramPreviewView() {
     navigate('/settings');
   };
 
+  const handleEnterEditMode = () => {
+    setIsEditMode(true);
+    // Initialize edited exercises with current values
+    const initialEdits = new Map();
+    programData?.workouts.forEach(workout => {
+      workout.exercises.forEach(exercise => {
+        initialEdits.set(exercise.id, {
+          isMyoreps: exercise.isMyoreps || false,
+          isLengthenedPartials: exercise.isLengthenedPartials || false,
+        });
+      });
+    });
+    setEditedExercises(initialEdits);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+    setEditedExercises(new Map());
+  };
+
+  const handleToggleMyoreps = (exerciseId: string) => {
+    setEditedExercises(prev => {
+      const newMap = new Map(prev);
+      const current = newMap.get(exerciseId) || { isMyoreps: false, isLengthenedPartials: false };
+      newMap.set(exerciseId, { ...current, isMyoreps: !current.isMyoreps });
+      return newMap;
+    });
+  };
+
+  const handleToggleLengthenedPartials = (exerciseId: string) => {
+    setEditedExercises(prev => {
+      const newMap = new Map(prev);
+      const current = newMap.get(exerciseId) || { isMyoreps: false, isLengthenedPartials: false };
+      newMap.set(exerciseId, { ...current, isLengthenedPartials: !current.isLengthenedPartials });
+      return newMap;
+    });
+  };
+
+  const handleSaveEdits = async () => {
+    setIsSaving(true);
+    try {
+      // Update all edited exercises in the database
+      for (const [exerciseId, flags] of editedExercises.entries()) {
+        await db.exerciseTemplates.update(exerciseId, {
+          isMyoreps: flags.isMyoreps || undefined,
+          isLengthenedPartials: flags.isLengthenedPartials || undefined,
+        });
+      }
+
+      // Reload program data
+      if (state.mode === 'view' && state.programId) {
+        const program = await db.programs.get(state.programId);
+        if (program) {
+          const workoutTemplates = await db.workoutTemplates
+            .where('programId')
+            .equals(state.programId)
+            .toArray();
+
+          const workouts: Array<{
+            template: WorkoutTemplate;
+            exercises: ExerciseTemplate[];
+          }> = [];
+
+          for (const template of workoutTemplates) {
+            const exercises = await db.exerciseTemplates
+              .where('workoutTemplateId')
+              .equals(template.id)
+              .sortBy('orderIndex');
+
+            workouts.push({ template, exercises });
+          }
+
+          workouts.sort((a, b) => {
+            if (a.template.weekNumber !== b.template.weekNumber) {
+              return a.template.weekNumber - b.template.weekNumber;
+            }
+            return a.template.dayIndex - b.template.dayIndex;
+          });
+
+          setProgramData({ program, workouts });
+        }
+      }
+
+      setIsEditMode(false);
+      setEditedExercises(new Map());
+      triggerRefresh();
+    } catch (error) {
+      console.error('Failed to save edits:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -189,37 +284,85 @@ export function ProgramPreviewView() {
               </div>
 
               <div className="space-y-2">
-                {workout.exercises.map((exercise) => (
-                  <div
-                    key={exercise.id}
-                    className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl border border-gray-100"
-                  >
-                    <div className="flex-1">
-                      <p className="font-bold text-gray-900">{exercise.name}</p>
-                      {exercise.notes && (
-                        <p className="text-xs text-gray-600 mt-1">{exercise.notes}</p>
-                      )}
+                {workout.exercises.map((exercise) => {
+                  const flags = isEditMode ? editedExercises.get(exercise.id) : { isMyoreps: exercise.isMyoreps, isLengthenedPartials: exercise.isLengthenedPartials };
+
+                  return (
+                    <div
+                      key={exercise.id}
+                      className="flex items-start justify-between py-3 px-4 bg-gray-50 dark:bg-slate-700 rounded-xl border border-gray-100 dark:border-slate-600"
+                    >
+                      <div className="flex-1">
+                        <p className="font-bold text-gray-900 dark:text-gray-100">{exercise.name}</p>
+                        {exercise.notes && (
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{exercise.notes}</p>
+                        )}
+                        {isEditMode && (
+                          <div className="flex flex-col gap-2 mt-3">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={flags?.isMyoreps || false}
+                                onChange={() => handleToggleMyoreps(exercise.id)}
+                                className="w-4 h-4 text-amber-600 bg-gray-100 border-gray-300 rounded focus:ring-amber-500"
+                              />
+                              <span className="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <Zap className="w-3.5 h-3.5 text-amber-600" />
+                                Myoreps
+                              </span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={flags?.isLengthenedPartials || false}
+                                onChange={() => handleToggleLengthenedPartials(exercise.id)}
+                                className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500"
+                              />
+                              <span className="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <Maximize2 className="w-3.5 h-3.5 text-purple-600" />
+                                Lengthened Partials
+                              </span>
+                            </label>
+                          </div>
+                        )}
+                        {!isEditMode && (flags?.isMyoreps || flags?.isLengthenedPartials) && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {flags?.isMyoreps && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 text-xs font-bold rounded-full">
+                                <Zap className="w-3 h-3" />
+                                MYOREPS
+                              </span>
+                            )}
+                            {flags?.isLengthenedPartials && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-bold rounded-full">
+                                <Maximize2 className="w-3 h-3" />
+                                LENGTHENED
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 ml-3">
+                        <span className="text-sm font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/40 px-3 py-1.5 rounded-lg">
+                          {exercise.targetSets} × {exercise.targetReps}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 ml-3">
-                      <span className="text-sm font-bold text-primary-600 bg-primary-50 px-3 py-1.5 rounded-lg">
-                        {exercise.targetSets} × {exercise.targetReps}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}
         </div>
 
         {/* Action Buttons */}
-        <div className="sticky bottom-20 bg-white/95 backdrop-blur-sm p-4 rounded-xl border-2 border-gray-200 shadow-lg">
+        <div className="sticky bottom-20 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm p-4 rounded-xl border-2 border-gray-200 dark:border-slate-600 shadow-lg">
           {isPreviewMode ? (
             <div className="flex gap-3">
               <button
                 onClick={handleCancel}
                 disabled={isSaving}
-                className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all font-bold shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 rounded-xl transition-all font-bold shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <X className="w-5 h-5" />
                 <span>Cancel</span>
@@ -242,13 +385,50 @@ export function ProgramPreviewView() {
                 )}
               </button>
             </div>
+          ) : isEditMode ? (
+            <div className="flex gap-3">
+              <button
+                onClick={handleCancelEdit}
+                disabled={isSaving}
+                className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 rounded-xl transition-all font-bold shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <X className="w-5 h-5" />
+                <span>Cancel</span>
+              </button>
+              <button
+                onClick={handleSaveEdits}
+                disabled={isSaving}
+                className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-all font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {isSaving ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-5 h-5" />
+                    <span>Save Changes</span>
+                  </>
+                )}
+              </button>
+            </div>
           ) : (
-            <button
-              onClick={handleCancel}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition-all font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              <span>Back to Settings</span>
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleEnterEditMode}
+                className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition-all font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <Edit3 className="w-5 h-5" />
+                <span>Edit Techniques</span>
+              </button>
+              <button
+                onClick={handleCancel}
+                className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition-all font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <span>Back to Settings</span>
+              </button>
+            </div>
           )}
         </div>
       </div>
