@@ -19,10 +19,13 @@ import {
   type MonthlyVolume,
   type RepPR,
 } from '../utils/globalStats';
+import { getProgramCompletions } from '../utils/programCompletion';
+import type { ProgramCompletion } from '../types/models';
 import { GlobalOverviewSection } from '../components/ProgressView/GlobalOverviewSection';
 import { WeeklyComparisonSection } from '../components/ProgressView/WeeklyComparisonSection';
 import { MonthlyVolumeTrendSection } from '../components/ProgressView/MonthlyVolumeTrendSection';
 import { WeeklyVolumeTrendSection } from '../components/ProgressView/WeeklyVolumeTrendSection';
+import { ProgramHistorySection } from '../components/ProgressView/ProgramHistorySection';
 import { ExerciseSelectorSection } from '../components/ProgressView/ExerciseSelectorSection';
 import { ExerciseStatsSection } from '../components/ProgressView/ExerciseStatsSection';
 import { RepPRsSection } from '../components/ProgressView/RepPRsSection';
@@ -47,6 +50,9 @@ export function ProgressView() {
   const [repPRs, setRepPRs] = useState<RepPR[]>([]);
   const [consistency, setConsistency] = useState<number | null>(null);
 
+  // Program completions
+  const [programCompletions, setProgramCompletions] = useState<ProgramCompletion[]>([]);
+
   // Load all exercises and global stats
   useEffect(() => {
     const loadExercises = async () => {
@@ -70,6 +76,10 @@ export function ProgressView() {
 
       const wTrend = await getWeeklyVolumeTrend();
       setWeeklyTrend(wTrend);
+
+      // Load program completions
+      const completions = await getProgramCompletions();
+      setProgramCompletions(completions);
 
       setLoading(false);
     };
@@ -144,6 +154,9 @@ export function ProgressView() {
 
         {/* Weekly Comparison */}
         <WeeklyComparisonSection weeklyComparison={weeklyComparison} />
+
+        {/* Program Completion History */}
+        <ProgramHistorySection completions={programCompletions} />
 
         {/* Monthly Volume Trend */}
         <MonthlyVolumeTrendSection monthlyTrend={monthlyTrend} />

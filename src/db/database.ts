@@ -8,6 +8,7 @@ import type {
   SetRecord,
   PersonalRecord,
   SettingsModel,
+  ProgramCompletion,
 } from '../types/models';
 
 export class LiftTrackerDatabase extends Dexie {
@@ -19,6 +20,7 @@ export class LiftTrackerDatabase extends Dexie {
   setRecords!: Table<SetRecord, string>;
   personalRecords!: Table<PersonalRecord, string>;
   settings!: Table<SettingsModel, string>;
+  programCompletions!: Table<ProgramCompletion, string>;
 
   constructor() {
     super('LiftTrackerDB');
@@ -58,6 +60,11 @@ export class LiftTrackerDatabase extends Dexie {
     // Version 8: Add programId to workouts for proper program linking (no schema change needed for the field itself, but adding index for queries)
     this.version(8).stores({
       workouts: 'id, startedAt, endedAt, programId',
+    });
+
+    // Version 9: Add programCompletions table for tracking completed program cycles
+    this.version(9).stores({
+      programCompletions: 'id, programId, completionDate',
     });
   }
 }

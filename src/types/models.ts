@@ -89,6 +89,18 @@ export interface SettingsModel {
   programIdMigrationComplete?: boolean; // Whether programId migration has been run
 }
 
+export interface ProgramCompletion {
+  id: string;
+  programId: string; // Reference to the program
+  programName: string; // Snapshot of program name at completion
+  startDate: Date; // When this program cycle started
+  completionDate: Date; // When the program was marked complete
+  totalWeeks: number; // Snapshot of total weeks
+  totalWorkoutsCompleted: number; // Number of workouts completed in this cycle
+  totalVolume: number; // Total volume (weight × reps) across all workouts
+  totalSetsCompleted: number; // Total number of sets logged
+}
+
 // Enum for split days
 export const Split = {
   Day1: 0,
