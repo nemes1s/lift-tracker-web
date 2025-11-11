@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2025-11-11
+
+### Features
+- **Advanced Training Techniques**: Support for Myoreps and Lengthened Partials training methods
+  - Visual badges appear during workouts for exercises marked with these techniques
+  - Clickable badges open educational modals explaining how to perform each technique
+  - Myoreps: Rest-pause training with activation set + mini-sets (10-20 reps, then 3-5 reps with 10-15s rest)
+  - Lengthened Partials: Partial reps focusing on the stretched position for enhanced muscle growth
+- **Technique Flag Editor**: New UI for marking exercises with training techniques
+  - "Edit Techniques" button in program preview/view mode
+  - Easy checkboxes to toggle Myoreps and Lengthened Partials flags per exercise
+  - Changes saved directly to database and persist across workouts
+- **Automatic Migration**: Existing programs automatically updated with technique flags
+  - Smart detection of isolation and accessory exercises suitable for Myoreps
+  - Automatic marking of exercises with good stretch positions for Lengthened Partials
+  - One-time migration runs on app startup
+- **CSV Import/Export Support**: Technique flags included in CSV format
+  - New columns: `is_myoreps` and `is_lengthened_partials`
+  - Full compatibility with both simple and advanced CSV formats
+
+### Improvements
+- Enhanced program preview UI with technique badge display
+- Dark mode support for all new UI components
+- Better visual organization of exercise information
+
 ## [0.8.0] - 2025-11-11
 
 ### Features
