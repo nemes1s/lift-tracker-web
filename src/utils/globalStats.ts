@@ -433,8 +433,11 @@ export async function getRepPRs(exerciseName: string): Promise<RepPR[]> {
 /**
  * Check if a new set is a personal record
  * Returns true if:
- * - It's a weight PR for this rep count (heavier than any previous set at this rep count)
+ * - It's the first workset for this exercise, OR
+ * - It's a weight PR for this rep count (heavier than any previous set at this rep count), OR
  * - It's a rep PR for this weight (more reps than any previous set at this weight)
+ *
+ * Note: Only weight and reps are considered. RPE is NOT factored into PR calculations.
  */
 export async function isSetAPR(exerciseName: string, weight: number, reps: number): Promise<boolean> {
   const exerciseInstances = await db.exerciseInstances
@@ -456,14 +459,16 @@ export async function isSetAPR(exerciseName: string, weight: number, reps: numbe
   if (allSets.length === 0) return true; // First workset is a PR
 
   // Check if this is a weight PR for this rep count
+  // Only counts as PR if you've done this rep count before AND this weight is heavier
   const setsAtThisRepCount = allSets.filter(s => s.reps === reps);
-  if (setsAtThisRepCount.length === 0 || weight > Math.max(...setsAtThisRepCount.map(s => s.weight))) {
+  if (setsAtThisRepCount.length > 0 && weight > Math.max(...setsAtThisRepCount.map(s => s.weight))) {
     return true;
   }
 
-  // Check if this is a rep PR for this weight (more reps at this weight)
+  // Check if this is a rep PR for this weight
+  // Only counts as PR if you've lifted this weight before AND these are more reps
   const setsAtThisWeight = allSets.filter(s => s.weight === weight);
-  if (setsAtThisWeight.length === 0 || reps > Math.max(...setsAtThisWeight.map(s => s.reps))) {
+  if (setsAtThisWeight.length > 0 && reps > Math.max(...setsAtThisWeight.map(s => s.reps))) {
     return true;
   }
 
