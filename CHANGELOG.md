@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2025-11-11
+
+### Features
+- **Universal Exercise Substitution**: All exercises now show the substitute button during workouts, not just those with predefined alternatives
+  - Exercises with predefined alternatives still show suggested alternatives at the top for quick access
+  - Exercises without predefined alternatives now have full access to search through 400+ exercises
+  - Improved flexibility for customizing workouts on the fly
+
+### Bug Fixes
+- Fixed rest timer to use timestamp-based calculation, ensuring it works correctly when app is closed and reopened
+- Timer now properly tracks elapsed time across app sessions
+
 ## [0.7.0] - 2025-11-09
 
 ### Features
