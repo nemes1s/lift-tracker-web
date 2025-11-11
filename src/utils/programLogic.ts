@@ -122,6 +122,8 @@ export async function instantiateWorkout(
       targetSets,
       targetReps: et.targetReps,
       notes: et.notes,
+      isMyoreps: et.isMyoreps,
+      isLengthenedPartials: et.isLengthenedPartials,
     };
     await db.exerciseInstances.add(ex);
   }

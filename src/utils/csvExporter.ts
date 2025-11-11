@@ -32,7 +32,7 @@ export async function exportProgramToCSV(programId: string): Promise<string> {
   });
 
   // Build CSV header
-  const lines: string[] = ['week;day_index;workout_name;exercise_name;target_sets;target_reps;notes'];
+  const lines: string[] = ['week;day_index;workout_name;exercise_name;target_sets;target_reps;notes;is_myoreps;is_lengthened_partials'];
 
   // Process each workout template
   for (const template of workoutTemplates) {
@@ -55,6 +55,8 @@ export async function exportProgramToCSV(programId: string): Promise<string> {
         exercise.targetSets.toString(),
         exercise.targetReps || '',
         exercise.notes || '',
+        exercise.isMyoreps ? 'true' : '',
+        exercise.isLengthenedPartials ? 'true' : '',
       ];
 
       // Escape and format values

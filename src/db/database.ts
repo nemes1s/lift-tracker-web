@@ -51,6 +51,9 @@ export class LiftTrackerDatabase extends Dexie {
 
     // Version 6: Add isQuickWorkout field to workouts (no schema change needed, Dexie handles new fields automatically)
     this.version(6).stores({});
+
+    // Version 7: Add isMyoreps and isLengthenedPartials fields to exerciseTemplates and exerciseInstances (no schema change needed, Dexie handles new fields automatically)
+    this.version(7).stores({});
   }
 }
 

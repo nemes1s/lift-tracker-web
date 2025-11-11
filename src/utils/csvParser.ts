@@ -7,13 +7,17 @@ import type { CSVDayData, CSVExerciseData, CSVParseResult } from '../types/csv';
  * Format 1 (Simple - comma delimited):
  * Program Name,<name>
  * Total Weeks,<number>
- * Day Index,Day Name,Exercise Name,Sets,Reps,Notes
- * 0,Day 1 - Upper,Barbell Bench Press,3,5-8,
+ * Day Index,Day Name,Exercise Name,Sets,Reps,Notes,Is Myoreps,Is Lengthened Partials
+ * 0,Day 1 - Upper,Barbell Bench Press,3,5-8,,,
+ * 0,Day 1 - Upper,Lateral Raise,3,12-15,,true,
+ * 0,Day 1 - Upper,Dumbbell Curl,3,10-12,,true,true
  * ...
  *
  * Format 2 (Advanced - semicolon delimited, week-specific):
- * week;day_index;workout_name;exercise_name;target_sets;target_reps;notes
- * 1;0;Upper (Strength Focus);Bench Press;3;5-8;Focus on form
+ * week;day_index;workout_name;exercise_name;target_sets;target_reps;notes;is_myoreps;is_lengthened_partials
+ * 1;0;Upper (Strength Focus);Bench Press;3;5-8;Focus on form;;
+ * 1;0;Upper (Strength Focus);Lateral Raise;3;12-15;;true;
+ * 1;0;Upper (Strength Focus);Dumbbell Curl;3;10-12;;true;true
  * ...
  */
 export function parseCSV(fileContent: string): CSVParseResult {
@@ -123,6 +127,8 @@ function parseSimpleCSV(lines: string[], delimiter: string): CSVParseResult {
     const sets = parseInt(parts[3]);
     const reps = parts[4];
     const notes = parts[5] || undefined;
+    const isMyoreps = parts[6]?.toLowerCase() === 'true' || parts[6] === '1' ? true : undefined;
+    const isLengthenedPartials = parts[7]?.toLowerCase() === 'true' || parts[7] === '1' ? true : undefined;
 
     // Validate
     if (isNaN(dayIndex) || dayIndex < 0 || dayIndex > 6) {
@@ -164,6 +170,8 @@ function parseSimpleCSV(lines: string[], delimiter: string): CSVParseResult {
       targetReps: reps,
       notes: notes && notes.length > 0 ? notes : undefined,
       orderIndex: day.exercises.length,
+      isMyoreps,
+      isLengthenedPartials,
     });
   }
 
@@ -208,6 +216,8 @@ function parseWeekBasedCSV(lines: string[], delimiter: string): CSVParseResult {
   const setsIdx = header.indexOf('target_sets');
   const repsIdx = header.indexOf('target_reps');
   const notesIdx = header.indexOf('notes');
+  const myorepsIdx = header.indexOf('is_myoreps');
+  const lengthenedIdx = header.indexOf('is_lengthened_partials');
 
   if (weekIdx === -1 || dayIdx === -1 || workoutIdx === -1 || exerciseIdx === -1 || setsIdx === -1 || repsIdx === -1) {
     return {
@@ -232,6 +242,8 @@ function parseWeekBasedCSV(lines: string[], delimiter: string): CSVParseResult {
     const sets = parseInt(parts[setsIdx]);
     const reps = parts[repsIdx];
     const notes = notesIdx >= 0 && parts[notesIdx] ? parts[notesIdx] : undefined;
+    const isMyoreps = myorepsIdx >= 0 && (parts[myorepsIdx]?.toLowerCase() === 'true' || parts[myorepsIdx] === '1') ? true : undefined;
+    const isLengthenedPartials = lengthenedIdx >= 0 && (parts[lengthenedIdx]?.toLowerCase() === 'true' || parts[lengthenedIdx] === '1') ? true : undefined;
 
     // Validation
     if (isNaN(week) || week < 1) continue;
@@ -261,6 +273,8 @@ function parseWeekBasedCSV(lines: string[], delimiter: string): CSVParseResult {
       targetReps: reps,
       notes: notes && notes.length > 0 ? notes : undefined,
       orderIndex: day.exercises.length,
+      isMyoreps,
+      isLengthenedPartials,
     });
   }
 

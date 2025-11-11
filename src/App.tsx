@@ -20,6 +20,7 @@ import { APP_VERSION } from './version';
 import { db } from './db/database';
 import { v4 as uuidv4 } from 'uuid';
 import { initAudioContext } from './utils/audio';
+import { migrateTechniqueFlagsToExistingPrograms, needsTechniqueMigration } from './utils/migrateTechniques';
 
 function App() {
   const showSplash = useAppStore((state) => state.showSplash);
@@ -104,9 +105,19 @@ function App() {
       }
     };
 
+    // Migrate existing programs to add technique flags
+    const runMigrations = async () => {
+      const needsMigration = await needsTechniqueMigration();
+      if (needsMigration) {
+        console.log('🔄 Running technique flags migration...');
+        await migrateTechniqueFlagsToExistingPrograms();
+      }
+    };
+
     initPersistence();
     checkDisclaimer();
     checkWhatsNew();
+    runMigrations();
   }, [lastSeenVersion, setWhatsNewOpen, setLastSeenVersion]);
 
   // Auto-start tour on first app launch (only once when not completed and other modals are closed)
