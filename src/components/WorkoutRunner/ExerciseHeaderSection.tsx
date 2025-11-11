@@ -1,6 +1,5 @@
 import { RefreshCw } from 'lucide-react';
 import type { ExerciseInstance } from '../../types/models';
-import { hasSubstitutions } from '../../data/exerciseSubstitutions';
 
 interface ExerciseHeaderSectionProps {
   exercise: ExerciseInstance;
@@ -26,15 +25,13 @@ export function ExerciseHeaderSection({
             </p>
           )}
         </div>
-        {hasSubstitutions(exercise.name) && (
-          <button
-            onClick={onShowSubstitutions}
-            className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-primary-100 text-primary-700 font-semibold rounded-lg shadow-sm transition-all duration-200 transform hover:scale-105"
-            disabled={isSubstituting}
-          >
-            <RefreshCw className={`w-4 h-4 ${isSubstituting ? 'animate-spin' : ''}`} />
-          </button>
-        )}
+        <button
+          onClick={onShowSubstitutions}
+          className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-primary-100 text-primary-700 font-semibold rounded-lg shadow-sm transition-all duration-200 transform hover:scale-105"
+          disabled={isSubstituting}
+        >
+          <RefreshCw className={`w-4 h-4 ${isSubstituting ? 'animate-spin' : ''}`} />
+        </button>
       </div>
       {exercise.notes && (
         <p className="text-sm text-gray-600 mt-3 bg-white/60 rounded-lg p-3">{exercise.notes}</p>
