@@ -94,6 +94,7 @@ export async function instantiateWorkout(
     id: workoutId,
     name: template.name,
     startedAt: new Date(),
+    programId: template.programId, // Store programId for proper linking
     programNameSnapshot: programName,
     isQuickWorkout: isQuickWorkout ?? false,
   };

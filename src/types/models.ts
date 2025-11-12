@@ -34,7 +34,8 @@ export interface Workout {
   name: string;
   startedAt: Date;
   endedAt?: Date;
-  programNameSnapshot?: string;
+  programId?: string; // Program ID for proper linking
+  programNameSnapshot?: string; // Kept for backwards compatibility
   totalPausedMs?: number; // Total time workout was paused in milliseconds
   isQuickWorkout?: boolean; // Whether this was a quick workout with reduced volume (~70% of sets)
 }

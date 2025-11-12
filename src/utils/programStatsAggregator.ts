@@ -47,9 +47,18 @@ export async function aggregateProgramStats(programId: string): Promise<ProgramS
   }
 
   // Get all completed workouts for this program
+  // Try to match by programId first (new method), fallback to programNameSnapshot (legacy)
   const allWorkouts = await db.workouts.toArray();
   const programWorkouts = allWorkouts
-    .filter(w => w.programNameSnapshot === program.name && w.endedAt !== undefined)
+    .filter(w => {
+      if (!w.endedAt) return false;
+      // Prefer programId matching (more reliable)
+      if (w.programId) {
+        return w.programId === program.id;
+      }
+      // Fallback to name matching for legacy workouts
+      return w.programNameSnapshot === program.name;
+    })
     .sort((a, b) => new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime());
 
   if (programWorkouts.length === 0) {
