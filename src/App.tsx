@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { SplashScreen } from './components/SplashScreen';
 import { Layout } from './components/Layout';
 import { Tour } from './components/Tour';
@@ -21,6 +21,21 @@ import { db } from './db/database';
 import { v4 as uuidv4 } from 'uuid';
 import { initAudioContext } from './utils/audio';
 import { migrateTechniqueFlagsToExistingPrograms, needsTechniqueMigration } from './utils/migrateTechniques';
+import { trackPageView } from './utils/analytics';
+
+/**
+ * Component that tracks page views whenever the location changes
+ * Must be inside BrowserRouter
+ */
+function PageTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    trackPageView(location.pathname, document.title);
+  }, [location.pathname]);
+
+  return null;
+}
 
 function App() {
   const showSplash = useAppStore((state) => state.showSplash);
@@ -164,6 +179,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <PageTracker />
       <Tour />
       <InstallPrompt />
       <UpdatePrompt />
