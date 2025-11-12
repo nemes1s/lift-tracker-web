@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Sparkles } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { DisclaimerModal } from '../components/DisclaimerModal';
 import { WhatsNewModal } from '../components/WhatsNewModal';
 import { db } from '../db/database';
@@ -20,7 +20,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { isPersisted, getStorageEstimate } from '../utils/persistence';
 import { APP_VERSION } from '../version';
 import { AppearanceSection } from '../components/SettingsView/AppearanceSection';
-import { PWAInstallSection, DisclaimerSection, FormulaSection, TourSection } from '../components/SettingsView/SimpleSection';
+import { PWAInstallSection, DisclaimerSection, FormulaSection, TourSection, FeedbackSection, WhatsNewSection } from '../components/SettingsView/SimpleSection';
 import { StorageInfoSection } from '../components/SettingsView/StorageInfoSection';
 import { RestTimerSettingsSection } from '../components/SettingsView/RestTimerSettingsSection';
 import { WeeklyGoalSection } from '../components/SettingsView/WeeklyGoalSection';
@@ -343,26 +343,9 @@ export function SettingsView() {
 
         <TourSection onStartTour={startTour} />
 
-        {/* What's New Section */}
-        <div className="card p-6 bg-white dark:bg-slate-800">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">What's New</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">View latest changes and improvements</p>
-              </div>
-            </div>
-            <button
-              onClick={handleShowWhatsNew}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-            >
-              View Changes
-            </button>
-          </div>
-        </div>
+        <FeedbackSection />
+
+        <WhatsNewSection onShowWhatsNew={handleShowWhatsNew} />
 
         <StorageInfoSection persisted={persisted} storageInfo={storageInfo} />
 

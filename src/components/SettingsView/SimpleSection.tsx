@@ -1,6 +1,6 @@
 // Reusable components for simple settings sections
 
-import { AlertTriangle, HelpCircle } from 'lucide-react';
+import { AlertTriangle, HelpCircle, MessageCircle, Sparkles } from 'lucide-react';
 import { InstallButton } from '../InstallPrompt';
 
 export function PWAInstallSection() {
@@ -80,6 +80,50 @@ export function TourSection({ onStartTour }: { onStartTour: () => void }) {
       >
         <HelpCircle className="w-5 h-5" />
         Start Tour
+      </button>
+    </div>
+  );
+}
+
+export function FeedbackSection() {
+  return (
+    <div className="card p-6 bg-white dark:bg-slate-800">
+      <div className="flex items-center gap-2 mb-3">
+        <MessageCircle className="w-6 h-6 text-purple-600 dark:text-purple-500" />
+        <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Feedback</h2>
+      </div>
+      <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+        Help us improve LiftTracker by sharing your feedback and suggestions.
+      </p>
+      <a
+        href="https://forms.gle/u7c38AXatzfbBkuw9"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-purple-200 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-700"
+      >
+        <MessageCircle className="w-5 h-5" />
+        Send Feedback
+      </a>
+    </div>
+  );
+}
+
+export function WhatsNewSection({ onShowWhatsNew }: { onShowWhatsNew: () => void }) {
+  return (
+    <div className="card p-6 bg-white dark:bg-slate-800">
+      <div className="flex items-center gap-2 mb-3">
+        <Sparkles className="w-6 h-6 text-blue-600 dark:text-blue-500" />
+        <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">What's New</h2>
+      </div>
+      <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+        View latest changes and improvements to LiftTracker.
+      </p>
+      <button
+        onClick={onShowWhatsNew}
+        className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700"
+      >
+        <Sparkles className="w-5 h-5" />
+        View Changes
       </button>
     </div>
   );
