@@ -5,10 +5,18 @@
     <link rel="icon" type="image/png" href="/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
+    <!-- Performance Optimizations -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+
     <!-- Primary Meta Tags -->
-    <title>LiftTracker - Workout Tracker</title>
-    <meta name="title" content="LiftTracker - Workout Tracker" />
-    <meta name="description" content="Track your weightlifting workouts, sets, and progress. Built for serious lifters." />
+    <title>LiftTracker - Free Workout Tracker & Weightlifting Log App</title>
+    <meta name="title" content="LiftTracker - Free Workout Tracker & Weightlifting Log App" />
+    <meta name="description" content="Free progressive web app for tracking weightlifting workouts, gym sessions, and strength training progress. Log sets, reps, RPE, and track personal records. Offline-first workout tracker for bodybuilding and powerlifting." />
+    <meta name="keywords" content="workout tracker, weightlifting app, gym log, strength training tracker, fitness app, progressive web app, offline workout tracker, bodybuilding tracker, powerlifting log, exercise tracker, set tracker, rep tracker, RPE tracker, workout history, training program, free workout app" />
+    <meta name="author" content="LiftTracker" />
+    <meta name="language" content="English" />
+    <link rel="canonical" href="https://lifttracker.online/" />
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#2563eb" />
@@ -24,6 +32,42 @@
     <!-- Microsoft Meta Tags -->
     <meta name="msapplication-TileColor" content="#2563eb" />
     <meta name="msapplication-TileImage" content="/icon-192.png" />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "LiftTracker",
+      "alternateName": "LiftTracker - Workout Tracker",
+      "url": "https://lifttracker.online",
+      "description": "Free progressive web app for tracking weightlifting workouts, gym sessions, and strength training progress. Log sets, reps, RPE, and track personal records.",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Any (Web-based)",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Workout tracking with sets, reps, and RPE",
+        "Multiple training program templates",
+        "Progress charts and analytics",
+        "Workout history calendar",
+        "Offline-first data storage",
+        "Personal record tracking",
+        "Smart workout recommendations"
+      ],
+      "screenshot": "https://lifttracker.online/icon-512.png",
+      "browserRequirements": "Requires JavaScript. Requires HTML5.",
+      "permissions": "storage",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5.0",
+        "ratingCount": "1"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

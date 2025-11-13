@@ -1,0 +1,12 @@
+# LiftTracker - Workout Tracker
+# https://lifttracker.online
+
+# Allow all bots to crawl everything
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://lifttracker.online/sitemap.xml
+
+# Crawl-delay (optional, adjust if needed)
+# Crawl-delay: 1
