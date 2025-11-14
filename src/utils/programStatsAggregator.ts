@@ -201,3 +201,19 @@ export function formatDate(date: Date): string {
 export function formatVolume(volume: number): string {
   return volume.toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
+
+/**
+ * Count completed workouts for a program
+ */
+export async function countProgramWorkouts(programId: string): Promise<number> {
+  const allWorkouts = await db.workouts.toArray();
+  return allWorkouts.filter(w => {
+    if (!w.endedAt) return false;
+    // Match by programId first
+    if (w.programId) {
+      return w.programId === programId;
+    }
+    // Legacy: workouts without programId can't be matched reliably
+    return false;
+  }).length;
+}

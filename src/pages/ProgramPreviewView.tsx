@@ -88,6 +88,22 @@ export function ProgramPreviewView() {
 
     setIsSaving(true);
     try {
+      // Check for duplicate program names
+      const existingPrograms = await db.programs.toArray();
+      const duplicateProgram = existingPrograms.find(
+        p => p.name.toLowerCase() === programData.program.name.toLowerCase()
+      );
+
+      if (duplicateProgram) {
+        const confirmOverride = window.confirm(
+          `A program named "${duplicateProgram.name}" already exists.\n\nDo you want to:\n- OK: Create a new program anyway (not recommended)\n- Cancel: Go back and choose a different name`
+        );
+        if (!confirmOverride) {
+          setIsSaving(false);
+          return;
+        }
+      }
+
       // Save program to database
       const savedProgram = await saveProgramPreviewData(programData);
 

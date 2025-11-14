@@ -62,7 +62,17 @@ export function SettingsView() {
 
   const loadData = async () => {
     const progs = await db.programs.orderBy('createdAt').toArray();
-    setPrograms(progs);
+
+    // Deduplicate programs by ID (keep the most recently created if duplicates exist)
+    const uniquePrograms = new Map<string, typeof progs[0]>();
+    for (const prog of progs.reverse()) {
+      if (!uniquePrograms.has(prog.id)) {
+        uniquePrograms.set(prog.id, prog);
+      }
+    }
+
+    const dedupedProgs = Array.from(uniquePrograms.values()).reverse();
+    setPrograms(dedupedProgs);
 
     let sett = await db.settings.toCollection().first();
     if (!sett) {
@@ -392,6 +402,79 @@ export function SettingsView() {
         />
 
         <ProgramStatsExportSection programs={programs} />
+
+        {/* Data Cleanup Section */}
+        {programs.length > 0 && (
+          <div className="card p-6 bg-white dark:bg-slate-800">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Data Management</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Identify and manage duplicate programs
+                </p>
+              </div>
+            </div>
+
+            {(() => {
+              // Find duplicate program names
+              const programsByName = new Map<string, typeof programs>();
+              programs.forEach(prog => {
+                const key = prog.name.toLowerCase();
+                if (!programsByName.has(key)) {
+                  programsByName.set(key, []);
+                }
+                programsByName.get(key)!.push(prog);
+              });
+
+              const duplicates = Array.from(programsByName.values()).filter(progs => progs.length > 1);
+
+              if (duplicates.length === 0) {
+                return (
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    ✓ No duplicate programs found
+                  </p>
+                );
+              }
+
+              return (
+                <div className="space-y-4">
+                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                    <p className="text-sm text-amber-800 dark:text-amber-300 font-medium mb-3">
+                      Found {duplicates.length} program{duplicates.length !== 1 ? 's' : ''} with duplicate names:
+                    </p>
+                    {duplicates.map((dupeGroup) => (
+                      <div key={dupeGroup[0].name} className="bg-white dark:bg-slate-700 rounded p-3 mb-2 last:mb-0">
+                        <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-2">
+                          {dupeGroup[0].name}
+                        </p>
+                        <div className="space-y-1">
+                          {dupeGroup.map((prog) => (
+                            <div key={prog.id} className="flex justify-between items-center text-xs">
+                              <span className="text-gray-600 dark:text-gray-400">
+                                Created: {new Date(prog.createdAt).toLocaleDateString()}
+                              </span>
+                              <button
+                                onClick={() => setDeletingProgramId(prog.id)}
+                                className="px-2 py-1 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 rounded transition-colors"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
 
         <DeleteConfirmModals
           deletingProgramId={deletingProgramId}

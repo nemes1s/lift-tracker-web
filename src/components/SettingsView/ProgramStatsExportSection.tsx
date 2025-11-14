@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BarChart3, FileText, Image, FileDown } from 'lucide-react';
 import type { Program } from '../../types/models';
-import { aggregateProgramStats } from '../../utils/programStatsAggregator';
+import { aggregateProgramStats, countProgramWorkouts } from '../../utils/programStatsAggregator';
 import {
   exportAsText,
   exportAsImage,
@@ -19,6 +19,23 @@ export function ProgramStatsExportSection({ programs }: ProgramStatsExportSectio
   const [selectedProgramId, setSelectedProgramId] = useState<string>('');
   const [exportingFormat, setExportingFormat] = useState<string | null>(null);
   const [exportMessage, setExportMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [workoutCounts, setWorkoutCounts] = useState<Map<string, number>>(new Map());
+
+  // Count workouts for each program
+  useEffect(() => {
+    const loadWorkoutCounts = async () => {
+      const counts = new Map<string, number>();
+      for (const program of programs) {
+        const count = await countProgramWorkouts(program.id);
+        counts.set(program.id, count);
+      }
+      setWorkoutCounts(counts);
+    };
+
+    if (programs.length > 0) {
+      loadWorkoutCounts();
+    }
+  }, [programs]);
 
   const handleExport = async (format: 'text' | 'pdf' | 'image') => {
     if (!selectedProgramId) {
@@ -144,11 +161,14 @@ export function ProgramStatsExportSection({ programs }: ProgramStatsExportSectio
               className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               <option value="">-- Choose a program --</option>
-              {programs.map((program) => (
-                <option key={program.id} value={program.id}>
-                  {program.name}
-                </option>
-              ))}
+              {programs.map((program) => {
+                const workoutCount = workoutCounts.get(program.id) ?? 0;
+                return (
+                  <option key={program.id} value={program.id}>
+                    {program.name} ({workoutCount} workout{workoutCount !== 1 ? 's' : ''})
+                  </option>
+                );
+              })}
             </select>
           </div>
 
