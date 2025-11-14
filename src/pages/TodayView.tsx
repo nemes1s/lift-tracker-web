@@ -39,6 +39,7 @@ export function TodayView() {
   const [isLoading, setIsLoading] = useState(true);
   const [showCompletionBanner, setShowCompletionBanner] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   useEffect(() => {
     const initializeProgram = async () => {
@@ -159,6 +160,7 @@ export function TodayView() {
       // Restart the program
       await restartProgram(activeProgram.id);
       setShowCompletionBanner(false);
+      setShowSuccessMessage(true);
       triggerRefresh();
     } catch (error) {
       console.error('Error completing program:', error);
@@ -190,6 +192,16 @@ export function TodayView() {
       setShowCompletionBanner(false);
     }
   }, [activeProgram, weekNumber]);
+
+  // Auto-hide success message after 10 seconds
+  useEffect(() => {
+    if (showSuccessMessage) {
+      const timer = setTimeout(() => {
+        setShowSuccessMessage(false);
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessMessage]);
 
   if (isLoading) {
     return (
@@ -306,6 +318,43 @@ export function TodayView() {
                     {isCompleting ? 'Restarting...' : 'Just Restart (No Record)'}
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Success Message After Completion */}
+        {showSuccessMessage && (
+          <div className="card p-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-400 dark:border-green-600 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-green-500 dark:bg-green-600 rounded-2xl shadow-lg">
+                <Trophy className="w-7 h-7 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Milestone Saved! 🎊
+                </h3>
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                  Your training milestone has been saved successfully! Your program has been restarted and you're ready for a new cycle.
+                </p>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    💡 View your achievement and stats in the
+                  </span>
+                  <a
+                    href="/progress"
+                    className="font-bold text-green-700 dark:text-green-400 hover:underline"
+                  >
+                    Progress
+                  </a>
+                  <span className="text-gray-600 dark:text-gray-400">tab</span>
+                </div>
+                <button
+                  onClick={() => setShowSuccessMessage(false)}
+                  className="mt-3 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline"
+                >
+                  Dismiss
+                </button>
               </div>
             </div>
           </div>
