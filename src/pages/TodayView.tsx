@@ -198,7 +198,7 @@ export function TodayView() {
     if (showSuccessMessage) {
       const timer = setTimeout(() => {
         setShowSuccessMessage(false);
-      }, 10000);
+      }, 30000);
       return () => clearTimeout(timer);
     }
   }, [showSuccessMessage]);
@@ -337,16 +337,16 @@ export function TodayView() {
                 <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
                   Your training milestone has been saved successfully! Your program has been restarted and you're ready for a new cycle.
                 </p>
-                <div className="flex items-center gap-2 text-sm">
+                <div className="text-sm">
                   <span className="text-gray-600 dark:text-gray-400">
                     💡 View your achievement and stats in the
-                  </span>
+                  </span>&nbsp;
                   <a
                     href="/progress"
                     className="font-bold text-green-700 dark:text-green-400 hover:underline"
                   >
                     Progress
-                  </a>
+                  </a>&nbsp;
                   <span className="text-gray-600 dark:text-gray-400">tab</span>
                 </div>
                 <button
