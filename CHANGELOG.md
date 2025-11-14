@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2025-11-14
+
+### Features
+- **Program Completion Tracking**: Complete and restart training programs with milestone tracking
+  - Automatic detection when a program cycle is complete (all weeks finished)
+  - Completion banner in Today view with two options:
+    - "Mark Complete & Restart": Saves achievement record and restarts program
+    - "Just Restart": Restarts program without saving to history
+  - Success notification after completion directing users to Progress view
+  - Program automatically restarts with start date set to today
+- **Training Milestones Section**: New section in Progress view displaying completion history
+  - Shows all completed program cycles with achievement stats
+  - Displays completion date, duration, total workouts, sets, and volume
+  - Numbered achievements (#1, #2, etc.) for motivational tracking
+  - Summary card showing total programs completed
+- **Database Schema Update**: New `programCompletions` table (v9) for storing completion records
+  - Tracks program name, dates, workouts completed, sets, and total volume
+  - Uses `programId` for accurate workout matching with backwards compatibility
+
+### Improvements
+- Enhanced program completion workflow with clear user guidance
+- Success message with link to Progress view after marking program complete
+- Auto-dismissing notifications (10 seconds) with manual dismiss option
+- Dark mode support for all new UI components
+
 ## [0.9.0] - 2025-11-11
 
 ### Features

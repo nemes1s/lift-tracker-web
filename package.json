@@ -1,7 +1,7 @@
 {
   "name": "lifttrackerweb",
   "private": true,
-  "version": "0.9.2",
+  "version": "0.10.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -20,6 +20,7 @@
     "lucide-react": "^0.545.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-is": "^19.2.0",
     "react-router-dom": "^7.9.4",
     "recharts": "^3.2.1",
     "uuid": "^13.0.0",

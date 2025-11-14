@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Activity } from 'lucide-react';
+import { Activity, Trophy, RefreshCw } from 'lucide-react';
 import { useAppStore } from '../store/appStore';
 import { db } from '../db/database';
 import {
@@ -12,6 +12,11 @@ import {
 } from '../utils/programLogic';
 import { ensureDefaultProgram } from '../utils/programTemplates';
 import { cleanupAbandonedWorkouts } from '../utils/workoutCleanup';
+import {
+  completeProgramCycle,
+  restartProgram,
+  isProgramCycleComplete,
+} from '../utils/programCompletion';
 import type { WorkoutTemplate } from '../types/models';
 import { WorkoutRunner } from '../components/WorkoutRunner';
 
@@ -26,11 +31,15 @@ export function TodayView() {
     activeWorkout,
     setActiveWorkout,
     refreshTrigger,
+    triggerRefresh,
   } = useAppStore();
 
   const [template, setTemplate] = useState<WorkoutTemplate | null>(null);
   const [maxDayIndex, setMaxDayIndex] = useState(4);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCompletionBanner, setShowCompletionBanner] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   useEffect(() => {
     const initializeProgram = async () => {
@@ -141,6 +150,59 @@ export function TodayView() {
     setActiveWorkout(workout);
   };
 
+  const handleCompleteProgram = async () => {
+    if (!activeProgram) return;
+
+    setIsCompleting(true);
+    try {
+      // Save completion record
+      await completeProgramCycle(activeProgram);
+      // Restart the program
+      await restartProgram(activeProgram.id);
+      setShowCompletionBanner(false);
+      setShowSuccessMessage(true);
+      triggerRefresh();
+    } catch (error) {
+      console.error('Error completing program:', error);
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
+  const handleRestartProgram = async () => {
+    if (!activeProgram) return;
+
+    setIsCompleting(true);
+    try {
+      await restartProgram(activeProgram.id);
+      setShowCompletionBanner(false);
+      triggerRefresh();
+    } catch (error) {
+      console.error('Error restarting program:', error);
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
+  // Check if program cycle is complete
+  useEffect(() => {
+    if (activeProgram && isProgramCycleComplete(activeProgram)) {
+      setShowCompletionBanner(true);
+    } else {
+      setShowCompletionBanner(false);
+    }
+  }, [activeProgram, weekNumber]);
+
+  // Auto-hide success message after 10 seconds
+  useEffect(() => {
+    if (showSuccessMessage) {
+      const timer = setTimeout(() => {
+        setShowSuccessMessage(false);
+      }, 30000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessMessage]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -222,6 +284,81 @@ export function TodayView() {
             ))}
           </div>
         </div>
+
+        {/* Program Completion Banner */}
+        {showCompletionBanner && (
+          <div className="card p-6 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-2 border-yellow-400 dark:border-yellow-600">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-yellow-400 dark:bg-yellow-600 rounded-2xl shadow-lg">
+                <Trophy className="w-7 h-7 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Program Cycle Complete! 🎉
+                </h3>
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+                  Congratulations! You've completed all {activeProgram.totalWeeks} weeks of {activeProgram.name}.
+                  Mark it complete to save your progress, or restart to begin a new cycle.
+                </p>
+                <div className="flex gap-2 flex-col sm:flex-row">
+                  <button
+                    onClick={handleCompleteProgram}
+                    disabled={isCompleting}
+                    className="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                  >
+                    <Trophy className="w-5 h-5" />
+                    {isCompleting ? 'Saving...' : 'Mark Complete & Restart'}
+                  </button>
+                  <button
+                    onClick={handleRestartProgram}
+                    disabled={isCompleting}
+                    className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                  >
+                    <RefreshCw className="w-5 h-5" />
+                    {isCompleting ? 'Restarting...' : 'Just Restart (No Record)'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Success Message After Completion */}
+        {showSuccessMessage && (
+          <div className="card p-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-400 dark:border-green-600 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-green-500 dark:bg-green-600 rounded-2xl shadow-lg">
+                <Trophy className="w-7 h-7 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Milestone Saved! 🎊
+                </h3>
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                  Your training milestone has been saved successfully! Your program has been restarted and you're ready for a new cycle.
+                </p>
+                <div className="text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    💡 View your achievement and stats in the
+                  </span>&nbsp;
+                  <a
+                    href="/progress"
+                    className="font-bold text-green-700 dark:text-green-400 hover:underline"
+                  >
+                    Progress
+                  </a>&nbsp;
+                  <span className="text-gray-600 dark:text-gray-400">tab</span>
+                </div>
+                <button
+                  onClick={() => setShowSuccessMessage(false)}
+                  className="mt-3 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Workout Section */}
         {activeWorkout && activeWorkout.name === template?.name ? (
