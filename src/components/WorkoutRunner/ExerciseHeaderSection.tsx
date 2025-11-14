@@ -56,15 +56,13 @@ export function ExerciseHeaderSection({
               </div>
             )}
           </div>
-          {hasSubstitutions(exercise.name) && (
-            <button
-              onClick={onShowSubstitutions}
-              className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-700 hover:bg-primary-100 dark:hover:bg-primary-900 text-primary-700 dark:text-primary-300 font-semibold rounded-lg shadow-sm transition-all duration-200 transform hover:scale-105"
-              disabled={isSubstituting}
-            >
-              <RefreshCw className={`w-4 h-4 ${isSubstituting ? 'animate-spin' : ''}`} />
-            </button>
-          )}
+          <button
+            onClick={onShowSubstitutions}
+            className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-700 hover:bg-primary-100 dark:hover:bg-primary-900 text-primary-700 dark:text-primary-300 font-semibold rounded-lg shadow-sm transition-all duration-200 transform hover:scale-105"
+            disabled={isSubstituting}
+          >
+            <RefreshCw className={`w-4 h-4 ${isSubstituting ? 'animate-spin' : ''}`} />
+          </button>
         </div>
         {exercise.notes && (
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-3 bg-white/60 dark:bg-slate-800/60 rounded-lg p-3">{exercise.notes}</p>

@@ -36,6 +36,7 @@ function PageTracker() {
 
   return null;
 }
+import { runMigrations as runDataMigrations } from './utils/migrations';
 
 function App() {
   const showSplash = useAppStore((state) => state.showSplash);
@@ -120,13 +121,17 @@ function App() {
       }
     };
 
-    // Migrate existing programs to add technique flags
+    // Migrate existing programs to add technique flags and programId to workouts
     const runMigrations = async () => {
+      // Run technique flags migration
       const needsMigration = await needsTechniqueMigration();
       if (needsMigration) {
         console.log('🔄 Running technique flags migration...');
         await migrateTechniqueFlagsToExistingPrograms();
       }
+
+      // Run programId migration for workouts
+      await runDataMigrations();
     };
 
     initPersistence();

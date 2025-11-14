@@ -34,7 +34,8 @@ export interface Workout {
   name: string;
   startedAt: Date;
   endedAt?: Date;
-  programNameSnapshot?: string;
+  programId?: string; // Program ID for proper linking
+  programNameSnapshot?: string; // Kept for backwards compatibility
   totalPausedMs?: number; // Total time workout was paused in milliseconds
   isQuickWorkout?: boolean; // Whether this was a quick workout with reduced volume (~70% of sets)
 }
@@ -84,6 +85,8 @@ export interface SettingsModel {
   restTimerSound?: boolean; // Play sound when timer completes (default: true)
   // Weekly streak settings
   targetWorkoutsPerWeek?: number; // Target number of workouts per week for streak calculation (default: 3)
+  // Migration tracking
+  programIdMigrationComplete?: boolean; // Whether programId migration has been run
 }
 
 // Enum for split days

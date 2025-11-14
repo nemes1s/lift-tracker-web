@@ -21,27 +21,33 @@ async function renderChartsToCanvas(stats: ProgramStats): Promise<HTMLCanvasElem
   container.style.width = '1600px'; // Increased from 1200px
   document.body.appendChild(container);
 
+  let root: any = null;
+
   try {
-    const root = createRoot(container);
+    root = createRoot(container);
 
     // Render the React component
-    await new Promise<void>((resolve) => {
-      root.render(
-        createElement(ExportChartsRenderer, {
-          exerciseStats: stats.exerciseStats,
-          programName: stats.program.name,
-          programVolume: stats.totalVolume,
-        })
-      );
+    await new Promise<void>((resolve, reject) => {
+      try {
+        root.render(
+          createElement(ExportChartsRenderer, {
+            exerciseStats: stats.exerciseStats,
+            programName: stats.program.name,
+            programVolume: stats.totalVolume,
+          })
+        );
 
-      // Wait for charts to render
-      setTimeout(() => resolve(), 2000); // Increased from 1500ms
+        // Wait for charts to render
+        setTimeout(() => resolve(), 2000); // Increased from 1500ms
+      } catch (err) {
+        reject(err);
+      }
     });
 
     // Capture the rendered charts
     const chartsElement = container.querySelector('#export-charts-container');
     if (!chartsElement) {
-      root.unmount();
+      console.warn('Charts container not found in DOM');
       return null;
     }
 
@@ -52,13 +58,21 @@ async function renderChartsToCanvas(stats: ProgramStats): Promise<HTMLCanvasElem
       width: 1600,
     });
 
-    root.unmount();
     return canvas;
   } catch (error) {
     console.error('Failed to render charts:', error);
     return null;
   } finally {
-    document.body.removeChild(container);
+    if (root) {
+      try {
+        root.unmount();
+      } catch (err) {
+        console.error('Failed to unmount root:', err);
+      }
+    }
+    if (document.body.contains(container)) {
+      document.body.removeChild(container);
+    }
   }
 }
 
@@ -329,14 +343,22 @@ export async function exportAsImage(stats: ProgramStats): Promise<Blob> {
 
   try {
     // Generate canvas from stats HTML
-    const statsCanvas = await html2canvas(container.querySelector('#program-stats-export')! as HTMLElement, {
+    const statsElement = container.querySelector('#program-stats-export');
+    if (!statsElement) {
+      throw new Error('Failed to create stats HTML element');
+    }
+
+    const statsCanvas = await html2canvas(statsElement as HTMLElement, {
       backgroundColor: '#111827',
       scale: 1, // Reduced from 1.5 for better readability
       logging: false,
       width: 1200,
+    }).catch((err) => {
+      console.error('html2canvas error for stats:', err);
+      throw new Error('Failed to render stats to canvas: ' + (err instanceof Error ? err.message : 'Unknown error'));
     });
 
-    // Generate canvas from charts
+    // Generate canvas from charts (may be null if no charts)
     const chartsCanvas = await renderChartsToCanvas(stats);
 
     // Combine canvases
@@ -344,17 +366,26 @@ export async function exportAsImage(stats: ProgramStats): Promise<Blob> {
 
     // Convert to blob with quality setting
     return new Promise<Blob>((resolve, reject) => {
-      finalCanvas.toBlob((blob) => {
-        if (blob) {
-          resolve(blob);
-        } else {
-          reject(new Error('Failed to create image blob'));
-        }
-      }, 'image/png', 1.0); // Maximum quality
+      try {
+        finalCanvas.toBlob((blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error('Failed to create image blob - toBlob returned null'));
+          }
+        }, 'image/png', 1.0); // Maximum quality
+      } catch (err) {
+        reject(new Error('toBlob failed: ' + (err instanceof Error ? err.message : 'Unknown error')));
+      }
     });
+  } catch (error) {
+    console.error('Export as image failed:', error);
+    throw error;
   } finally {
     // Cleanup
-    document.body.removeChild(container);
+    if (document.body.contains(container)) {
+      document.body.removeChild(container);
+    }
   }
 }
 
@@ -372,14 +403,22 @@ export async function exportAsPDF(stats: ProgramStats): Promise<Blob> {
 
   try {
     // Generate canvas from stats HTML
-    const statsCanvas = await html2canvas(container.querySelector('#program-stats-export')! as HTMLElement, {
+    const statsElement = container.querySelector('#program-stats-export');
+    if (!statsElement) {
+      throw new Error('Failed to create stats HTML element');
+    }
+
+    const statsCanvas = await html2canvas(statsElement as HTMLElement, {
       backgroundColor: '#111827',
       scale: 1, // Reduced from 1.5 for better readability
       logging: false,
       width: 1200,
+    }).catch((err) => {
+      console.error('html2canvas error for stats:', err);
+      throw new Error('Failed to render stats to canvas: ' + (err instanceof Error ? err.message : 'Unknown error'));
     });
 
-    // Generate canvas from charts
+    // Generate canvas from charts (may be null if no charts)
     const chartsCanvas = await renderChartsToCanvas(stats);
 
     // Combine canvases
@@ -425,7 +464,11 @@ export async function exportAsPDF(stats: ProgramStats): Promise<Blob> {
         pageCanvas.width = canvas.width;
         pageCanvas.height = sourceHeight;
 
-        const pageCtx = pageCanvas.getContext('2d')!;
+        const pageCtx = pageCanvas.getContext('2d');
+        if (!pageCtx) {
+          throw new Error('Failed to get 2d context for page canvas');
+        }
+
         pageCtx.drawImage(
           canvas,
           0, sourceY,           // source x, y
@@ -441,9 +484,14 @@ export async function exportAsPDF(stats: ProgramStats): Promise<Blob> {
 
     // Return as blob
     return pdf.output('blob');
+  } catch (error) {
+    console.error('Export as PDF failed:', error);
+    throw error;
   } finally {
     // Cleanup
-    document.body.removeChild(container);
+    if (document.body.contains(container)) {
+      document.body.removeChild(container);
+    }
   }
 }
 
@@ -466,21 +514,40 @@ export function downloadFile(blob: Blob, filename: string): void {
  */
 export async function copyToClipboard(text: string): Promise<boolean> {
   try {
+    // Check if clipboard API is available
+    if (!navigator.clipboard) {
+      console.warn('Clipboard API not available, trying fallback');
+      throw new Error('Clipboard API not available');
+    }
+
     await navigator.clipboard.writeText(text);
+    console.log('Text copied to clipboard successfully');
     return true;
   } catch (err) {
-    // Fallback for older browsers
+    console.warn('Primary clipboard method failed:', err);
+    // Fallback for older browsers or when clipboard API fails
     try {
       const textArea = document.createElement('textarea');
       textArea.value = text;
       textArea.style.position = 'fixed';
       textArea.style.left = '-999999px';
+      textArea.style.top = '0';
       document.body.appendChild(textArea);
+      textArea.focus();
       textArea.select();
-      document.execCommand('copy');
+
+      const successful = document.execCommand('copy');
       document.body.removeChild(textArea);
-      return true;
-    } catch {
+
+      if (successful) {
+        console.log('Text copied to clipboard using fallback method');
+        return true;
+      } else {
+        console.error('execCommand copy failed');
+        return false;
+      }
+    } catch (fallbackErr) {
+      console.error('Fallback clipboard method failed:', fallbackErr);
       return false;
     }
   }
