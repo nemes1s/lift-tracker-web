@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { RefreshCw, Zap, Maximize2 } from 'lucide-react';
 import type { ExerciseInstance } from '../../types/models';
-import { hasSubstitutions } from '../../data/exerciseSubstitutions';
 import { TechniqueInfoModal } from '../shared/TechniqueInfoModal';
 
 interface ExerciseHeaderSectionProps {
