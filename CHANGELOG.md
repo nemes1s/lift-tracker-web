@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2025-11-15
+
+### Improvements
+- Rest timer is always visible when running.
+
+
 ## [0.10.0] - 2025-11-14
 
 ### Features
@@ -23,12 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Database Schema Update**: New `programCompletions` table (v9) for storing completion records
   - Tracks program name, dates, workouts completed, sets, and total volume
   - Uses `programId` for accurate workout matching with backwards compatibility
-
-### Improvements
-- Enhanced program completion workflow with clear user guidance
-- Success message with link to Progress view after marking program complete
-- Auto-dismissing notifications (10 seconds) with manual dismiss option
-- Dark mode support for all new UI components
 
 ## [0.9.0] - 2025-11-11
 
@@ -49,11 +49,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CSV Import/Export Support**: Technique flags included in CSV format
   - New columns: `is_myoreps` and `is_lengthened_partials`
   - Full compatibility with both simple and advanced CSV formats
-
-### Improvements
-- Enhanced program preview UI with technique badge display
-- Dark mode support for all new UI components
-- Better visual organization of exercise information
 
 ## [0.8.0] - 2025-11-11
 
