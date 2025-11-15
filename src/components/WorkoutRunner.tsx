@@ -15,6 +15,7 @@ import { ExerciseHeaderSection } from './WorkoutRunner/ExerciseHeaderSection';
 import { ExerciseSubstitutionSection } from './WorkoutRunner/ExerciseSubstitutionSection';
 import { CurrentSetsSection } from './WorkoutRunner/CurrentSetsSection';
 import { RestTimerSection } from './WorkoutRunner/RestTimerSection';
+import { StickyRestTimerHeader } from './WorkoutRunner/StickyRestTimerHeader';
 import { SetLoggerSection } from './WorkoutRunner/SetLoggerSection';
 import { PreviousWorkoutsSection } from './WorkoutRunner/PreviousWorkoutsSection';
 import { WorkoutStatsSection } from './WorkoutRunner/WorkoutStatsSection';
@@ -612,110 +613,110 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const stats = calculateWorkoutStats(allExercisesWithSets, workout.startedAt, undefined, currentPausedMs);
 
   return (
-    <div className="space-y-6">
-      <WorkoutControlsSection
-        isPaused={isPaused}
-        onPause={handlePause}
-        onResume={handleResume}
-        onStop={handleStopWorkout}
-        isQuickWorkout={workout.isQuickWorkout}
+    <>
+      <StickyRestTimerHeader
+        isActive={restTimer.isActive}
+        isCompleted={restTimer.isCompleted}
+        secondsLeft={restTimer.secondsLeft}
+        duration={restTimer.duration}
+        onStart={startRestTimer}
+        onSkip={skipRestTimer}
+        onAddTime={addRestTime}
       />
 
-      <ExerciseHeaderSection
-        exercise={currentExercise}
-        onShowSubstitutions={() => setShowSubstitutions(!showSubstitutions)}
-        isSubstituting={isSubstituting}
-      />
+      <div className="space-y-6">
+        <WorkoutControlsSection
+          isPaused={isPaused}
+          onPause={handlePause}
+          onResume={handleResume}
+          onStop={handleStopWorkout}
+          isQuickWorkout={workout.isQuickWorkout}
+        />
 
-      {showSubstitutions && hasSubstitutions(currentExercise.name) && (
-        <ExerciseSubstitutionSection
-          exerciseName={currentExercise.name}
+        <ExerciseHeaderSection
+          exercise={currentExercise}
+          onShowSubstitutions={() => setShowSubstitutions(!showSubstitutions)}
           isSubstituting={isSubstituting}
-          onSubstitute={handleSubstituteExercise}
-          onCancel={() => setShowSubstitutions(false)}
         />
-      )}
 
-      <CurrentSetsSection
-        sets={sets}
-        onDeleteSet={handleDeleteSet}
-      />
+        {showSubstitutions && hasSubstitutions(currentExercise.name) && (
+          <ExerciseSubstitutionSection
+            exerciseName={currentExercise.name}
+            isSubstituting={isSubstituting}
+            onSubstitute={handleSubstituteExercise}
+            onCancel={() => setShowSubstitutions(false)}
+          />
+        )}
 
-      {/* <PRSummarySection sets={sets} /> */}
-
-      {(restTimer.isActive || restTimer.isCompleted) && settings?.restTimerEnabled !== false && (
-        <RestTimerSection
-          isActive={restTimer.isActive}
-          isCompleted={restTimer.isCompleted}
-          secondsLeft={restTimer.secondsLeft}
-          duration={restTimer.duration}
-          onStart={startRestTimer}
-          onSkip={skipRestTimer}
-          onAddTime={addRestTime}
+        <CurrentSetsSection
+          sets={sets}
+          onDeleteSet={handleDeleteSet}
         />
-      )}
 
-      {!restTimer.isActive && !restTimer.isCompleted && settings?.restTimerEnabled !== false && sets.length > 0 && (
-        <RestTimerSection
-          isActive={false}
-          isCompleted={false}
-          secondsLeft={0}
-          duration={restTimer.duration}
-          onStart={startRestTimer}
-          onSkip={skipRestTimer}
-          onAddTime={addRestTime}
+        {/* <PRSummarySection sets={sets} /> */}
+
+        {!restTimer.isActive && !restTimer.isCompleted && settings?.restTimerEnabled !== false && sets.length > 0 && (
+          <RestTimerSection
+            isActive={false}
+            isCompleted={false}
+            secondsLeft={0}
+            duration={restTimer.duration}
+            onStart={startRestTimer}
+            onSkip={skipRestTimer}
+            onAddTime={addRestTime}
+          />
+        )}
+
+        <SetLoggerSection
+          weightText={weightText}
+          repsText={repsText}
+          rpeText={rpeText}
+          onWeightChange={setWeightText}
+          onRepsChange={setRepsText}
+          onRpeChange={setRpeText}
+          onLogSet={handleLogSet}
+          suggestion={suggestion}
+          onApplySuggestion={handleApplySuggestion}
         />
-      )}
 
-      <SetLoggerSection
-        weightText={weightText}
-        repsText={repsText}
-        rpeText={rpeText}
-        onWeightChange={setWeightText}
-        onRepsChange={setRepsText}
-        onRpeChange={setRpeText}
-        onLogSet={handleLogSet}
-        suggestion={suggestion}
-        onApplySuggestion={handleApplySuggestion}
-      />
+        <PreviousWorkoutsSection
+          history={previousHistory}
+          onPrefillSet={handlePrefillSet}
+        />
 
-      <PreviousWorkoutsSection
-        history={previousHistory}
-        onPrefillSet={handlePrefillSet}
-      />
+        <WorkoutStatsSection stats={stats} />
 
-      <WorkoutStatsSection stats={stats} />
+        <ExerciseNavigationSection
+          currentIndex={currentExerciseIndex}
+          totalExercises={exercises.length}
+          onPrevious={goPrevious}
+          onNext={goNext}
+          onAddCustomExercise={() => setShowAddCustomExercise(true)}
+        />
 
-      <ExerciseNavigationSection
-        currentIndex={currentExerciseIndex}
-        totalExercises={exercises.length}
-        onPrevious={goPrevious}
-        onNext={goNext}
-        onAddCustomExercise={() => setShowAddCustomExercise(true)}
-      />
-
-      {currentExerciseIndex === exercises.length - 1 && (
-        <div className="space-y-3">
-          <FinishWorkoutButton onFinish={handleFinishWorkout} />
-          <div className="flex justify-center">
-            <WorkoutExportMenu
-              workout={workout}
-              exercisesWithSets={allExercisesWithSets.map((exWithSets, idx) => ({
-                exercise: exercises[idx],
-                sets: exWithSets.sets,
-              }))}
-            />
+        {currentExerciseIndex === exercises.length - 1 && (
+          <div className="space-y-3">
+            <FinishWorkoutButton onFinish={handleFinishWorkout} />
+            <div className="flex justify-center">
+              <WorkoutExportMenu
+                workout={workout}
+                exercisesWithSets={allExercisesWithSets.map((exWithSets, idx) => ({
+                  exercise: exercises[idx],
+                  sets: exWithSets.sets,
+                }))}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {showAddCustomExercise && (
-        <AddCustomExerciseModal
-          onConfirm={handleAddCustomExercise}
-          onCancel={() => setShowAddCustomExercise(false)}
-          suggestions={exerciseSuggestions}
-        />
-      )}
-    </div>
+        {showAddCustomExercise && (
+          <AddCustomExerciseModal
+            onConfirm={handleAddCustomExercise}
+            onCancel={() => setShowAddCustomExercise(false)}
+            suggestions={exerciseSuggestions}
+          />
+        )}
+      </div>
+    </>
   );
 }
