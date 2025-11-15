@@ -46,6 +46,9 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const [totalPausedMs, setTotalPausedMs] = useState(workout.totalPausedMs || 0);
   const [_currentTime, setCurrentTime] = useState(new Date()); // Used to trigger re-renders for live timer
 
+  // Track previous exercise for form clearing logic
+  const [previousExerciseId, setPreviousExerciseId] = useState<string | null>(null);
+
   // Exercise substitution state
   const [showSubstitutions, setShowSubstitutions] = useState(false);
   const [isSubstituting, setIsSubstituting] = useState(false);
@@ -167,15 +170,41 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
       // Reload all sets for stats
       await loadAllSets();
+
+      // Clear form only if exercise actually changed AND target reps were achieved
+      if (previousExerciseId !== null && previousExerciseId !== currentExercise.id) {
+        // Get the sets from the previous exercise
+        const previousExerciseData = exercises.find(ex => ex.id === previousExerciseId);
+        if (previousExerciseData) {
+          const previousSets = await db.setRecords
+            .where('exerciseId')
+            .equals(previousExerciseId)
+            .toArray();
+
+          // Check if target reps were achieved in any of the previous exercise's sets
+          const targetRepsRange = previousExerciseData.targetReps;
+          const targetRepsMatch = targetRepsRange.match(/^(\d+)-(\d+)$/);
+          const minReps = targetRepsMatch ? parseInt(targetRepsMatch[1]) : 0;
+          const maxReps = targetRepsMatch ? parseInt(targetRepsMatch[2]) : 100;
+
+          const targetAchieved = previousSets.some(set => set.reps >= minReps && set.reps <= maxReps);
+
+          // Only clear form if target was achieved
+          if (targetAchieved) {
+            setWeightText('');
+            setRepsText('');
+            setRpeText('');
+          }
+        }
+      }
+
+      // Update previous exercise ID
+      setPreviousExerciseId(currentExercise.id);
     };
 
     loadSets();
-    // Clear inputs when changing exercise
-    setWeightText('');
-    setRepsText('');
-    setRpeText('');
     // Keep rest timer running when changing exercise
-  }, [currentExercise]);
+  }, [currentExercise, previousExerciseId, exercises]);
 
   // Initial load of all sets
   useEffect(() => {
@@ -366,10 +395,8 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
     setSets(updatedSets);
 
-    // Clear inputs
-    setWeightText('');
-    setRepsText('');
-    setRpeText('');
+    // Don't clear inputs - form persists for same exercise
+    // The form will be cleared only when exercise changes (see useEffect for currentExercise)
 
     // Start rest timer if enabled and auto-start is on
     if (settings?.restTimerEnabled !== false && settings?.restTimerAutoStart !== false) {
@@ -684,7 +711,6 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
           onPrefillSet={handlePrefillSet}
         />
 
-        <WorkoutStatsSection stats={stats} />
 
         <ExerciseNavigationSection
           currentIndex={currentExerciseIndex}
@@ -709,6 +735,8 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
           </div>
         )}
 
+        <WorkoutStatsSection stats={stats} />
+        
         {showAddCustomExercise && (
           <AddCustomExerciseModal
             onConfirm={handleAddCustomExercise}
