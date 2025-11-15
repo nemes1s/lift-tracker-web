@@ -183,7 +183,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
           // Check if target reps were achieved in any of the previous exercise's sets
           const targetRepsRange = previousExerciseData.targetReps;
-          const targetRepsMatch = targetRepsRange.match(/^(\d+)-(\d+)$/);
+          const targetRepsMatch = targetRepsRange?.match(/^(\d+)-(\d+)$/);
           const minReps = targetRepsMatch ? parseInt(targetRepsMatch[1]) : 0;
           const maxReps = targetRepsMatch ? parseInt(targetRepsMatch[2]) : 100;
 
