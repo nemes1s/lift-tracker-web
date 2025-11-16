@@ -45,6 +45,9 @@ export function SettingsView() {
   const [showDisclaimerModal, setShowDisclaimerModal] = useState(false);
   const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
   const [changelogData, setChangelogData] = useState<VersionChanges[]>([]);
+  const [showDurationModal, setShowDurationModal] = useState(false);
+  const [pendingCSVData, setPendingCSVData] = useState<any>(null);
+  const [selectedWeeks, setSelectedWeeks] = useState<number>(12);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { triggerRefresh, darkMode, toggleDarkMode, startTour } = useAppStore();
 
@@ -205,14 +208,11 @@ export function SettingsView() {
         return;
       }
 
-      const programData = generateProgramFromCSVData(parseResult.data);
-
-      navigate('/program/preview', {
-        state: {
-          mode: 'preview',
-          programData,
-        },
-      });
+      // Store the parsed CSV data and show duration selection modal
+      setPendingCSVData(parseResult.data);
+      setSelectedWeeks(parseResult.data.totalWeeks || 12);
+      setShowDurationModal(true);
+      setIsImporting(false);
     } catch (error) {
       setImportMessage({
         type: 'error',
@@ -224,6 +224,27 @@ export function SettingsView() {
         fileInputRef.current.value = '';
       }
     }
+  };
+
+  const handleDurationConfirm = () => {
+    if (!pendingCSVData) return;
+
+    const programData = generateProgramFromCSVData(pendingCSVData, selectedWeeks);
+
+    setShowDurationModal(false);
+    setPendingCSVData(null);
+
+    navigate('/program/preview', {
+      state: {
+        mode: 'preview',
+        programData,
+      },
+    });
+  };
+
+  const handleDurationCancel = () => {
+    setShowDurationModal(false);
+    setPendingCSVData(null);
   };
 
   const handleExportProgram = async (programId: string, programName: string) => {
@@ -498,6 +519,50 @@ export function SettingsView() {
             changes={changelogData}
             onClose={() => setShowWhatsNewModal(false)}
           />
+        )}
+
+        {showDurationModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+              <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+                Set Program Duration
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                How many weeks should this program run before completing and restarting?
+              </p>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                  Duration (weeks)
+                </label>
+                <select
+                  value={selectedWeeks}
+                  onChange={(e) => setSelectedWeeks(Number(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                  <option value={4}>4 weeks</option>
+                  <option value={8}>8 weeks</option>
+                  <option value={12}>12 weeks</option>
+                  <option value={16}>16 weeks</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDurationCancel}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDurationConfirm}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
