@@ -1611,7 +1611,10 @@ export function generateUpperLower4DayData(): ProgramPreviewData {
   return { program, workouts };
 }
 
-export function generateProgramFromCSVData(csvData: CSVProgramData): ProgramPreviewData {
+export function generateProgramFromCSVData(
+  csvData: CSVProgramData,
+  totalWeeksOverride?: number
+): ProgramPreviewData {
   const programId = uuidv4();
   const program: Program = {
     id: programId,
@@ -1619,7 +1622,7 @@ export function generateProgramFromCSVData(csvData: CSVProgramData): ProgramPrev
     createdAt: new Date(),
     updatedAt: new Date(),
     startDate: new Date(),
-    totalWeeks: csvData.totalWeeks,
+    totalWeeks: totalWeeksOverride ?? csvData.totalWeeks,
   };
 
   const workouts = csvData.days.map(day => {
