@@ -395,12 +395,16 @@ export async function getWeeklyVolumeTrend(): Promise<MonthlyVolume[]> {
 }
 
 /**
- * Get rep PRs for a specific exercise
+ * Get rep PRs for a specific exercise or multiple exercise variants
  * Returns best weight achieved for different rep ranges
+ * @param exerciseNames Single exercise name or array of exercise names to combine
  */
-export async function getRepPRs(exerciseName: string): Promise<RepPR[]> {
+export async function getRepPRs(exerciseNames: string | string[]): Promise<RepPR[]> {
+  // Normalize to array
+  const names = Array.isArray(exerciseNames) ? exerciseNames : [exerciseNames];
+
   const exerciseInstances = await db.exerciseInstances
-    .filter(ex => ex.name === exerciseName)
+    .filter(ex => names.includes(ex.name))
     .toArray();
 
   if (exerciseInstances.length === 0) return [];
@@ -478,9 +482,16 @@ export async function isSetAPR(exerciseName: string, weight: number, reps: numbe
 /**
  * Calculate consistency score for an exercise (days between workouts)
  */
-export async function getExerciseConsistency(exerciseName: string): Promise<number | null> {
+/**
+ * Get exercise consistency metric (average days between workouts)
+ * @param exerciseNames Single exercise name or array of exercise names to combine
+ */
+export async function getExerciseConsistency(exerciseNames: string | string[]): Promise<number | null> {
+  // Normalize to array
+  const names = Array.isArray(exerciseNames) ? exerciseNames : [exerciseNames];
+
   const exerciseInstances = await db.exerciseInstances
-    .filter(ex => ex.name === exerciseName)
+    .filter(ex => names.includes(ex.name))
     .toArray();
 
   if (exerciseInstances.length === 0) return null;

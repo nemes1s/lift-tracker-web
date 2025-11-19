@@ -10,6 +10,11 @@ interface RestTimerState {
   startTimestamp: number | null; // Unix timestamp in milliseconds when timer started
 }
 
+interface ProgressPreferences {
+  selectedExercise: string | null;
+  combineSimilarExercises: boolean;
+}
+
 interface AppState {
   activeProgram: Program | null;
   activeWorkout: Workout | null;
@@ -24,6 +29,7 @@ interface AppState {
   tourCompleted: boolean;
   tourActive: boolean;
   isHydrated: boolean;
+  progressPreferences: ProgressPreferences;
 
   setActiveProgram: (program: Program | null) => void;
   setActiveWorkout: (workout: Workout | null) => void;
@@ -50,6 +56,10 @@ interface AppState {
   addRestTime: (seconds: number) => void;
   tickRestTimer: () => void;
   resetRestTimer: () => void;
+
+  // Progress preferences actions
+  setSelectedExercise: (exercise: string | null) => void;
+  setCombineSimilarExercises: (combine: boolean) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -74,6 +84,10 @@ export const useAppStore = create<AppState>()(
         duration: 90,
         isCompleted: false,
         startTimestamp: null,
+      },
+      progressPreferences: {
+        selectedExercise: null,
+        combineSimilarExercises: false,
       },
 
       setActiveProgram: (program) => set({ activeProgram: program }),
@@ -158,6 +172,14 @@ export const useAppStore = create<AppState>()(
           startTimestamp: null,
         },
       }),
+
+      // Progress preferences actions
+      setSelectedExercise: (exercise) => set((state) => ({
+        progressPreferences: { ...state.progressPreferences, selectedExercise: exercise },
+      })),
+      setCombineSimilarExercises: (combine) => set((state) => ({
+        progressPreferences: { ...state.progressPreferences, combineSimilarExercises: combine },
+      })),
     }),
     {
       name: 'app-storage',
@@ -166,6 +188,7 @@ export const useAppStore = create<AppState>()(
         lastSeenVersion: state.lastSeenVersion,
         tourCompleted: state.tourCompleted,
         restTimer: state.restTimer,
+        progressPreferences: state.progressPreferences,
       }),
       onRehydrateStorage: () => (state) => {
         // Mark the store as hydrated after localStorage has been loaded

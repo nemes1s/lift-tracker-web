@@ -34,12 +34,16 @@ export async function getAllExerciseNames(): Promise<string[]> {
 }
 
 /**
- * Get progression data for a specific exercise
+ * Get progression data for a specific exercise or multiple exercise variants
+ * @param exerciseNames Single exercise name or array of exercise names to combine
  */
-export async function getExerciseProgress(exerciseName: string): Promise<ExerciseProgressData[]> {
-  // Get all exercise instances with this name
+export async function getExerciseProgress(exerciseNames: string | string[]): Promise<ExerciseProgressData[]> {
+  // Normalize to array
+  const names = Array.isArray(exerciseNames) ? exerciseNames : [exerciseNames];
+
+  // Get all exercise instances matching any of the names
   const exerciseInstances = await db.exerciseInstances
-    .filter(ex => ex.name === exerciseName)
+    .filter(ex => names.includes(ex.name))
     .toArray();
 
   if (exerciseInstances.length === 0) {
@@ -64,14 +68,20 @@ export async function getExerciseProgress(exerciseName: string): Promise<Exercis
     .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
   // Convert to progress data
-  return workSets.map(set => ({
-    date: new Date(set.timestamp),
-    weight: set.weight,
-    reps: set.reps,
-    volume: set.weight * set.reps,
-    oneRepMax: calculateOneRepMax(set.weight, set.reps),
-    exerciseName,
-  }));
+  return workSets.map(set => {
+    // Find the exercise instance this set belongs to
+    const exerciseInstance = exerciseInstances.find(ex => ex.id === set.exerciseId);
+    const actualExerciseName = exerciseInstance?.name || names[0];
+
+    return {
+      date: new Date(set.timestamp),
+      weight: set.weight,
+      reps: set.reps,
+      volume: set.weight * set.reps,
+      oneRepMax: calculateOneRepMax(set.weight, set.reps),
+      exerciseName: actualExerciseName,
+    };
+  });
 }
 
 /**
@@ -83,10 +93,11 @@ function calculateOneRepMax(weight: number, reps: number): number {
 }
 
 /**
- * Get statistics for a specific exercise
+ * Get statistics for a specific exercise or multiple exercise variants
+ * @param exerciseNames Single exercise name or array of exercise names to combine
  */
-export async function getExerciseStats(exerciseName: string): Promise<ExerciseStats | null> {
-  const progressData = await getExerciseProgress(exerciseName);
+export async function getExerciseStats(exerciseNames: string | string[]): Promise<ExerciseStats | null> {
+  const progressData = await getExerciseProgress(exerciseNames);
 
   if (progressData.length === 0) {
     return null;
@@ -108,8 +119,13 @@ export async function getExerciseStats(exerciseName: string): Promise<ExerciseSt
   // Calculate total volume
   const totalVolume = progressData.reduce((sum, d) => sum + d.volume, 0);
 
+  // Use first exercise name for display (or combined name if array)
+  const displayName = Array.isArray(exerciseNames)
+    ? (exerciseNames.length > 1 ? `${exerciseNames[0]} (+${exerciseNames.length - 1} more)` : exerciseNames[0])
+    : exerciseNames;
+
   return {
-    exerciseName,
+    exerciseName: displayName,
     totalSets: progressData.length,
     totalVolume,
     maxWeight: maxWeightEntry.weight,
@@ -124,13 +140,17 @@ export async function getExerciseStats(exerciseName: string): Promise<ExerciseSt
 
 /**
  * Get best set (highest weight × reps) for each workout session
+ * @param exerciseNames Single exercise name or array of exercise names to combine
  */
-export async function getBestSetPerWorkout(exerciseName: string): Promise<ExerciseProgressData[]> {
-  const allData = await getExerciseProgress(exerciseName);
+export async function getBestSetPerWorkout(exerciseNames: string | string[]): Promise<ExerciseProgressData[]> {
+  const allData = await getExerciseProgress(exerciseNames);
 
   if (allData.length === 0) {
     return [];
   }
+
+  // Normalize to array for querying
+  const names = Array.isArray(exerciseNames) ? exerciseNames : [exerciseNames];
 
   // Group by date (day level)
   const byDate = new Map<string, ExerciseProgressData[]>();
@@ -160,9 +180,9 @@ export async function getBestSetPerWorkout(exerciseName: string): Promise<Exerci
 
   // Enrich with workout info
   for (const set of sorted) {
-    // Find the exercise instance for this set
+    // Find the exercise instance for this set (check all variants)
     const exerciseInstance = await db.exerciseInstances
-      .filter(ex => ex.name === exerciseName)
+      .filter(ex => names.includes(ex.name))
       .toArray();
 
     // Find the set record matching this data
