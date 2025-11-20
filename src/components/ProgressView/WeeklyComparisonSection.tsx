@@ -68,6 +68,31 @@ export function WeeklyComparisonSection({ weeklyComparison }: WeeklyComparisonSe
             </p>
           </div>
         )}
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-primary-50 dark:bg-primary-900/30 rounded-xl p-4">
+            <p className="text-sm font-bold text-gray-600 dark:text-gray-400 mb-1">Volume/Min (This Week)</p>
+            <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">{weeklyComparison.thisWeekVolumePerMinute} kg/min</p>
+          </div>
+
+          <div className="bg-gray-50 dark:bg-slate-700 rounded-xl p-4">
+            <p className="text-sm font-bold text-gray-600 dark:text-gray-400 mb-1">Volume/Min (Last Week)</p>
+            <p className="text-2xl font-bold text-gray-700 dark:text-gray-300">{weeklyComparison.lastWeekVolumePerMinute} kg/min</p>
+          </div>
+        </div>
+
+        {weeklyComparison.lastWeekVolumePerMinute > 0 && (
+          <div className={`p-4 rounded-xl ${
+            weeklyComparison.volumePerMinuteChange >= 0 ? 'bg-purple-50 dark:bg-purple-900/30' : 'bg-amber-50 dark:bg-amber-900/30'
+          }`}>
+            <p className="text-sm font-bold text-gray-600 dark:text-gray-400 mb-1">Volume/Min Change</p>
+            <p className={`text-2xl font-bold ${
+              weeklyComparison.volumePerMinuteChange >= 0 ? 'text-purple-700 dark:text-purple-400' : 'text-amber-700 dark:text-amber-400'
+            }`}>
+              {weeklyComparison.volumePerMinuteChange >= 0 ? '+' : ''}{weeklyComparison.volumePerMinuteChange.toFixed(1)}%
+            </p>
+          </div>
+        )}
       </div>
     </CollapsibleCard>
   );
