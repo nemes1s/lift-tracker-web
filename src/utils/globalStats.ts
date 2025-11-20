@@ -21,9 +21,9 @@ export interface WeeklyComparison {
   thisWeekAvgDuration: number; // average workout duration in minutes
   lastWeekAvgDuration: number; // average workout duration in minutes
   durationChange: number; // percentage
-  thisWeekVolumePerMinute: number; // kg per minute
-  lastWeekVolumePerMinute: number; // kg per minute
-  volumePerMinuteChange: number; // percentage
+  thisWeekVolumePerHour: number; // kg per hour
+  lastWeekVolumePerHour: number; // kg per hour
+  volumePerHourChange: number; // percentage
 }
 
 export interface MonthlyVolume {
@@ -280,11 +280,11 @@ export async function getWeeklyComparison(): Promise<WeeklyComparison> {
     ? ((thisWeekAvgDuration - lastWeekAvgDuration) / lastWeekAvgDuration) * 100
     : 0;
 
-  const thisWeekVolumePerMinute = thisWeekTotalDuration > 0 ? Math.round(thisWeekVolume / thisWeekTotalDuration) : 0;
-  const lastWeekVolumePerMinute = lastWeekTotalDuration > 0 ? Math.round(lastWeekVolume / lastWeekTotalDuration) : 0;
+  const thisWeekVolumePerHour = thisWeekTotalDuration > 0 ? Math.round((thisWeekVolume / thisWeekTotalDuration) * 60) : 0;
+  const lastWeekVolumePerHour = lastWeekTotalDuration > 0 ? Math.round((lastWeekVolume / lastWeekTotalDuration) * 60) : 0;
 
-  const volumePerMinuteChange = lastWeekVolumePerMinute > 0
-    ? ((thisWeekVolumePerMinute - lastWeekVolumePerMinute) / lastWeekVolumePerMinute) * 100
+  const volumePerHourChange = lastWeekVolumePerHour > 0
+    ? ((thisWeekVolumePerHour - lastWeekVolumePerHour) / lastWeekVolumePerHour) * 100
     : 0;
 
   return {
@@ -296,9 +296,9 @@ export async function getWeeklyComparison(): Promise<WeeklyComparison> {
     thisWeekAvgDuration,
     lastWeekAvgDuration,
     durationChange,
-    thisWeekVolumePerMinute,
-    lastWeekVolumePerMinute,
-    volumePerMinuteChange,
+    thisWeekVolumePerHour,
+    lastWeekVolumePerHour,
+    volumePerHourChange,
   };
 }
 
