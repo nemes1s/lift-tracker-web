@@ -8,7 +8,7 @@ import { useAppStore } from '../store/appStore';
 import type { Workout, ExerciseInstance, SetRecord, SettingsModel } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
 import { calculateWorkoutStats } from '../utils/workoutStats';
-import { getExerciseNotes, hasSubstitutions, getAllExerciseNames } from '../data/exerciseSubstitutions';
+import { getExerciseNotes, getAllExerciseNames } from '../data/exerciseSubstitutions';
 import { playTimerNotification, initAudioContext, playCountdownBeep } from '../utils/audio';
 import { WorkoutControlsSection } from './WorkoutRunner/WorkoutControlsSection';
 import { ExerciseHeaderSection } from './WorkoutRunner/ExerciseHeaderSection';
