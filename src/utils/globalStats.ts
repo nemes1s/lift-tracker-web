@@ -18,6 +18,9 @@ export interface WeeklyComparison {
   thisWeekVolume: number;
   lastWeekVolume: number;
   change: number; // percentage
+  thisWeekAvgDuration: number; // average workout duration in minutes
+  lastWeekAvgDuration: number; // average workout duration in minutes
+  durationChange: number; // percentage
 }
 
 export interface MonthlyVolume {
@@ -229,6 +232,8 @@ export async function getWeeklyComparison(): Promise<WeeklyComparison> {
   let lastWeekWorkouts = 0;
   let thisWeekVolume = 0;
   let lastWeekVolume = 0;
+  let thisWeekTotalDuration = 0;
+  let lastWeekTotalDuration = 0;
 
   for (const workout of workouts) {
     const workoutDate = new Date(workout.startedAt);
@@ -253,14 +258,23 @@ export async function getWeeklyComparison(): Promise<WeeklyComparison> {
     if (workoutDate >= thisWeekStart) {
       thisWeekWorkouts++;
       thisWeekVolume += stats.totalVolume;
+      thisWeekTotalDuration += stats.duration;
     } else if (workoutDate >= lastWeekStart && workoutDate <= lastWeekEnd) {
       lastWeekWorkouts++;
       lastWeekVolume += stats.totalVolume;
+      lastWeekTotalDuration += stats.duration;
     }
   }
 
   const change = lastWeekVolume > 0
     ? ((thisWeekVolume - lastWeekVolume) / lastWeekVolume) * 100
+    : 0;
+
+  const thisWeekAvgDuration = thisWeekWorkouts > 0 ? Math.round(thisWeekTotalDuration / thisWeekWorkouts) : 0;
+  const lastWeekAvgDuration = lastWeekWorkouts > 0 ? Math.round(lastWeekTotalDuration / lastWeekWorkouts) : 0;
+
+  const durationChange = lastWeekAvgDuration > 0
+    ? ((thisWeekAvgDuration - lastWeekAvgDuration) / lastWeekAvgDuration) * 100
     : 0;
 
   return {
@@ -269,6 +283,9 @@ export async function getWeeklyComparison(): Promise<WeeklyComparison> {
     thisWeekVolume,
     lastWeekVolume,
     change,
+    thisWeekAvgDuration,
+    lastWeekAvgDuration,
+    durationChange,
   };
 }
 
