@@ -31,7 +31,7 @@ export function PreviousWorkoutsSection({ history, onPrefillSet }: PreviousWorko
                   className="px-3 py-2 bg-white border-2 border-gray-200 rounded-lg text-sm font-medium hover:border-primary-300 hover:bg-primary-50 transition-all transform hover:scale-105"
                 >
                   {set.weight}kg × {set.reps}
-                  {set.rpe && <span className="text-orange-600 ml-1">@{set.rpe}</span>}
+                  {set.rpe && <span className="text-orange-600 ml-1">@{Math.round(set.rpe)}</span>}
                 </button>
               ))}
             </div>

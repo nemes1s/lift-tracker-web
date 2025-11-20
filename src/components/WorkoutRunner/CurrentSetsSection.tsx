@@ -35,7 +35,7 @@ export function CurrentSetsSection({ sets, onDeleteSet }: CurrentSetsSectionProp
               </button>
               <span className={set.isPR ? 'text-amber-700' : 'text-green-700'}>{set.weight}kg</span> ×{' '}
               <span className={set.isPR ? 'text-amber-700' : 'text-green-700'}>{set.reps}</span>
-              {set.rpe && <span className="text-orange-600 ml-1">@{set.rpe}</span>}
+              {set.rpe && <span className="text-orange-600 ml-1">@{Math.round(set.rpe)}</span>}
               {set.isPR && <span className="text-amber-700 ml-2 font-semibold">PR!</span>}
             </div>
           ))}

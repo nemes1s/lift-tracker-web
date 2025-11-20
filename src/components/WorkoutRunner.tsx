@@ -414,7 +414,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const handlePrefillSet = (weight: number, reps: number, rpe?: number) => {
     setWeightText(weight.toString());
     setRepsText(reps.toString());
-    setRpeText(rpe ? rpe.toFixed(1) : '');
+    setRpeText(rpe ? Math.round(rpe).toString() : '');
   };
 
   const handleApplySuggestion = (suggestedWeight?: number, suggestedReps?: string) => {
