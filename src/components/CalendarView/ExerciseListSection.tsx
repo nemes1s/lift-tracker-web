@@ -114,7 +114,7 @@ export function ExerciseListSection({ exercises, exercise1RMChanges, workoutId, 
                     <span className="font-bold text-gray-900 dark:text-gray-100">{set.reps} reps</span>
                     {set.rpe && (
                       <span className="text-sm font-bold text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/30 px-2 py-1 rounded-lg">
-                        @{set.rpe}
+                        @{Math.round(set.rpe)}
                       </span>
                     )}
                     {workoutId && (
@@ -183,7 +183,7 @@ export function ExerciseListSection({ exercises, exercise1RMChanges, workoutId, 
                       </label>
                       <input
                         type="number"
-                        step="0.5"
+                        step="1"
                         min="6"
                         max="10"
                         value={rpe}

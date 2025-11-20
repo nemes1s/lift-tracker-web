@@ -25,7 +25,7 @@ export function PRSummarySection({ sets }: PRSummarySectionProps) {
         {prSets.map((set) => (
           <div key={set.id} className="flex items-center justify-between bg-white rounded-lg p-2 border border-amber-200">
             <span className="font-semibold text-amber-900">{set.weight}kg × {set.reps}</span>
-            {set.rpe && <span className="text-sm text-orange-600">@{set.rpe} RPE</span>}
+            {set.rpe && <span className="text-sm text-orange-600">@{Math.round(set.rpe)} RPE</span>}
           </div>
         ))}
       </div>

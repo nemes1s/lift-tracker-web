@@ -53,7 +53,7 @@ export function SetLoggerSection({
           <label className="block text-xs font-semibold text-gray-600 mb-1">RPE</label>
           <input
             type="number"
-            step="0.5"
+            step="1"
             placeholder="0"
             value={rpeText}
             onChange={(e) => onRpeChange(e.target.value)}
