@@ -15,12 +15,13 @@ export function ExerciseSelectorSection({
   selectedExercise,
   onExerciseChange
 }: ExerciseSelectorSectionProps) {
+  // Early return must happen BEFORE any hooks to maintain consistent hook order
+  if (exercises.length === 0) return null;
+
   const [query, setQuery] = useState('');
 
   const combineSimilarExercises = useAppStore(state => state.progressPreferences.combineSimilarExercises);
   const setCombineSimilarExercises = useAppStore(state => state.setCombineSimilarExercises);
-
-  if (exercises.length === 0) return null;
 
   // Create display list based on combine setting
   const { displayNames, nameMap } = useMemo(
