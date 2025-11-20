@@ -67,8 +67,11 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-ce4f0d5f'], (function (workbox) { 'use strict';
+define(['./workbox-1da5ea8f'], (function (workbox) { 'use strict';
 
+  workbox.setCacheNameDetails({
+    prefix: "lifttracker-v0.11.1"
+  });
   self.skipWaiting();
   workbox.clientsClaim();
 
@@ -82,14 +85,14 @@ define(['./workbox-ce4f0d5f'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.d6ck9m68h9k"
+    "revision": "0.khb94ejio3o"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
   workbox.registerRoute(/^https:\/\/fonts\.googleapis\.com\/.*/i, new workbox.CacheFirst({
-    "cacheName": "google-fonts-cache",
+    "cacheName": "google-fonts-v0.11.1",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 10,
       maxAgeSeconds: 31536000

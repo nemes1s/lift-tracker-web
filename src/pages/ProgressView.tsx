@@ -32,13 +32,19 @@ import { RepPRsSection } from '../components/ProgressView/RepPRsSection';
 import { WeightProgressionChartSection } from '../components/ProgressView/WeightProgressionChartSection';
 import { VolumeChartSection } from '../components/ProgressView/VolumeChartSection';
 import { EmptyStates } from '../components/ProgressView/EmptyStates';
+import { useAppStore } from '../store/appStore';
+import { getExerciseVariants } from '../utils/exerciseMatching';
 
 export function ProgressView() {
   const [exercises, setExercises] = useState<string[]>([]);
-  const [selectedExercise, setSelectedExercise] = useState<string>('');
   const [progressData, setProgressData] = useState<ExerciseProgressData[]>([]);
   const [stats, setStats] = useState<ExerciseStats | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Get selected exercise and combine setting from persisted store
+  const selectedExercise = useAppStore(state => state.progressPreferences.selectedExercise);
+  const setSelectedExercise = useAppStore(state => state.setSelectedExercise);
+  const combineSimilarExercises = useAppStore(state => state.progressPreferences.combineSimilarExercises);
 
   // Global stats
   const [globalStats, setGlobalStats] = useState<GlobalStats | null>(null);
@@ -59,9 +65,16 @@ export function ProgressView() {
       const names = await getAllExerciseNames();
       setExercises(names);
 
-      // Auto-select first exercise if available
-      if (names.length > 0 && !selectedExercise) {
-        setSelectedExercise(names[0]);
+      // Handle exercise selection: prefer persisted, fallback to first, or validate persisted still exists
+      if (names.length > 0) {
+        if (!selectedExercise) {
+          // No exercise selected, select first one
+          setSelectedExercise(names[0]);
+        } else if (!names.includes(selectedExercise)) {
+          // Previously selected exercise no longer exists (data deleted), select first one
+          setSelectedExercise(names[0]);
+        }
+        // else: persisted exercise still exists, keep it selected
       }
 
       // Load global stats
@@ -85,9 +98,9 @@ export function ProgressView() {
     };
 
     loadExercises();
-  }, []);
+  }, []); // Empty deps - only run on mount
 
-  // Load exercise data when selection changes
+  // Load exercise data when selection or combine setting changes
   useEffect(() => {
     const loadExerciseData = async () => {
       if (!selectedExercise) {
@@ -100,27 +113,30 @@ export function ProgressView() {
 
       setLoading(true);
 
+      // Get exercise variants (single or multiple based on combine setting)
+      const exerciseNames = getExerciseVariants(selectedExercise, exercises, combineSimilarExercises);
+
       // Get best set per workout (cleaner chart)
-      const data = await getBestSetPerWorkout(selectedExercise);
+      const data = await getBestSetPerWorkout(exerciseNames);
       setProgressData(data);
 
       // Get stats
-      const exerciseStats = await getExerciseStats(selectedExercise);
+      const exerciseStats = await getExerciseStats(exerciseNames);
       setStats(exerciseStats);
 
       // Get rep PRs
-      const prs = await getRepPRs(selectedExercise);
+      const prs = await getRepPRs(exerciseNames);
       setRepPRs(prs);
 
       // Get consistency
-      const consistencyScore = await getExerciseConsistency(selectedExercise);
+      const consistencyScore = await getExerciseConsistency(exerciseNames);
       setConsistency(consistencyScore);
 
       setLoading(false);
     };
 
     loadExerciseData();
-  }, [selectedExercise]);
+  }, [selectedExercise, exercises, combineSimilarExercises]);
 
   // Format data for charts
   const chartData = progressData.map((d) => ({
@@ -167,7 +183,7 @@ export function ProgressView() {
         {/* Exercise Selector */}
         <ExerciseSelectorSection
           exercises={exercises}
-          selectedExercise={selectedExercise}
+          selectedExercise={selectedExercise || ''}
           onExerciseChange={setSelectedExercise}
         />
 
