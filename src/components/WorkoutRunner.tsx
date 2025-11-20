@@ -666,7 +666,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
           isSubstituting={isSubstituting}
         />
 
-        {showSubstitutions && hasSubstitutions(currentExercise.name) && (
+        {showSubstitutions && (
           <ExerciseSubstitutionSection
             exerciseName={currentExercise.name}
             isSubstituting={isSubstituting}
