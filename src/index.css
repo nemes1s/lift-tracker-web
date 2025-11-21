@@ -30,6 +30,13 @@
   box-sizing: border-box;
 }
 
+html {
+  /* Prevent bounce scrolling on iOS */
+  overscroll-behavior-y: none;
+  /* Ensure proper height calculation */
+  height: 100%;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -39,6 +46,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   background-attachment: fixed;
+  /* Prevent bounce scrolling on iOS */
+  overscroll-behavior-y: none;
+  overflow-x: hidden;
+  /* Ensure proper height */
+  min-height: 100%;
+  position: relative;
 }
 
 .dark body {
@@ -188,4 +201,18 @@ body {
 /* Safe area for mobile devices */
 .safe-area-pb {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Smooth scrolling for mobile */
+main {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Prevent content from being pulled down */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overscroll-behavior-y: none;
 }
