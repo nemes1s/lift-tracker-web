@@ -210,3 +210,15 @@ export function formatDuration(minutes: number): string {
   const mins = minutes % 60;
   return `${hours}h ${mins}m`;
 }
+
+/**
+ * Format volume per hour for display
+ * Converts to tonnes/hour if >= 1000 kg/h
+ */
+export function formatVolumePerHour(kgPerHour: number): string {
+  if (kgPerHour >= 1000) {
+    const tonnes = (kgPerHour / 1000).toFixed(2);
+    return `${tonnes} t/h`;
+  }
+  return `${kgPerHour} kg/h`;
+}

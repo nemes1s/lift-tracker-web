@@ -1,6 +1,6 @@
 import { BarChart3 } from 'lucide-react';
 import { CollapsibleCard } from '../CollapsibleCard';
-import { formatVolume, formatDuration } from '../../utils/workoutStats';
+import { formatVolume, formatDuration, formatVolumePerHour } from '../../utils/workoutStats';
 import type { WeeklyComparison } from '../../utils/globalStats';
 
 interface WeeklyComparisonSectionProps {
@@ -72,12 +72,12 @@ export function WeeklyComparisonSection({ weeklyComparison }: WeeklyComparisonSe
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-primary-50 dark:bg-primary-900/30 rounded-xl p-4">
             <p className="text-sm font-bold text-gray-600 dark:text-gray-400 mb-1">Volume/Hour (This Week)</p>
-            <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">{weeklyComparison.thisWeekVolumePerHour} kg/h</p>
+            <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">{formatVolumePerHour(weeklyComparison.thisWeekVolumePerHour)}</p>
           </div>
 
           <div className="bg-gray-50 dark:bg-slate-700 rounded-xl p-4">
             <p className="text-sm font-bold text-gray-600 dark:text-gray-400 mb-1">Volume/Hour (Last Week)</p>
-            <p className="text-2xl font-bold text-gray-700 dark:text-gray-300">{weeklyComparison.lastWeekVolumePerHour} kg/h</p>
+            <p className="text-2xl font-bold text-gray-700 dark:text-gray-300">{formatVolumePerHour(weeklyComparison.lastWeekVolumePerHour)}</p>
           </div>
         </div>
 
