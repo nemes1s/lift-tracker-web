@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2025-11-23
+
+### Fixed
+- UI layout problem with scrolling vanigation on mobile devices.
+
+
+## [0.12.0] - 2025-11-21
+
+### Added
+- **Program duration selection** for CSV imports. When importing a program from a CSV file, a modal now asks for the desired duration (4, 8, 12, or 16 weeks) and passes this value to `generateProgramFromCSVData`, ensuring the program fits the user’s training schedule.
+- **Advanced exercise selector** on the Progress page. Replaced the basic dropdown with a searchable Combobox (Headless UI). Supports keyboard navigation, fuzzy search and grouping of similar exercises. Users can toggle grouping and the last selected exercise plus preference persist across sessions. A new utility groups variants using normalization and Levenshtein distance, aggregating stats for exercises like bench presses and squats under one entry.
+- **New weekly comparison metrics**. Added *volume per hour (kg/h)* and *average workout duration* metrics to the Weekly Comparison section. Displays this week’s and last week’s values with percentage change indicators. Values ≥1000 kg/h automatically convert to tonnes per hour (t/h) for easier reading.
+- **SEO improvements**. Introduced `robots.txt`, `sitemap.xml`, JSON‑LD structured data, canonical URLs, and meta keywords/descriptions. Preconnect/dns‑prefetch tags improve loading performance.
+
+### Changed
+- **Volume metric renamed** from kg per minute to kg per hour. All calculations and labels now use volume per hour (kg/h).
+- **UI safe‑area and scroll behavior** on mobile devices. Moved safe‑area padding to the content container, applied `overscroll-behavior-y: none` to prevent iOS bounce, and ensured navigation and content height behave correctly on different screen sizes.
+- **Smart formatting** for high volume metrics. If the calculated volume per hour exceeds 1000 kg/h, it is shown in tonnes per hour (t/h) with two decimal places.
+
+### Fixed
+- Corrected React hooks usage by moving early returns before any hooks in `ExerciseSelectorSection`.
+- Restored ability to change to any exercise by removing an over‑restrictive `hasSubstitutions()` check.
+- **RPE display** always shows integer values by rounding `set.rpe` and setting input `step="1"`.
+- Ensured RPE values persist correctly across UI components.
+- Various minor bug fixes and code clean‑ups.
+
+
 ## [0.11.0] - 2025-11-15
 
 ### Improvements
