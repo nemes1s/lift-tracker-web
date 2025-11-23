@@ -70,7 +70,7 @@ if (!self.define) {
 define(['./workbox-1da5ea8f'], (function (workbox) { 'use strict';
 
   workbox.setCacheNameDetails({
-    prefix: "lifttracker-v0.11.1"
+    prefix: "lifttracker-v0.12.0"
   });
   self.skipWaiting();
   workbox.clientsClaim();
@@ -85,14 +85,14 @@ define(['./workbox-1da5ea8f'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.khb94ejio3o"
+    "revision": "0.tcm32ps3n1o"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
   workbox.registerRoute(/^https:\/\/fonts\.googleapis\.com\/.*/i, new workbox.CacheFirst({
-    "cacheName": "google-fonts-v0.11.1",
+    "cacheName": "google-fonts-v0.12.0",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 10,
       maxAgeSeconds: 31536000
