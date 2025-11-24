@@ -19,6 +19,7 @@ import {
 } from '../utils/programCompletion';
 import type { WorkoutTemplate } from '../types/models';
 import { WorkoutRunner } from '../components/WorkoutRunner';
+import { DayPreviewSection } from '../components/TodayView/DayPreviewSection';
 
 export function TodayView() {
   const {
@@ -367,6 +368,7 @@ export function TodayView() {
           </div>
         ) : (
           <div className="card p-6">
+            {template && <DayPreviewSection template={template} />}
             {template ? (
               <div className="flex gap-2 sm:flex-row flex-col" data-tour="start-workout">
                 <button
