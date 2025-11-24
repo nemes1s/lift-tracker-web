@@ -36,6 +36,20 @@ function PageTracker() {
 
   return null;
 }
+
+/**
+ * Component that scrolls to top whenever the route changes
+ * Must be inside BrowserRouter
+ */
+function ScrollToTop() {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  return null;
+}
 import { runMigrations as runDataMigrations } from './utils/migrations';
 
 function App() {
@@ -185,6 +199,7 @@ function App() {
   return (
     <BrowserRouter>
       <PageTracker />
+      <ScrollToTop />
       <Tour />
       <InstallPrompt />
       <UpdatePrompt />
