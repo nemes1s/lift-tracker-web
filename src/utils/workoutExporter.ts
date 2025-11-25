@@ -178,6 +178,19 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 }
 
 /**
+ * Escape CSV field value (handles quotes and special characters)
+ */
+function escapeCSVField(value: string): string {
+  // Replace double quotes with two double quotes (CSV standard)
+  const escaped = value.replace(/"/g, '""');
+  // Always wrap in quotes if it contains comma, newline, or quote
+  if (escaped.includes(',') || escaped.includes('\n') || escaped.includes('"')) {
+    return `"${escaped}"`;
+  }
+  return `"${escaped}"`;
+}
+
+/**
  * Format month statistics as CSV
  */
 export function formatMonthStatsAsCSV(
@@ -199,8 +212,9 @@ export function formatMonthStatsAsCSV(
     totalDuration += stats.duration;
   }
 
-  // Build CSV content
-  let csv = `Month Summary: ${monthName}\n`;
+  // Build CSV content with BOM for UTF-8 (helps Excel and other programs)
+  let csv = '\uFEFF'; // UTF-8 BOM
+  csv += `Month Summary: ${monthName}\n`;
   csv += `Total Workouts,${totalWorkouts}\n`;
   csv += `Total Volume (kg),${totalVolume.toFixed(0)}\n`;
   csv += `Total Duration (min),${Math.round(totalDuration / 60)}\n`;
@@ -219,11 +233,9 @@ export function formatMonthStatsAsCSV(
     const exercises = exercisesMap.get(workout.id) || [];
     const stats = calculateWorkoutStats(exercises, workout.startedAt, workout.endedAt, workout.totalPausedMs);
 
-    const dateStr = new Date(workout.startedAt).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    // Format date without commas to avoid CSV parsing issues
+    const workoutDate = new Date(workout.startedAt);
+    const dateStr = `${workoutDate.getFullYear()}-${String(workoutDate.getMonth() + 1).padStart(2, '0')}-${String(workoutDate.getDate()).padStart(2, '0')}`;
 
     const exerciseNames = exercises
       .map(({ exercise }) => exercise.name)
@@ -233,7 +245,8 @@ export function formatMonthStatsAsCSV(
       sum + sets.filter(s => !s.isWarmup).length, 0
     );
 
-    csv += `${dateStr},"${workout.name}",${Math.round(stats.duration / 60)},${stats.totalVolume.toFixed(0)},"${exerciseNames}",${totalSets}\n`;
+    // Use escapeCSVField for proper CSV formatting
+    csv += `${dateStr},${escapeCSVField(workout.name)},${Math.round(stats.duration / 60)},${stats.totalVolume.toFixed(0)},${escapeCSVField(exerciseNames)},${totalSets}\n`;
   }
 
   return csv;
