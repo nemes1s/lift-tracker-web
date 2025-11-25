@@ -198,27 +198,8 @@ export function formatMonthStatsAsCSV(
   exercisesMap: Map<string, ExerciseWithSets[]>, // Map of workoutId to exercises
   month: Date
 ): string {
-  const monthName = month.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
-  // Calculate summary statistics
-  let totalWorkouts = workouts.length;
-  let totalVolume = 0;
-  let totalDuration = 0;
-
-  for (const workout of workouts) {
-    const exercises = exercisesMap.get(workout.id) || [];
-    const stats = calculateWorkoutStats(exercises, workout.startedAt, workout.endedAt, workout.totalPausedMs);
-    totalVolume += stats.totalVolume;
-    totalDuration += stats.duration;
-  }
-
   // Build CSV content with BOM for UTF-8 (helps Excel and other programs)
   let csv = '\uFEFF'; // UTF-8 BOM
-  csv += `Month Summary: ${monthName}\n`;
-  csv += `Total Workouts,${totalWorkouts}\n`;
-  csv += `Total Volume (kg),${totalVolume.toFixed(0)}\n`;
-  csv += `Total Duration (min),${Math.round(totalDuration / 60)}\n`;
-  csv += `\n`;
 
   // Header for workout details
   csv += `Date,Workout Name,Duration (min),Volume (kg),Exercises,Sets\n`;
