@@ -176,3 +176,65 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     }
   }
 }
+
+/**
+ * Format month statistics as CSV
+ */
+export function formatMonthStatsAsCSV(
+  workouts: Workout[],
+  exercisesMap: Map<string, ExerciseWithSets[]>, // Map of workoutId to exercises
+  month: Date
+): string {
+  const monthName = month.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  // Calculate summary statistics
+  let totalWorkouts = workouts.length;
+  let totalVolume = 0;
+  let totalDuration = 0;
+
+  for (const workout of workouts) {
+    const exercises = exercisesMap.get(workout.id) || [];
+    const stats = calculateWorkoutStats(exercises, workout.startedAt, workout.endedAt, workout.totalPausedMs);
+    totalVolume += stats.totalVolume;
+    totalDuration += stats.duration;
+  }
+
+  // Build CSV content
+  let csv = `Month Summary: ${monthName}\n`;
+  csv += `Total Workouts,${totalWorkouts}\n`;
+  csv += `Total Volume (kg),${totalVolume.toFixed(0)}\n`;
+  csv += `Total Duration (min),${Math.round(totalDuration / 60)}\n`;
+  csv += `\n`;
+
+  // Header for workout details
+  csv += `Date,Workout Name,Duration (min),Volume (kg),Exercises,Sets\n`;
+
+  // Sort workouts by date
+  const sortedWorkouts = [...workouts].sort((a, b) =>
+    new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime()
+  );
+
+  // Add each workout
+  for (const workout of sortedWorkouts) {
+    const exercises = exercisesMap.get(workout.id) || [];
+    const stats = calculateWorkoutStats(exercises, workout.startedAt, workout.endedAt, workout.totalPausedMs);
+
+    const dateStr = new Date(workout.startedAt).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    const exerciseNames = exercises
+      .map(({ exercise }) => exercise.name)
+      .join('; ');
+
+    const totalSets = exercises.reduce((sum, { sets }) =>
+      sum + sets.filter(s => !s.isWarmup).length, 0
+    );
+
+    csv += `${dateStr},"${workout.name}",${Math.round(stats.duration / 60)},${stats.totalVolume.toFixed(0)},"${exerciseNames}",${totalSets}\n`;
+  }
+
+  return csv;
+}

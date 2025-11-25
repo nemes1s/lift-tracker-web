@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Plus } from 'lucide-react';
+import { Calendar, Plus, Download } from 'lucide-react';
 import { db } from '../db/database';
 import type { Workout, ExerciseInstance } from '../types/models';
 import { calculateWorkoutStats, calculate1RMChange } from '../utils/workoutStats';
@@ -13,6 +13,8 @@ import { ExerciseListSection } from '../components/CalendarView/ExerciseListSect
 import { AddCustomExerciseModal } from '../components/shared/AddCustomExerciseModal';
 import { WorkoutExportMenu } from '../components/shared/WorkoutExportMenu';
 import { getAllExerciseNames } from '../data/exerciseSubstitutions';
+import { formatMonthStatsAsCSV } from '../utils/workoutExporter';
+import type { ExerciseWithSets } from '../utils/workoutExporter';
 import { v4 as uuidv4 } from 'uuid';
 
 export function CalendarView() {
@@ -49,6 +51,15 @@ export function CalendarView() {
         );
       })
     : [];
+
+  // Count workouts in current displayed month for background color
+  const monthWorkoutCount = workouts.filter((workout) => {
+    const workoutDate = new Date(workout.startedAt);
+    return (
+      workoutDate.getMonth() === currentMonth.getMonth() &&
+      workoutDate.getFullYear() === currentMonth.getFullYear()
+    );
+  }).length;
 
   const handleWorkoutClick = (workoutId: string) => {
     navigate(`/workout/${workoutId}`);
@@ -110,6 +121,66 @@ export function CalendarView() {
     setDeletingWorkoutId(null);
   };
 
+  const handleExportMonthStats = async () => {
+    // Filter workouts for current month
+    const monthWorkouts = workouts.filter((workout) => {
+      const workoutDate = new Date(workout.startedAt);
+      return (
+        workoutDate.getMonth() === currentMonth.getMonth() &&
+        workoutDate.getFullYear() === currentMonth.getFullYear()
+      );
+    });
+
+    if (monthWorkouts.length === 0) {
+      alert('No workouts found for this month');
+      return;
+    }
+
+    // Load exercises for all workouts
+    const exercisesMap = new Map<string, ExerciseWithSets[]>();
+
+    for (const workout of monthWorkouts) {
+      const exs = await db.exerciseInstances
+        .where('workoutId')
+        .equals(workout.id)
+        .sortBy('orderIndex');
+
+      const exercisesWithSets: ExerciseWithSets[] = await Promise.all(
+        exs.map(async (ex) => {
+          const sets = await db.setRecords
+            .where('exerciseId')
+            .equals(ex.id)
+            .sortBy('timestamp');
+
+          return { exercise: ex, sets };
+        })
+      );
+
+      exercisesMap.set(workout.id, exercisesWithSets);
+    }
+
+    // Generate CSV
+    const csv = formatMonthStatsAsCSV(monthWorkouts, exercisesMap, currentMonth);
+
+    // Download CSV
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    const monthName = currentMonth.toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric'
+    }).replace(' ', '-');
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `workout-stats-${monthName}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto p-6 space-y-6">
@@ -139,7 +210,21 @@ export function CalendarView() {
               workoutDates={workoutDates}
               selectedDate={selectedDate}
               onDateClick={handleDateClick}
+              monthWorkoutCount={monthWorkoutCount}
             />
+
+            {/* Export Month Stats Button */}
+            {monthWorkoutCount > 0 && (
+              <div className="flex justify-center">
+                <button
+                  onClick={handleExportMonthStats}
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  <Download className="w-5 h-5" />
+                  Export Month Stats
+                </button>
+              </div>
+            )}
 
             {/* Selected Day's Workouts */}
             <SelectedDayWorkoutsSection

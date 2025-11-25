@@ -6,6 +6,7 @@ interface CalendarGridProps {
   workoutDates: Set<string>; // Set of date strings in YYYY-MM-DD format
   selectedDate: Date | null;
   onDateClick: (date: Date) => void;
+  monthWorkoutCount?: number; // Number of workouts in the current month
 }
 
 export function CalendarGrid({
@@ -14,9 +15,34 @@ export function CalendarGrid({
   workoutDates,
   selectedDate,
   onDateClick,
+  monthWorkoutCount = 0,
 }: CalendarGridProps) {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
+
+  // Calculate background color based on workout count
+  // Scale from 0-20 workouts (20+ gets max intensity)
+  const getBackgroundColor = (): string => {
+    if (monthWorkoutCount === 0) {
+      return 'bg-white dark:bg-slate-800';
+    }
+
+    // Cap at 20 workouts for color scaling
+    const intensity = Math.min(monthWorkoutCount / 20, 1);
+
+    // Use a gradient from neutral to emerald (green) based on intensity
+    // Light mode: white → light emerald
+    // Dark mode: slate-800 → dark emerald
+    if (intensity < 0.25) {
+      return 'bg-gradient-to-br from-white to-emerald-50 dark:from-slate-800 dark:to-emerald-950/20';
+    } else if (intensity < 0.5) {
+      return 'bg-gradient-to-br from-white to-emerald-100 dark:from-slate-800 dark:to-emerald-900/30';
+    } else if (intensity < 0.75) {
+      return 'bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-slate-800 dark:to-emerald-900/40';
+    } else {
+      return 'bg-gradient-to-br from-emerald-100 to-emerald-200 dark:from-slate-800 dark:to-emerald-900/50';
+    }
+  };
 
   // Get first day of month and total days
   const firstDayOfMonth = new Date(year, month, 1);
@@ -79,7 +105,7 @@ export function CalendarGrid({
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="card p-5 bg-white dark:bg-slate-800">
+    <div className={`card p-5 ${getBackgroundColor()}`}>
       {/* Month/Year Header with Navigation */}
       <div className="flex items-center justify-between mb-5">
         <button
