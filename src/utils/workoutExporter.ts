@@ -176,3 +176,59 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     }
   }
 }
+
+/**
+ * Escape CSV field value (handles quotes and special characters)
+ */
+function escapeCSVField(value: string): string {
+  // Replace double quotes with two double quotes (CSV standard)
+  const escaped = value.replace(/"/g, '""');
+  // Always wrap in quotes if it contains comma, newline, or quote
+  if (escaped.includes(',') || escaped.includes('\n') || escaped.includes('"')) {
+    return `"${escaped}"`;
+  }
+  return `"${escaped}"`;
+}
+
+/**
+ * Format month statistics as CSV
+ */
+export function formatMonthStatsAsCSV(
+  workouts: Workout[],
+  exercisesMap: Map<string, ExerciseWithSets[]>, // Map of workoutId to exercises
+  month: Date
+): string {
+  // Build CSV content with BOM for UTF-8 (helps Excel and other programs)
+  let csv = '\uFEFF'; // UTF-8 BOM
+
+  // Header for workout details
+  csv += `Date,Workout Name,Duration (min),Volume (kg),Exercises,Sets\n`;
+
+  // Sort workouts by date
+  const sortedWorkouts = [...workouts].sort((a, b) =>
+    new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime()
+  );
+
+  // Add each workout
+  for (const workout of sortedWorkouts) {
+    const exercises = exercisesMap.get(workout.id) || [];
+    const stats = calculateWorkoutStats(exercises, workout.startedAt, workout.endedAt, workout.totalPausedMs);
+
+    // Format date without commas to avoid CSV parsing issues
+    const workoutDate = new Date(workout.startedAt);
+    const dateStr = `${workoutDate.getFullYear()}-${String(workoutDate.getMonth() + 1).padStart(2, '0')}-${String(workoutDate.getDate()).padStart(2, '0')}`;
+
+    const exerciseNames = exercises
+      .map(({ exercise }) => exercise.name)
+      .join('; ');
+
+    const totalSets = exercises.reduce((sum, { sets }) =>
+      sum + sets.filter(s => !s.isWarmup).length, 0
+    );
+
+    // Use escapeCSVField for proper CSV formatting
+    csv += `${dateStr},${escapeCSVField(workout.name)},${Math.round(stats.duration / 60)},${stats.totalVolume.toFixed(0)},${escapeCSVField(exerciseNames)},${totalSets}\n`;
+  }
+
+  return csv;
+}

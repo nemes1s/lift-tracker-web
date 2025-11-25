@@ -6,6 +6,7 @@ interface CalendarGridProps {
   workoutDates: Set<string>; // Set of date strings in YYYY-MM-DD format
   selectedDate: Date | null;
   onDateClick: (date: Date) => void;
+  monthWorkoutCount?: number; // Number of workouts in the current month
 }
 
 export function CalendarGrid({
@@ -14,9 +15,23 @@ export function CalendarGrid({
   workoutDates,
   selectedDate,
   onDateClick,
+  monthWorkoutCount = 0,
 }: CalendarGridProps) {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
+
+  // Calculate fire emojis based on workout count
+  // 1-4 workouts: 🔥
+  // 5-9 workouts: 🔥🔥
+  // 10-14 workouts: 🔥🔥🔥
+  // 15+ workouts: 🔥🔥🔥🔥
+  const getFireEmojis = (): string => {
+    if (monthWorkoutCount === 0) return '';
+    if (monthWorkoutCount < 5) return '🔥';
+    if (monthWorkoutCount < 10) return '🔥🔥';
+    if (monthWorkoutCount < 15) return '🔥🔥🔥';
+    return '🔥🔥🔥🔥';
+  };
 
   // Get first day of month and total days
   const firstDayOfMonth = new Date(year, month, 1);
@@ -90,8 +105,9 @@ export function CalendarGrid({
           <ChevronLeft className="w-6 h-6 text-gray-700 dark:text-gray-400" />
         </button>
 
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          {monthNames[month]} {year}
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <span>{monthNames[month]} {year}</span>
+          {getFireEmojis() && <span className="text-2xl">{getFireEmojis()}</span>}
         </h2>
 
         <button

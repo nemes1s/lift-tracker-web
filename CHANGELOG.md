@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2025-11-25
+
+### Features
+- **Calendar workout intensity indicators**. Fire emojis (🔥) now appear next to the month name based on workout count: 1-4 workouts show one fire, 5-9 show two, 10-14 show three, and 15+ workouts show four fires. Provides instant visual feedback on monthly training consistency.
+- **Month statistics export**. Added "Export Month Stats" button below the calendar. Downloads a CSV file containing month summary (total workouts, volume, duration) and per-workout breakdown (date, name, duration, volume, exercises, sets). Makes it easy to track progress and analyze training data in spreadsheet applications.
+
+
 ## [0.13.0] - 2025-11-23
 
 ### Features
