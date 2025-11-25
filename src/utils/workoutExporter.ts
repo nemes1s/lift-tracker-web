@@ -196,7 +196,6 @@ function escapeCSVField(value: string): string {
 export function formatMonthStatsAsCSV(
   workouts: Workout[],
   exercisesMap: Map<string, ExerciseWithSets[]>, // Map of workoutId to exercises
-  month: Date
 ): string {
   // Build CSV content with BOM for UTF-8 (helps Excel and other programs)
   let csv = '\uFEFF'; // UTF-8 BOM
