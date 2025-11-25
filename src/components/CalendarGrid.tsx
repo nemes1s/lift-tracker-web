@@ -20,28 +20,17 @@ export function CalendarGrid({
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  // Calculate background color based on workout count
-  // Scale from 0-20 workouts (20+ gets max intensity)
-  const getBackgroundColor = (): string => {
-    if (monthWorkoutCount === 0) {
-      return 'bg-white dark:bg-slate-800';
-    }
-
-    // Cap at 20 workouts for color scaling
-    const intensity = Math.min(monthWorkoutCount / 20, 1);
-
-    // Use a gradient from neutral to emerald (green) based on intensity
-    // Light mode: white → light emerald
-    // Dark mode: slate-800 → dark emerald
-    if (intensity < 0.25) {
-      return 'bg-gradient-to-br from-white to-emerald-50 dark:from-slate-800 dark:to-emerald-950/20';
-    } else if (intensity < 0.5) {
-      return 'bg-gradient-to-br from-white to-emerald-100 dark:from-slate-800 dark:to-emerald-900/30';
-    } else if (intensity < 0.75) {
-      return 'bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-slate-800 dark:to-emerald-900/40';
-    } else {
-      return 'bg-gradient-to-br from-emerald-100 to-emerald-200 dark:from-slate-800 dark:to-emerald-900/50';
-    }
+  // Calculate fire emojis based on workout count
+  // 1-4 workouts: 🔥
+  // 5-9 workouts: 🔥🔥
+  // 10-14 workouts: 🔥🔥🔥
+  // 15+ workouts: 🔥🔥🔥🔥
+  const getFireEmojis = (): string => {
+    if (monthWorkoutCount === 0) return '';
+    if (monthWorkoutCount < 5) return '🔥';
+    if (monthWorkoutCount < 10) return '🔥🔥';
+    if (monthWorkoutCount < 15) return '🔥🔥🔥';
+    return '🔥🔥🔥🔥';
   };
 
   // Get first day of month and total days
@@ -105,7 +94,7 @@ export function CalendarGrid({
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className={`card p-5 ${getBackgroundColor()}`}>
+    <div className="card p-5 bg-white dark:bg-slate-800">
       {/* Month/Year Header with Navigation */}
       <div className="flex items-center justify-between mb-5">
         <button
@@ -116,8 +105,9 @@ export function CalendarGrid({
           <ChevronLeft className="w-6 h-6 text-gray-700 dark:text-gray-400" />
         </button>
 
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          {monthNames[month]} {year}
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <span>{monthNames[month]} {year}</span>
+          {getFireEmojis() && <span className="text-2xl">{getFireEmojis()}</span>}
         </h2>
 
         <button
