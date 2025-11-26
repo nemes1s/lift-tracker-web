@@ -24,6 +24,9 @@ export default defineConfig({
     },
     VitePWA({
       registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       includeAssets: ['icon-192.png', 'icon-512.png'],
       manifest: {
         name: 'LiftTracker - Workout Tracker',
@@ -48,25 +51,9 @@ export default defineConfig({
           }
         ]
       },
-      workbox: {
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-        cacheId: `lifttracker-v${APP_VERSION}`,
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: `google-fonts-v${APP_VERSION}`,
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-              },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
-        ]
+        globIgnores: ['**/node_modules/**/*', 'sw.ts', 'sw.js'],
       },
       devOptions: {
         enabled: true,

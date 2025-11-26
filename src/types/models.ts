@@ -92,6 +92,14 @@ export interface SettingsModel {
   weekStartDay?: number; // Day of week to start the calendar (0 = Sunday, 1 = Monday, etc.) (default: 0)
   // Weight unit settings
   weightUnit?: 'kg' | 'lbs'; // Weight unit preference (default: 'kg')
+  // Notification settings
+  notificationsEnabled?: boolean; // Whether push notifications are enabled (default: false)
+  workoutReminderTime?: string; // Time for daily workout reminder in "HH:MM" format (default: "09:00")
+  workoutReminderDays?: number[]; // Days to show reminder (0=Sun, 6=Sat) (default: [1,2,3,4,5])
+  restTimerNotifications?: boolean; // Show notification when rest timer completes (default: true)
+  streakRemindersEnabled?: boolean; // Remind user if they haven't worked out in a while (default: true)
+  lastWorkoutReminderShown?: Date; // Last time workout reminder was shown
+  lastStreakReminderShown?: Date; // Last time streak reminder was shown
   // Migration tracking
   programIdMigrationComplete?: boolean; // Whether programId migration has been run
   exerciseMigrationComplete?: boolean; // Whether exercise name migration to exercise library has been run

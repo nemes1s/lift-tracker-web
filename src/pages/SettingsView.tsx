@@ -26,6 +26,7 @@ import { PWAInstallSection, DisclaimerSection, CookieConsentSection, FormulaSect
 import { StorageInfoSection } from '../components/SettingsView/StorageInfoSection';
 import { RestTimerSettingsSection } from '../components/SettingsView/RestTimerSettingsSection';
 import { WorkoutBehaviorSection } from '../components/SettingsView/WorkoutBehaviorSection';
+import { NotificationSettingsSection } from '../components/SettingsView/NotificationSettingsSection';
 import { WeeklyGoalSection } from '../components/SettingsView/WeeklyGoalSection';
 import { WeekStartDaySection } from '../components/SettingsView/WeekStartDaySection';
 import { WeightUnitSection } from '../components/SettingsView/WeightUnitSection';
@@ -352,7 +353,7 @@ export function SettingsView() {
 
   const handleSettingToggle = async (field: keyof SettingsModel, value: boolean) => {
     if (!settings) return;
-    await db.settings.update(settings.id, { [field]: value });
+    await db.settings.update(settings.id, { [field]: value } as Partial<SettingsModel>);
     await loadData();
   };
 
@@ -387,6 +388,24 @@ export function SettingsView() {
     await db.settings.update(settings.id, { weightUnit: unit });
     await loadData();
     triggerRefresh();
+  };
+
+  const handleNotificationToggle = async (field: keyof SettingsModel, value: boolean) => {
+    if (!settings) return;
+    await db.settings.update(settings.id, { [field]: value } as Partial<SettingsModel>);
+    await loadData();
+  };
+
+  const handleNotificationTimeChange = async (time: string) => {
+    if (!settings) return;
+    await db.settings.update(settings.id, { workoutReminderTime: time });
+    await loadData();
+  };
+
+  const handleNotificationDaysChange = async (days: number[]) => {
+    if (!settings) return;
+    await db.settings.update(settings.id, { workoutReminderDays: days });
+    await loadData();
   };
 
   return (
@@ -452,6 +471,13 @@ export function SettingsView() {
         <WorkoutBehaviorSection
           settings={settings}
           onToggle={handleSettingToggle}
+        />
+
+        <NotificationSettingsSection
+          settings={settings}
+          onToggle={handleNotificationToggle}
+          onTimeChange={handleNotificationTimeChange}
+          onDaysChange={handleNotificationDaysChange}
         />
 
         <WeeklyGoalSection

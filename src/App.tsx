@@ -24,6 +24,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { initAudioContext } from './utils/audio';
 import { migrateTechniqueFlagsToExistingPrograms, needsTechniqueMigration } from './utils/migrateTechniques';
 import { trackPageView, initializeGoogleAnalytics, disableGoogleAnalytics } from './utils/analytics';
+import { checkAndShowWorkoutReminders } from './services/notificationScheduler';
 
 /**
  * Component that tracks page views whenever the location changes
@@ -174,11 +175,21 @@ function App() {
       await runDataMigrations();
     };
 
+    // Check and show workout reminders
+    const checkNotifications = async () => {
+      try {
+        await checkAndShowWorkoutReminders();
+      } catch (error) {
+        console.error('Error checking workout reminders:', error);
+      }
+    };
+
     initPersistence();
     checkDisclaimer();
     checkCookieConsent();
     checkWhatsNew();
     runMigrations();
+    checkNotifications();
   }, [lastSeenVersion, setWhatsNewOpen, setLastSeenVersion]);
 
   // Recheck active program when data changes
