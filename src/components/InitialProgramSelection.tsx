@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Dumbbell, Upload, HelpCircle, Download, X, Eye } from 'lucide-react';
+import { Dumbbell, Upload, HelpCircle, Download, X } from 'lucide-react';
 import {
   create5DaySplit,
   create3DaySplit,
@@ -56,9 +56,23 @@ export function InitialProgramSelection({ onComplete }: InitialProgramSelectionP
   const [showDurationModal, setShowDurationModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [previewData, setPreviewData] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const triggerRefresh = useAppStore((state) => state.triggerRefresh);
+
+  // Load preview data when program is selected
+  useEffect(() => {
+    if (selectedProgram) {
+      const program = BUILT_IN_PROGRAMS.find(p => p.id === selectedProgram);
+      if (program) {
+        const data = program.generator();
+        setPreviewData(data);
+      }
+    } else {
+      setPreviewData(null);
+    }
+  }, [selectedProgram]);
 
   const handleSelectProgram = async () => {
     if (!selectedProgram) return;
@@ -152,28 +166,9 @@ export function InitialProgramSelection({ onComplete }: InitialProgramSelectionP
     setPendingCSVData(null);
   };
 
-  const handlePreviewProgram = () => {
-    if (!selectedProgram) return;
-
-    const program = BUILT_IN_PROGRAMS.find(p => p.id === selectedProgram);
-    if (!program) return;
-
-    // Generate preview data without saving to database
-    const programData = program.generator();
-
-    // Navigate to preview
-    navigate('/program/preview', {
-      state: {
-        mode: 'preview',
-        programData,
-        returnToHome: true,
-      },
-    });
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
         <div className="mb-6 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
             <Dumbbell className="h-8 w-8 text-blue-600 dark:text-blue-400" />
@@ -214,24 +209,75 @@ export function InitialProgramSelection({ onComplete }: InitialProgramSelectionP
             </select>
           </div>
 
-          {/* Select and Preview Buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={handleSelectProgram}
-              disabled={!selectedProgram || isCreating || isImporting}
-              className="flex-1 rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400 dark:bg-blue-500 dark:hover:bg-blue-600 dark:disabled:bg-gray-600"
-            >
-              {isCreating ? 'Creating Program...' : 'Start with Selected Program'}
-            </button>
-            <button
-              onClick={handlePreviewProgram}
-              disabled={!selectedProgram || isCreating || isImporting}
-              className="flex items-center justify-center rounded-lg border-2 border-blue-600 bg-white px-4 py-3 text-blue-600 transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-gray-400 disabled:text-gray-400 dark:border-blue-500 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700 dark:disabled:border-gray-600 dark:disabled:text-gray-600"
-              title="Preview Program"
-            >
-              <Eye className="h-5 w-5" />
-            </button>
-          </div>
+          {/* Preview Section */}
+          {previewData && previewData.workouts && previewData.workouts.length > 0 && (
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Dumbbell className="w-4 h-4" />
+                {previewData.workouts[0].template.name} Preview
+              </h3>
+              <div className="space-y-2">
+                {previewData.workouts[0].exercises.map((exercise: any, index: number) => (
+                  <div
+                    key={index}
+                    className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4 border border-gray-200 dark:border-slate-600"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-800 rounded-full border border-gray-300 dark:border-slate-600">
+                            {index + 1}
+                          </span>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                            {exercise.name}
+                          </h4>
+                        </div>
+                        {exercise.notes && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-8">
+                            {exercise.notes}
+                          </p>
+                        )}
+                        {(exercise.isMyoreps || exercise.isLengthenedPartials) && (
+                          <div className="flex gap-2 mt-2 ml-8">
+                            {exercise.isMyoreps && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
+                                Myoreps
+                              </span>
+                            )}
+                            {exercise.isLengthenedPartials && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                                Lengthened Partials
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-shrink-0 text-right">
+                        <div className="text-sm font-bold text-primary-700 dark:text-primary-400">
+                          {exercise.targetSets} × {exercise.targetReps || '?'}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          sets × reps
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 text-center">
+                {previewData.workouts[0].exercises.length} exercise{previewData.workouts[0].exercises.length !== 1 ? 's' : ''} • {previewData.workouts[0].exercises.reduce((sum: number, ex: any) => sum + ex.targetSets, 0)} total sets
+              </div>
+            </div>
+          )}
+
+          {/* Select Button */}
+          <button
+            onClick={handleSelectProgram}
+            disabled={!selectedProgram || isCreating || isImporting}
+            className="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400 dark:bg-blue-500 dark:hover:bg-blue-600 dark:disabled:bg-gray-600"
+          >
+            {isCreating ? 'Creating Program...' : 'Start with Selected Program'}
+          </button>
 
           {/* Divider */}
           <div className="relative">
