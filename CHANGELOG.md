@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0] - 2025-11-30
+
+### Features
+- **Initial program selection on first load**. New users now see a welcoming modal that requires explicit program selection before starting the intro tour. Users can choose from four built-in programs (5-Day Split, 3-Day Split, Minimal Effort 4-Day, Upper/Lower 4-Day) or import their own CSV program.
+- **Inline program preview in selection modal**. When a built-in program is selected, the first workout day's exercises are instantly displayed within the modal, showing exercise names, sets, reps, and technique flags (Myoreps, Lengthened Partials). Helps users make informed decisions without navigating away.
+- **CSV format help and examples**. Added comprehensive CSV import guide accessible via help icon button. Includes detailed explanations of both simple and advanced formats, visual code examples, and downloadable example CSV files (`example-program-simple.csv` and `example-program-advanced.csv`) to help users create custom programs.
+- **Removed automatic 5-day split creation**. App no longer creates a default program automatically - users must explicitly choose or import a program through the initial selection modal.
+
+### Improvements
+- **Enhanced onboarding flow**. Clear progression: splash screen → disclaimer → program selection → intro tour. Tour only starts after user has selected a program.
+- **Scrollable selection modal**. Modal supports longer content with `max-h-[90vh]` and `overflow-y-auto`, accommodating program previews and help documentation.
+- **Smart program recheck on data changes**. App rechecks for active program when database is updated (via `refreshTrigger`), ensuring selection modal reappears if program import is cancelled.
+
 ## [0.14.0] - 2025-11-25
 
 ### Features
