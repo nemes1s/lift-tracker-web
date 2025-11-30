@@ -85,6 +85,8 @@ export interface SettingsModel {
   restTimerSound?: boolean; // Play sound when timer completes (default: true)
   // Weekly streak settings
   targetWorkoutsPerWeek?: number; // Target number of workouts per week for streak calculation (default: 3)
+  // Calendar settings
+  weekStartDay?: number; // Day of week to start the calendar (0 = Sunday, 1 = Monday, etc.) (default: 0)
   // Migration tracking
   programIdMigrationComplete?: boolean; // Whether programId migration has been run
 }
