@@ -13,6 +13,7 @@ import { InstallPrompt } from './components/InstallPrompt';
 import { UpdatePrompt } from './components/UpdatePrompt';
 import { DisclaimerModal } from './components/DisclaimerModal';
 import { WhatsNewModal } from './components/WhatsNewModal';
+import { InitialProgramSelection } from './components/InitialProgramSelection';
 import { useAppStore } from './store/appStore';
 import { initializePersistence } from './utils/persistence';
 import { parseAllVersions, type VersionChanges } from './utils/changelogParser';
@@ -62,9 +63,12 @@ function App() {
   const isHydrated = useAppStore((state) => state.isHydrated);
   const setWhatsNewOpen = useAppStore((state) => state.setWhatsNewOpen);
   const setLastSeenVersion = useAppStore((state) => state.setLastSeenVersion);
+  const refreshTrigger = useAppStore((state) => state.refreshTrigger);
 
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [changelogData, setChangelogData] = useState<VersionChanges[]>([]);
+  const [hasActiveProgram, setHasActiveProgram] = useState<boolean | null>(null);
+  const [showProgramSelection, setShowProgramSelection] = useState(false);
 
   useEffect(() => {
     // Apply dark mode class to document
@@ -154,21 +158,49 @@ function App() {
     runMigrations();
   }, [lastSeenVersion, setWhatsNewOpen, setLastSeenVersion]);
 
-  // Auto-start tour on first app launch (only once when not completed and other modals are closed)
+  // Recheck active program when data changes
   useEffect(() => {
-    // Only auto-start tour if the store has been hydrated from localStorage
-    // This ensures tourCompleted value is accurate on mobile
-    console.log('[App] Auto-start tour check:', { isHydrated, showSplash, tourCompleted, tourActive, showDisclaimer, whatsNewOpen });
-    if (isHydrated && !showSplash && !tourCompleted && !tourActive && !showDisclaimer && !whatsNewOpen) {
-      console.log('[App] Conditions met, starting tour');
-      // Wait a bit for the page to fully render before starting the tour
-      const timer = setTimeout(() => {
-        console.log('[App] Calling startTour');
-        useAppStore.getState().startTour();
-      }, 1000);
-      return () => clearTimeout(timer);
+    const checkActiveProgram = async () => {
+      const settings = await db.settings.toCollection().first();
+      const hasProgram = !!(settings?.activeProgramId);
+      setHasActiveProgram(hasProgram);
+    };
+
+    if (isHydrated) {
+      checkActiveProgram();
     }
-  }, [isHydrated, showSplash, tourCompleted, showDisclaimer, whatsNewOpen]);
+  }, [refreshTrigger, isHydrated]);
+
+  // Show initial program selection or auto-start tour
+  useEffect(() => {
+    // Only proceed if the store has been hydrated from localStorage
+    // This ensures tourCompleted value is accurate on mobile
+    if (!isHydrated || showSplash || tourCompleted || tourActive || showDisclaimer || whatsNewOpen) {
+      return;
+    }
+
+    // If we haven't checked for active program yet, wait
+    if (hasActiveProgram === null) {
+      return;
+    }
+
+    console.log('[App] Tour/Program selection check:', { isHydrated, showSplash, tourCompleted, tourActive, showDisclaimer, whatsNewOpen, hasActiveProgram });
+
+    // If no active program, show program selection instead of tour
+    if (!hasActiveProgram) {
+      console.log('[App] No active program, showing program selection');
+      setShowProgramSelection(true);
+      return;
+    }
+
+    // If has active program and tour not completed, start tour
+    console.log('[App] Conditions met, starting tour');
+    const timer = setTimeout(() => {
+      console.log('[App] Calling startTour');
+      useAppStore.getState().startTour();
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [isHydrated, showSplash, tourCompleted, tourActive, showDisclaimer, whatsNewOpen, hasActiveProgram]);
 
   const handleDisclaimerAccept = async (dontShowAgain: boolean) => {
     const settings = await db.settings.toCollection().first();
@@ -192,6 +224,13 @@ function App() {
     setShowDisclaimer(false);
   };
 
+  const handleProgramSelectionComplete = () => {
+    // User has selected a program, close modal and update state
+    setShowProgramSelection(false);
+    setHasActiveProgram(true);
+    // Tour will auto-start via the useEffect hook
+  };
+
   if (showSplash) {
     return <SplashScreen />;
   }
@@ -213,6 +252,11 @@ function App() {
         <WhatsNewModal
           changes={changelogData}
           onClose={() => setWhatsNewOpen(false)}
+        />
+      )}
+      {showProgramSelection && (
+        <InitialProgramSelection
+          onComplete={handleProgramSelectionComplete}
         />
       )}
       <Routes>

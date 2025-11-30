@@ -10,6 +10,7 @@ interface LocationState {
   mode: 'preview' | 'view';
   programData?: ProgramPreviewData;
   programId?: string;
+  returnToHome?: boolean;
 }
 
 export function ProgramPreviewView() {
@@ -114,7 +115,8 @@ export function ProgramPreviewView() {
       }
 
       triggerRefresh();
-      navigate('/settings');
+      // Navigate back to home if coming from initial selection, otherwise to settings
+      navigate(state.returnToHome ? '/' : '/settings');
     } catch (error) {
       console.error('Failed to save program:', error);
       setIsSaving(false);
@@ -122,7 +124,8 @@ export function ProgramPreviewView() {
   };
 
   const handleCancel = () => {
-    navigate('/settings');
+    // Navigate back to home if coming from initial selection, otherwise to settings
+    navigate(state?.returnToHome ? '/' : '/settings');
   };
 
   const handleEnterEditMode = () => {
