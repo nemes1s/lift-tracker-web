@@ -1,0 +1,15 @@
+Program Name,My Training Program
+Total Weeks,12
+Day Index,Day Name,Exercise Name,Sets,Reps,Notes,Is Myoreps,Is Lengthened Partials
+0,Push Day,Barbell Bench Press,4,6-8,Focus on form,,
+0,Push Day,Incline Dumbbell Press,3,8-10,,,
+0,Push Day,Lateral Raise,3,12-15,,true,
+0,Push Day,Tricep Pushdown,3,10-12,,,
+1,Pull Day,Barbell Row,4,6-8,,,
+1,Pull Day,Lat Pulldown,3,8-10,,,
+1,Pull Day,Face Pull,3,15-20,,true,
+1,Pull Day,Barbell Curl,3,10-12,,,
+2,Leg Day,Squat,4,6-8,,,
+2,Leg Day,Romanian Deadlift,3,8-10,,,
+2,Leg Day,Leg Press,3,10-12,,,
+2,Leg Day,Calf Raise,3,15-20,,true,true

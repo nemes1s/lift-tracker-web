@@ -1,0 +1,17 @@
+week;day_index;workout_name;exercise_name;target_sets;target_reps;notes;is_myoreps;is_lengthened_partials
+1;0;Push (Strength Phase);Barbell Bench Press;4;5-6;Heavy weight;;
+1;0;Push (Strength Phase);Incline Dumbbell Press;3;8-10;;;
+1;0;Push (Strength Phase);Lateral Raise;3;12-15;;true;
+1;0;Push (Strength Phase);Tricep Pushdown;3;10-12;;;
+1;1;Pull (Strength Phase);Barbell Row;4;5-6;Heavy weight;;
+1;1;Pull (Strength Phase);Lat Pulldown;3;8-10;;;
+1;1;Pull (Strength Phase);Face Pull;3;15-20;;true;
+1;1;Pull (Strength Phase);Barbell Curl;3;10-12;;;
+5;0;Push (Hypertrophy Phase);Dumbbell Bench Press;3;8-10;More volume;;
+5;0;Push (Hypertrophy Phase);Incline Barbell Press;3;8-10;;;
+5;0;Push (Hypertrophy Phase);Cable Lateral Raise;4;12-15;;true;
+5;0;Push (Hypertrophy Phase);Overhead Tricep Extension;3;10-12;;;
+5;1;Pull (Hypertrophy Phase);Cable Row;3;8-10;More volume;;
+5;1;Pull (Hypertrophy Phase);Wide Grip Pulldown;3;8-10;;;
+5;1;Pull (Hypertrophy Phase);Reverse Fly;3;15-20;;true;
+5;1;Pull (Hypertrophy Phase);Cable Curl;3;10-12;;;
