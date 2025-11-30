@@ -1,12 +1,16 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Dumbbell, Upload, HelpCircle, Download, X } from 'lucide-react';
+import { Dumbbell, Upload, HelpCircle, Download, X, Eye } from 'lucide-react';
 import {
   create5DaySplit,
   create3DaySplit,
   createMinimalEffort4Day,
   createUpperLower4Day,
   generateProgramFromCSVData,
+  generate5DaySplitData,
+  generate3DaySplitData,
+  generateMinimalEffort4DayData,
+  generateUpperLower4DayData,
 } from '../utils/programTemplates';
 import { parseCSV, readCSVFile } from '../utils/csvParser';
 import { db } from '../db/database';
@@ -17,10 +21,30 @@ interface InitialProgramSelectionProps {
 }
 
 const BUILT_IN_PROGRAMS = [
-  { id: '5day', name: '5-Day Split (PPL + Arms + Shoulders)', creator: create5DaySplit },
-  { id: '3day', name: '3-Day Full Body Split', creator: create3DaySplit },
-  { id: 'minimal', name: 'Minimal Effort 4-Day', creator: createMinimalEffort4Day },
-  { id: 'upperlower', name: 'Upper/Lower 4-Day', creator: createUpperLower4Day },
+  {
+    id: '5day',
+    name: '5-Day Split (PPL + Arms + Shoulders)',
+    creator: create5DaySplit,
+    generator: generate5DaySplitData,
+  },
+  {
+    id: '3day',
+    name: '3-Day Full Body Split',
+    creator: create3DaySplit,
+    generator: generate3DaySplitData,
+  },
+  {
+    id: 'minimal',
+    name: 'Minimal Effort 4-Day',
+    creator: createMinimalEffort4Day,
+    generator: generateMinimalEffort4DayData,
+  },
+  {
+    id: 'upperlower',
+    name: 'Upper/Lower 4-Day',
+    creator: createUpperLower4Day,
+    generator: generateUpperLower4DayData,
+  },
 ];
 
 export function InitialProgramSelection({ onComplete }: InitialProgramSelectionProps) {
@@ -128,6 +152,25 @@ export function InitialProgramSelection({ onComplete }: InitialProgramSelectionP
     setPendingCSVData(null);
   };
 
+  const handlePreviewProgram = () => {
+    if (!selectedProgram) return;
+
+    const program = BUILT_IN_PROGRAMS.find(p => p.id === selectedProgram);
+    if (!program) return;
+
+    // Generate preview data without saving to database
+    const programData = program.generator();
+
+    // Navigate to preview
+    navigate('/program/preview', {
+      state: {
+        mode: 'preview',
+        programData,
+        returnToHome: true,
+      },
+    });
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
@@ -171,14 +214,24 @@ export function InitialProgramSelection({ onComplete }: InitialProgramSelectionP
             </select>
           </div>
 
-          {/* Select Button */}
-          <button
-            onClick={handleSelectProgram}
-            disabled={!selectedProgram || isCreating || isImporting}
-            className="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400 dark:bg-blue-500 dark:hover:bg-blue-600 dark:disabled:bg-gray-600"
-          >
-            {isCreating ? 'Creating Program...' : 'Start with Selected Program'}
-          </button>
+          {/* Select and Preview Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={handleSelectProgram}
+              disabled={!selectedProgram || isCreating || isImporting}
+              className="flex-1 rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400 dark:bg-blue-500 dark:hover:bg-blue-600 dark:disabled:bg-gray-600"
+            >
+              {isCreating ? 'Creating Program...' : 'Start with Selected Program'}
+            </button>
+            <button
+              onClick={handlePreviewProgram}
+              disabled={!selectedProgram || isCreating || isImporting}
+              className="flex items-center justify-center rounded-lg border-2 border-blue-600 bg-white px-4 py-3 text-blue-600 transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-gray-400 disabled:text-gray-400 dark:border-blue-500 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700 dark:disabled:border-gray-600 dark:disabled:text-gray-600"
+              title="Preview Program"
+            >
+              <Eye className="h-5 w-5" />
+            </button>
+          </div>
 
           {/* Divider */}
           <div className="relative">
