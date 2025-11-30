@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Plus, Download } from 'lucide-react';
 import { db } from '../db/database';
-import type { Workout, ExerciseInstance } from '../types/models';
+import type { Workout, ExerciseInstance, SettingsModel } from '../types/models';
 import { calculateWorkoutStats, calculate1RMChange } from '../utils/workoutStats';
 import { CalendarGrid } from '../components/CalendarGrid';
 import { EmptyWorkoutsState } from '../components/CalendarView/EmptyWorkoutsState';
@@ -22,15 +22,19 @@ export function CalendarView() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [deletingWorkoutId, setDeletingWorkoutId] = useState<string | null>(null);
+  const [settings, setSettings] = useState<SettingsModel | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadWorkouts = async () => {
+    const loadData = async () => {
       const allWorkouts = await db.workouts.orderBy('startedAt').reverse().toArray();
       setWorkouts(allWorkouts);
+
+      const sett = await db.settings.toCollection().first();
+      setSettings(sett || null);
     };
 
-    loadWorkouts();
+    loadData();
   }, []);
 
   // Build set of dates that have workouts (YYYY-MM-DD format)
@@ -211,6 +215,7 @@ export function CalendarView() {
               selectedDate={selectedDate}
               onDateClick={handleDateClick}
               monthWorkoutCount={monthWorkoutCount}
+              weekStartDay={settings?.weekStartDay ?? 0}
             />
 
             {/* Export Month Stats Button */}

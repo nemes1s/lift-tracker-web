@@ -7,6 +7,7 @@ interface CalendarGridProps {
   selectedDate: Date | null;
   onDateClick: (date: Date) => void;
   monthWorkoutCount?: number; // Number of workouts in the current month
+  weekStartDay?: number; // Day of week to start the calendar (0 = Sunday, 1 = Monday, etc.)
 }
 
 export function CalendarGrid({
@@ -16,6 +17,7 @@ export function CalendarGrid({
   selectedDate,
   onDateClick,
   monthWorkoutCount = 0,
+  weekStartDay = 0,
 }: CalendarGridProps) {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -39,11 +41,16 @@ export function CalendarGrid({
   const daysInMonth = lastDayOfMonth.getDate();
   const startingDayOfWeek = firstDayOfMonth.getDay(); // 0 = Sunday
 
+  // Adjust starting day based on week start preference
+  // If weekStartDay is 1 (Monday), and month starts on Wednesday (3),
+  // we need 2 empty cells (Monday, Tuesday)
+  const adjustedStartingDay = (startingDayOfWeek - weekStartDay + 7) % 7;
+
   // Generate calendar grid
   const days: (number | null)[] = [];
 
   // Add empty cells for days before month starts
-  for (let i = 0; i < startingDayOfWeek; i++) {
+  for (let i = 0; i < adjustedStartingDay; i++) {
     days.push(null);
   }
 
@@ -91,7 +98,12 @@ export function CalendarGrid({
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const baseDayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  // Rotate day names based on week start preference
+  const dayNames = [
+    ...baseDayNames.slice(weekStartDay),
+    ...baseDayNames.slice(0, weekStartDay)
+  ];
 
   return (
     <div className="card p-5 bg-white dark:bg-slate-800">
