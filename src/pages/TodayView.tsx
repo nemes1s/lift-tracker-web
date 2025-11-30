@@ -10,7 +10,6 @@ import {
   instantiateWorkout,
   findActiveWorkoutForToday,
 } from '../utils/programLogic';
-import { ensureDefaultProgram } from '../utils/programTemplates';
 import { cleanupAbandonedWorkouts } from '../utils/workoutCleanup';
 import {
   completeProgramCycle,
@@ -49,9 +48,6 @@ export function TodayView() {
       try {
         // Clean up abandoned workouts from previous days
         await cleanupAbandonedWorkouts();
-
-        // Ensure we have at least one program
-        await ensureDefaultProgram();
 
         // Get the active program
         const program = await getActiveProgram();
