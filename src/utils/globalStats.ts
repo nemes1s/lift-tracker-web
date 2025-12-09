@@ -45,6 +45,7 @@ export async function getGlobalStats(): Promise<GlobalStats> {
   const workouts = await db.workouts.toArray();
   const settings = await db.settings.toCollection().first();
   const targetWorkoutsPerWeek = settings?.targetWorkoutsPerWeek ?? 3;
+  const weekStartDay = settings?.weekStartDay ?? 0;
 
   if (workouts.length === 0) {
     return {
@@ -69,7 +70,7 @@ export async function getGlobalStats(): Promise<GlobalStats> {
     : null;
 
   // Calculate streaks (now weekly streaks)
-  const { current, longest } = calculateWeeklyStreaks(sortedWorkouts, targetWorkoutsPerWeek);
+  const { current, longest } = calculateWeeklyStreaks(sortedWorkouts, targetWorkoutsPerWeek, weekStartDay);
 
   // Calculate total volume and calories
   let totalVolume = 0;
@@ -116,41 +117,44 @@ export async function getGlobalStats(): Promise<GlobalStats> {
 
 /**
  * Helper: Get the week key (YYYY-Www) for a date
- * Uses Sunday as the start of week (ISO week system)
+ * @param date The date to get the week for
+ * @param weekStartDay Day of week to start (0 = Sunday, 1 = Monday, etc.)
  */
-function getWeekKey(date: Date): string {
+function getWeekKey(date: Date, weekStartDay: number = 0): string {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
 
-  // Get the Monday of the week this date falls in
+  // Get the start of the week this date falls in
   const dayOfWeek = d.getDay(); // 0 = Sunday, 1 = Monday, etc.
-  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Monday = day 1
-  const monday = new Date(d);
-  monday.setDate(d.getDate() - daysToMonday);
+  const daysToWeekStart = (dayOfWeek - weekStartDay + 7) % 7;
+  const weekStart = new Date(d);
+  weekStart.setDate(d.getDate() - daysToWeekStart);
 
-  // Get ISO week number
-  const jan4 = new Date(monday.getFullYear(), 0, 4);
-  const jan4DayOfWeek = jan4.getDay();
-  const jan4Monday = new Date(jan4);
-  jan4Monday.setDate(4 - (jan4DayOfWeek === 0 ? 6 : jan4DayOfWeek - 1));
+  // Create a simple week key based on the week start date
+  const year = weekStart.getFullYear();
+  // Calculate week number by counting days from Jan 1
+  const jan1 = new Date(year, 0, 1);
+  const daysSinceJan1 = Math.floor((weekStart.getTime() - jan1.getTime()) / (24 * 60 * 60 * 1000));
+  const weekNumber = Math.floor(daysSinceJan1 / 7) + 1;
 
-  const weekNumber = Math.round((monday.getTime() - jan4Monday.getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1;
-
-  return `${monday.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
+  return `${year}-W${String(weekNumber).padStart(2, '0')}`;
 }
 
 /**
  * Calculate current and longest streaks based on weekly goals
  * A week counts as a streak if the user completes >= targetWorkoutsPerWeek workouts
+ * @param workouts Array of workouts to analyze
+ * @param targetWorkoutsPerWeek Minimum workouts per week to maintain streak
+ * @param weekStartDay Day of week to start (0 = Sunday, 1 = Monday, etc.)
  */
-function calculateWeeklyStreaks(workouts: any[], targetWorkoutsPerWeek: number): { current: number; longest: number } {
+function calculateWeeklyStreaks(workouts: any[], targetWorkoutsPerWeek: number, weekStartDay: number = 0): { current: number; longest: number } {
   if (workouts.length === 0) return { current: 0, longest: 0 };
 
   // Group workouts by week
   const workoutsByWeek = new Map<string, number>();
 
   workouts.forEach(w => {
-    const weekKey = getWeekKey(new Date(w.startedAt));
+    const weekKey = getWeekKey(new Date(w.startedAt), weekStartDay);
     workoutsByWeek.set(weekKey, (workoutsByWeek.get(weekKey) ?? 0) + 1);
   });
 
@@ -185,7 +189,7 @@ function calculateWeeklyStreaks(workouts: any[], targetWorkoutsPerWeek: number):
   // Calculate current streak
   // Get current week
   const today = new Date();
-  const currentWeekKey = getWeekKey(today);
+  const currentWeekKey = getWeekKey(today, weekStartDay);
 
   // Find the last consecutive weeks from now that met the goal
   let checkWeekIndex = sortedWeeks.length - 1;
@@ -220,9 +224,14 @@ export async function getWeeklyComparison(): Promise<WeeklyComparison> {
     .filter(w => w.endedAt !== undefined)
     .toArray();
 
+  const settings = await db.settings.toCollection().first();
+  const weekStartDay = settings?.weekStartDay ?? 0;
+
   const now = new Date();
   const thisWeekStart = new Date(now);
-  thisWeekStart.setDate(now.getDate() - now.getDay()); // Start of week (Sunday)
+  // Calculate days to week start: if today is Wednesday (3) and week starts Sunday (0), go back 3 days
+  const daysToWeekStart = (now.getDay() - weekStartDay + 7) % 7;
+  thisWeekStart.setDate(now.getDate() - daysToWeekStart);
   thisWeekStart.setHours(0, 0, 0, 0);
 
   const lastWeekStart = new Date(thisWeekStart);
@@ -370,10 +379,13 @@ export async function getWeeklyVolumeTrend(): Promise<MonthlyVolume[]> {
     .filter(w => w.endedAt !== undefined)
     .toArray();
 
+  const settings = await db.settings.toCollection().first();
+  const weekStartDay = settings?.weekStartDay ?? 0;
+
   const weeklyData = new Map<string, { volume: number; workouts: number }>();
 
   for (const workout of workouts) {
-    const weekKey = getWeekKey(new Date(workout.startedAt));
+    const weekKey = getWeekKey(new Date(workout.startedAt), weekStartDay);
 
     const exercises = await db.exerciseInstances
       .where('workoutId')
@@ -408,7 +420,7 @@ export async function getWeeklyVolumeTrend(): Promise<MonthlyVolume[]> {
   for (let i = 11; i >= 0; i--) {
     const date = new Date(now);
     date.setDate(now.getDate() - (i * 7));
-    const weekKey = getWeekKey(date);
+    const weekKey = getWeekKey(date, weekStartDay);
     const weekNumber = weekKey.split('-W')[1];
     const year = weekKey.split('-')[0];
     const weekLabel = `W${weekNumber} '${year.slice(-2)}`;
