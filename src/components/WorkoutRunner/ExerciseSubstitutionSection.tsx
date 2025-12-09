@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import {
   getExerciseSubstitutions,
@@ -7,6 +7,7 @@ import {
   getExerciseMuscleGroup,
   EXERCISE_GROUPS
 } from '../../data/exerciseSubstitutions';
+import { db } from '../../db/database';
 
 interface ExerciseSubstitutionSectionProps {
   exerciseName: string;
@@ -23,10 +24,35 @@ export function ExerciseSubstitutionSection({
 }: ExerciseSubstitutionSectionProps) {
   const substitutions = getExerciseSubstitutions(exerciseName);
   const [searchQuery, setSearchQuery] = useState('');
+  const [userExercises, setUserExercises] = useState<string[]>([]);
 
-  // Filter exercises based on search query
+  // Load all unique exercise names from user's workout history
+  useEffect(() => {
+    const loadUserExercises = async () => {
+      try {
+        const exercises = await db.exerciseInstances.toArray();
+        const uniqueNames = Array.from(new Set(exercises.map(e => e.name))).sort();
+        setUserExercises(uniqueNames);
+      } catch (error) {
+        console.error('Failed to load user exercises:', error);
+      }
+    };
+    loadUserExercises();
+  }, []);
+
+  // Filter exercises based on search query - combine predefined exercises and user's history
   const searchResults = searchQuery.trim()
-    ? searchExercises(searchQuery).filter(ex => ex !== exerciseName)
+    ? (() => {
+        const query = searchQuery.toLowerCase();
+        const predefined = searchExercises(searchQuery);
+        const fromHistory = userExercises.filter(name =>
+          name.toLowerCase().includes(query)
+        );
+        // Combine and deduplicate
+        const combined = Array.from(new Set([...predefined, ...fromHistory]));
+        // Filter out current exercise
+        return combined.filter(ex => ex !== exerciseName).sort();
+      })()
     : [];
 
   // Group search results by muscle group
@@ -132,7 +158,7 @@ export function ExerciseSubstitutionSection({
 
         {!searchQuery.trim() && (
           <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-2">
-            Type to search through {Object.values(EXERCISE_GROUPS).flat().length}+ exercises
+            Type to search through {Object.values(EXERCISE_GROUPS).flat().length + userExercises.length}+ exercises
           </p>
         )}
       </div>
