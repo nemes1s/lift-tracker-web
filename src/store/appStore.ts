@@ -151,9 +151,9 @@ export const useAppStore = create<AppState>()(
         restTimer: {
           ...state.restTimer,
           secondsLeft: state.restTimer.secondsLeft + seconds,
-          // Adjust startTimestamp backwards to account for added time
+          // Adjust startTimestamp forward to account for added time
           startTimestamp: state.restTimer.startTimestamp
-            ? state.restTimer.startTimestamp - (seconds * 1000)
+            ? state.restTimer.startTimestamp + (seconds * 1000)
             : null,
         },
       })),
