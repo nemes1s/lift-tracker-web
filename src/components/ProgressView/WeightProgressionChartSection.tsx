@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { CollapsibleCard } from '../CollapsibleCard';
+import { convertWeight, getUnitLabel, type WeightUnit } from '../../utils/weightUnit';
 
 interface ChartDataPoint {
   date: string;
@@ -23,10 +24,20 @@ interface ChartDataPoint {
 
 interface WeightProgressionChartSectionProps {
   chartData: ChartDataPoint[];
+  weightUnit?: WeightUnit;
 }
 
-export function WeightProgressionChartSection({ chartData }: WeightProgressionChartSectionProps) {
+export function WeightProgressionChartSection({ chartData, weightUnit = 'kg' }: WeightProgressionChartSectionProps) {
   if (chartData.length === 0) return null;
+
+  const unitLabel = getUnitLabel(weightUnit);
+
+  // Convert chart data to display unit
+  const displayData = chartData.map(point => ({
+    ...point,
+    weight: Math.round(convertWeight(point.weight, weightUnit) * 10) / 10,
+    oneRepMax: Math.round(convertWeight(point.oneRepMax, weightUnit) * 10) / 10,
+  }));
 
   return (
     <CollapsibleCard
@@ -36,7 +47,7 @@ export function WeightProgressionChartSection({ chartData }: WeightProgressionCh
     >
       <div className="mt-2">
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
+          <LineChart data={displayData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis
               dataKey="date"
@@ -44,7 +55,7 @@ export function WeightProgressionChartSection({ chartData }: WeightProgressionCh
               stroke="#6b7280"
             />
             <YAxis
-              label={{ value: 'Weight (kg)', angle: -90, position: 'insideLeft' }}
+              label={{ value: `Weight (${unitLabel})`, angle: -90, position: 'insideLeft' }}
               tick={{ fontSize: 12 }}
               stroke="#6b7280"
             />
@@ -56,8 +67,8 @@ export function WeightProgressionChartSection({ chartData }: WeightProgressionCh
                 fontWeight: 'bold',
               }}
               formatter={(value: number, name: string) => {
-                if (name === 'weight') return [`${value}kg`, 'Weight'];
-                if (name === 'oneRepMax') return [`${value}kg`, 'Est. 1RM'];
+                if (name === 'weight') return [`${value}${unitLabel}`, 'Weight'];
+                if (name === 'oneRepMax') return [`${value}${unitLabel}`, 'Est. 1RM'];
                 return [value, name];
               }}
               labelFormatter={(label) => {

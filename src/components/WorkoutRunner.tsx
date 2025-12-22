@@ -8,6 +8,7 @@ import { useAppStore } from '../store/appStore';
 import type { Workout, ExerciseInstance, SetRecord, SettingsModel } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
 import { calculateWorkoutStats } from '../utils/workoutStats';
+import { convertToKg, convertWeight, type WeightUnit } from '../utils/weightUnit';
 import { getExerciseNotes, getAllExerciseNames } from '../data/exerciseSubstitutions';
 import { playTimerNotification, initAudioContext, playCountdownBeep } from '../utils/audio';
 import { WorkoutControlsSection } from './WorkoutRunner/WorkoutControlsSection';
@@ -362,22 +363,26 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   const handleLogSet = async () => {
     if (!currentExercise) return;
 
-    const weight = parseFloat(weightText);
+    const weightInDisplayUnit = parseFloat(weightText);
     const reps = parseInt(repsText);
     const rpe = rpeText ? parseFloat(rpeText) : undefined;
 
-    if (isNaN(weight) || isNaN(reps)) return;
+    if (isNaN(weightInDisplayUnit) || isNaN(reps)) return;
 
     // Initialize audio context on user interaction (required for iOS)
     initAudioContext();
 
+    // Convert weight to kg for database storage
+    const weightUnit: WeightUnit = settings?.weightUnit || 'kg';
+    const weightInKg = convertToKg(weightInDisplayUnit, weightUnit);
+
     // Check if this set is a PR
-    const isPR = await isSetAPR(currentExercise.name, weight, reps);
+    const isPR = await isSetAPR(currentExercise.name, weightInKg, reps);
 
     const set: SetRecord = {
       id: uuidv4(),
       exerciseId: currentExercise.id,
-      weight,
+      weight: weightInKg,
       reps,
       rpe,
       timestamp: new Date(),
@@ -412,14 +417,24 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   };
 
   const handlePrefillSet = (weight: number, reps: number, rpe?: number) => {
-    setWeightText(weight.toString());
+    // Convert weight from kg to display unit
+    const weightUnit: WeightUnit = settings?.weightUnit || 'kg';
+    const weightInDisplayUnit = convertWeight(weight, weightUnit);
+    // Round to appropriate precision based on unit
+    const rounded = weightUnit === 'lbs' ? Math.round(weightInDisplayUnit) : Math.round(weightInDisplayUnit * 2) / 2;
+    setWeightText(rounded.toString());
     setRepsText(reps.toString());
     setRpeText(rpe ? Math.round(rpe).toString() : '');
   };
 
   const handleApplySuggestion = (suggestedWeight?: number, suggestedReps?: string) => {
     if (suggestedWeight) {
-      setWeightText(suggestedWeight.toString());
+      // Convert suggested weight (in kg) to display unit
+      const weightUnit: WeightUnit = settings?.weightUnit || 'kg';
+      const weightInDisplayUnit = convertWeight(suggestedWeight, weightUnit);
+      // Round to appropriate precision based on unit
+      const rounded = weightUnit === 'lbs' ? Math.round(weightInDisplayUnit) : Math.round(weightInDisplayUnit * 2) / 2;
+      setWeightText(rounded.toString());
     }
     if (suggestedReps) {
       // Parse the rep range and use the lower bound as suggested reps
@@ -678,6 +693,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
         <CurrentSetsSection
           sets={sets}
           onDeleteSet={handleDeleteSet}
+          weightUnit={settings?.weightUnit || 'kg'}
         />
 
         {/* <PRSummarySection sets={sets} /> */}
@@ -704,11 +720,13 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
           onLogSet={handleLogSet}
           suggestion={suggestion}
           onApplySuggestion={handleApplySuggestion}
+          weightUnit={settings?.weightUnit || 'kg'}
         />
 
         <PreviousWorkoutsSection
           history={previousHistory}
           onPrefillSet={handlePrefillSet}
+          weightUnit={settings?.weightUnit || 'kg'}
         />
 
 

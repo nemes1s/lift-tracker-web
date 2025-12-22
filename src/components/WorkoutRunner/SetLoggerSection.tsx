@@ -1,5 +1,6 @@
 import { CheckCircle, Lightbulb } from 'lucide-react';
 import type { ProgressiveOverloadSuggestion } from '../../utils/programLogic';
+import { getWeightStep, getUnitLabel, type WeightUnit } from '../../utils/weightUnit';
 
 interface SetLoggerSectionProps {
   weightText: string;
@@ -11,6 +12,7 @@ interface SetLoggerSectionProps {
   onLogSet: () => void;
   suggestion?: ProgressiveOverloadSuggestion;
   onApplySuggestion?: (weight?: number, reps?: string) => void;
+  weightUnit?: WeightUnit;
 }
 
 export function SetLoggerSection({
@@ -22,17 +24,21 @@ export function SetLoggerSection({
   onRpeChange,
   onLogSet,
   suggestion,
-  onApplySuggestion
+  onApplySuggestion,
+  weightUnit = 'kg'
 }: SetLoggerSectionProps) {
+  const unit = getUnitLabel(weightUnit);
+  const step = getWeightStep(weightUnit);
+
   return (
     <div className="card p-5 bg-white">
       <p className="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wide">Log New Set</p>
       <div className="grid grid-cols-3 gap-3 mb-4">
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Weight (kg)</label>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">Weight ({unit})</label>
           <input
             type="number"
-            step="0.5"
+            step={step}
             placeholder="0"
             value={weightText}
             onChange={(e) => onWeightChange(e.target.value)}

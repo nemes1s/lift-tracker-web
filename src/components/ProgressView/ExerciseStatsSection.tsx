@@ -1,13 +1,15 @@
 import { Dumbbell, Award, BarChart3, Calendar, Target } from 'lucide-react';
 import { CollapsibleCard } from '../CollapsibleCard';
 import type { ExerciseStats } from '../../utils/progressTracking';
+import { formatWeight, type WeightUnit } from '../../utils/weightUnit';
 
 interface ExerciseStatsSectionProps {
   stats: ExerciseStats | null;
   consistency: number | null;
+  weightUnit?: WeightUnit;
 }
 
-export function ExerciseStatsSection({ stats, consistency }: ExerciseStatsSectionProps) {
+export function ExerciseStatsSection({ stats, consistency, weightUnit = 'kg' }: ExerciseStatsSectionProps) {
   if (!stats) return null;
 
   return (
@@ -26,7 +28,7 @@ export function ExerciseStatsSection({ stats, consistency }: ExerciseStatsSectio
               Max Weight
             </span>
           </div>
-          <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">{stats.maxWeight}kg</p>
+          <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">{formatWeight(stats.maxWeight, weightUnit)}</p>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             {stats.maxWeightDate.toLocaleDateString()}
           </p>
@@ -41,7 +43,7 @@ export function ExerciseStatsSection({ stats, consistency }: ExerciseStatsSectio
             </span>
           </div>
           <p className="text-2xl font-bold text-green-700 dark:text-green-500">
-            {Math.round(stats.bestOneRepMax)}kg
+            {formatWeight(Math.round(stats.bestOneRepMax), weightUnit, 0)}
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             {stats.bestOneRepMaxDate.toLocaleDateString()}

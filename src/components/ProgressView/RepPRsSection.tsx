@@ -1,12 +1,14 @@
 import { Award } from 'lucide-react';
 import { CollapsibleCard } from '../CollapsibleCard';
 import type { RepPR } from '../../utils/globalStats';
+import { formatWeight, type WeightUnit } from '../../utils/weightUnit';
 
 interface RepPRsSectionProps {
   repPRs: RepPR[];
+  weightUnit?: WeightUnit;
 }
 
-export function RepPRsSection({ repPRs }: RepPRsSectionProps) {
+export function RepPRsSection({ repPRs, weightUnit = 'kg' }: RepPRsSectionProps) {
   if (repPRs.length === 0) return null;
 
   return (
@@ -29,7 +31,7 @@ export function RepPRsSection({ repPRs }: RepPRsSectionProps) {
               </p>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">{pr.weight} kg</p>
+              <p className="text-2xl font-bold text-primary-700 dark:text-primary-400">{formatWeight(pr.weight, weightUnit)}</p>
             </div>
           </div>
         ))}

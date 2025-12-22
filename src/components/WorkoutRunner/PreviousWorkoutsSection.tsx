@@ -1,11 +1,13 @@
 import type { Workout, SetRecord } from '../../types/models';
+import { formatWeight, type WeightUnit } from '../../utils/weightUnit';
 
 interface PreviousWorkoutsSectionProps {
   history: Array<{ workout: Workout; sets: SetRecord[] }>;
   onPrefillSet: (weight: number, reps: number, rpe?: number) => void;
+  weightUnit?: WeightUnit;
 }
 
-export function PreviousWorkoutsSection({ history, onPrefillSet }: PreviousWorkoutsSectionProps) {
+export function PreviousWorkoutsSection({ history, onPrefillSet, weightUnit = 'kg' }: PreviousWorkoutsSectionProps) {
   if (history.length === 0) return null;
 
   return (
@@ -30,7 +32,7 @@ export function PreviousWorkoutsSection({ history, onPrefillSet }: PreviousWorko
                   onClick={() => onPrefillSet(set.weight, set.reps, set.rpe)}
                   className="px-3 py-2 bg-white border-2 border-gray-200 rounded-lg text-sm font-medium hover:border-primary-300 hover:bg-primary-50 transition-all transform hover:scale-105"
                 >
-                  {set.weight}kg × {set.reps}
+                  {formatWeight(set.weight, weightUnit)} × {set.reps}
                   {set.rpe && <span className="text-orange-600 ml-1">@{Math.round(set.rpe)}</span>}
                 </button>
               ))}
