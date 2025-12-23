@@ -25,6 +25,7 @@ import { StorageInfoSection } from '../components/SettingsView/StorageInfoSectio
 import { RestTimerSettingsSection } from '../components/SettingsView/RestTimerSettingsSection';
 import { WeeklyGoalSection } from '../components/SettingsView/WeeklyGoalSection';
 import { WeekStartDaySection } from '../components/SettingsView/WeekStartDaySection';
+import { WeightUnitSection } from '../components/SettingsView/WeightUnitSection';
 import { ActiveProgramSection } from '../components/SettingsView/ActiveProgramSection';
 import { ProgramsManagementSection } from '../components/SettingsView/ProgramsManagementSection';
 import { ProgramStatsExportSection } from '../components/SettingsView/ProgramStatsExportSection';
@@ -351,6 +352,13 @@ export function SettingsView() {
     triggerRefresh();
   };
 
+  const handleWeightUnitChange = async (unit: 'kg' | 'lbs') => {
+    if (!settings) return;
+    await db.settings.update(settings.id, { weightUnit: unit });
+    await loadData();
+    triggerRefresh();
+  };
+
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto p-6 space-y-6">
@@ -379,6 +387,11 @@ export function SettingsView() {
         <WeekStartDaySection
           settings={settings}
           onWeekStartDayChange={handleWeekStartDayChange}
+        />
+
+        <WeightUnitSection
+          settings={settings}
+          onWeightUnitChange={handleWeightUnitChange}
         />
 
         <PWAInstallSection />

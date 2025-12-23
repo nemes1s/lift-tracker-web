@@ -1,5 +1,5 @@
 // Auto-generated version file
 // This file is updated automatically by the version bump script
 
-export const APP_VERSION = '0.15.1';
-export const BUILD_DATE = '2025-12-09T00:00:00.000Z';
+export const APP_VERSION = '0.16.0';
+export const BUILD_DATE = '2024-12-22T00:00:00.000Z';

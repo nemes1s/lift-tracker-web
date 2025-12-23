@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2024-12-22
+
+### Features
+- **Weight unit selection (kg/lbs)**. Users can now choose their preferred weight unit in Settings. Toggle between kilograms and pounds - all weight displays throughout the app update instantly. Includes workout logging, exercise stats, progress charts, PRs, and previous workout history. Database stores all weights in kg for consistency, with automatic conversion for display and input based on user preference.
+
+### Improvements
+- **Dynamic weight input precision**. Input fields automatically adjust their step value: 0.5 for kg, 1 for lbs. Provides appropriate precision for each unit system.
+- **Smart weight formatting**. Weights display with unit-appropriate decimal places: 1 decimal for kg (e.g., 100.5kg), 0 decimals for lbs (e.g., 221lbs). Chart axes and tooltips update labels to match selected unit.
+
 ## [0.15.0] - 2025-11-30
 
 ### Features

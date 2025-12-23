@@ -1,12 +1,14 @@
 import { X, Star } from 'lucide-react';
 import type { SetRecord } from '../../types/models';
+import { formatWeight, type WeightUnit } from '../../utils/weightUnit';
 
 interface CurrentSetsSectionProps {
   sets: SetRecord[];
   onDeleteSet: (setId: string) => void;
+  weightUnit?: WeightUnit;
 }
 
-export function CurrentSetsSection({ sets, onDeleteSet }: CurrentSetsSectionProps) {
+export function CurrentSetsSection({ sets, onDeleteSet, weightUnit = 'kg' }: CurrentSetsSectionProps) {
   return (
     <div>
       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Today's Sets</p>
@@ -33,7 +35,7 @@ export function CurrentSetsSection({ sets, onDeleteSet }: CurrentSetsSectionProp
               >
                 <X className="w-4 h-4" />
               </button>
-              <span className={set.isPR ? 'text-amber-700' : 'text-green-700'}>{set.weight}kg</span> ×{' '}
+              <span className={set.isPR ? 'text-amber-700' : 'text-green-700'}>{formatWeight(set.weight, weightUnit)}</span> ×{' '}
               <span className={set.isPR ? 'text-amber-700' : 'text-green-700'}>{set.reps}</span>
               {set.rpe && <span className="text-orange-600 ml-1">@{Math.round(set.rpe)}</span>}
               {set.isPR && <span className="text-amber-700 ml-2 font-semibold">PR!</span>}

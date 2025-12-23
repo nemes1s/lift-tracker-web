@@ -87,6 +87,8 @@ export interface SettingsModel {
   targetWorkoutsPerWeek?: number; // Target number of workouts per week for streak calculation (default: 3)
   // Calendar settings
   weekStartDay?: number; // Day of week to start the calendar (0 = Sunday, 1 = Monday, etc.) (default: 0)
+  // Weight unit settings
+  weightUnit?: 'kg' | 'lbs'; // Weight unit preference (default: 'kg')
   // Migration tracking
   programIdMigrationComplete?: boolean; // Whether programId migration has been run
 }

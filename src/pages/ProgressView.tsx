@@ -20,7 +20,8 @@ import {
   type RepPR,
 } from '../utils/globalStats';
 import { getProgramCompletions } from '../utils/programCompletion';
-import type { ProgramCompletion } from '../types/models';
+import type { ProgramCompletion, SettingsModel } from '../types/models';
+import { db } from '../db/database';
 import { GlobalOverviewSection } from '../components/ProgressView/GlobalOverviewSection';
 import { WeeklyComparisonSection } from '../components/ProgressView/WeeklyComparisonSection';
 import { MonthlyVolumeTrendSection } from '../components/ProgressView/MonthlyVolumeTrendSection';
@@ -58,6 +59,20 @@ export function ProgressView() {
 
   // Program completions
   const [programCompletions, setProgramCompletions] = useState<ProgramCompletion[]>([]);
+
+  // Settings for weight unit
+  const [settings, setSettings] = useState<SettingsModel | null>(null);
+
+  // Load settings
+  useEffect(() => {
+    const loadSettings = async () => {
+      const sett = await db.settings.toCollection().first();
+      if (sett) {
+        setSettings(sett);
+      }
+    };
+    loadSettings();
+  }, []);
 
   // Load all exercises and global stats
   useEffect(() => {
@@ -191,13 +206,13 @@ export function ProgressView() {
         {exercises.length > 0 && (
           <>
             {/* Exercise Stats */}
-            <ExerciseStatsSection stats={stats} consistency={consistency} />
+            <ExerciseStatsSection stats={stats} consistency={consistency} weightUnit={settings?.weightUnit || 'kg'} />
 
             {/* Rep PRs */}
-            <RepPRsSection repPRs={repPRs} />
+            <RepPRsSection repPRs={repPRs} weightUnit={settings?.weightUnit || 'kg'} />
 
             {/* Weight Progression Chart */}
-            <WeightProgressionChartSection chartData={chartData} />
+            <WeightProgressionChartSection chartData={chartData} weightUnit={settings?.weightUnit || 'kg'} />
 
             {/* Volume Chart */}
             <VolumeChartSection chartData={chartData} />
