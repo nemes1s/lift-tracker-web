@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.0] - 2024-12-25
+
+### Features
+- **Exercise reordering in program edit mode**. Users can now reorder exercises within workout templates using up/down arrow buttons in edit mode. Navigate to Settings → View Program → Edit Program to access the reordering interface. Changes are saved to the database and persist across all views (Today, Progress, Calendar). Each workout day can be reordered independently, with visual feedback for disabled buttons at first/last positions.
+
 ## [0.16.0] - 2024-12-22
 
 ### Features
