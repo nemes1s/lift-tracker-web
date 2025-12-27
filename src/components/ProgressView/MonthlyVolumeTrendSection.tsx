@@ -38,7 +38,7 @@ export function MonthlyVolumeTrendSection({ monthlyTrend }: MonthlyVolumeTrendSe
                 borderRadius: '0.75rem',
                 fontWeight: 'bold',
               }}
-              formatter={(value: number) => [`${formatVolume(value)} kg`, 'Volume']}
+              formatter={(value: number | undefined) => value !== undefined ? [`${formatVolume(value)} kg`, 'Volume'] : ['-', 'Volume']}
             />
             <Bar dataKey="volume" fill="#2563eb" radius={[8, 8, 0, 0]} />
           </BarChart>

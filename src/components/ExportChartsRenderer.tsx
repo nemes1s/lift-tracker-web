@@ -157,7 +157,8 @@ export function ExportChartsRenderer({ exerciseStats, programName }: ExportChart
                           }
                           return label;
                         }}
-                        formatter={(value: number, name: string) => {
+                        formatter={(value: number | undefined, name: string | undefined) => {
+                          if (value === undefined) return ['-', name ?? ''];
                           if (name === 'weight') return [`${value}kg`, 'Weight'];
                           if (name === 'oneRepMax') return [`${value}kg`, 'Est. 1RM'];
                           return value;
@@ -234,7 +235,7 @@ export function ExportChartsRenderer({ exerciseStats, programName }: ExportChart
                           }
                           return label;
                         }}
-                        formatter={(value: number) => [`${value}kg`, 'Volume']}
+                        formatter={(value: number | undefined) => value !== undefined ? [`${value}kg`, 'Volume'] : ['-', 'Volume']}
                       />
                       <Bar
                         dataKey="volume"
@@ -310,7 +311,8 @@ export function ExportChartsRenderer({ exerciseStats, programName }: ExportChart
                     color: '#f3f4f6',
                     fontSize: '14px',
                   }}
-                  formatter={(value: number, _name: string, props: any) => {
+                  formatter={(value: number | undefined, _name: string | undefined, props: any) => {
+                    if (value === undefined) return ['-', props.payload.name];
                     const percent = props.payload.percent || 0;
                     return [`${value.toLocaleString()} kg (${(percent * 100).toFixed(1)}%)`, props.payload.name];
                   }}

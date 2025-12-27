@@ -66,10 +66,11 @@ export function WeightProgressionChartSection({ chartData, weightUnit = 'kg' }: 
                 borderRadius: '0.75rem',
                 fontWeight: 'bold',
               }}
-              formatter={(value: number, name: string) => {
+              formatter={(value: number | undefined, name: string | undefined) => {
+                if (value === undefined) return ['-', name ?? ''];
                 if (name === 'weight') return [`${value}${unitLabel}`, 'Weight'];
                 if (name === 'oneRepMax') return [`${value}${unitLabel}`, 'Est. 1RM'];
-                return [value, name];
+                return [value, name ?? ''];
               }}
               labelFormatter={(label) => {
                 const entry = chartData.find((d) => d.date === label);

@@ -222,7 +222,7 @@ export function ProgramPreviewView() {
       }
 
       // Update exercise order for reordered workouts
-      for (const [workoutTemplateId, exercises] of reorderedWorkouts.entries()) {
+      for (const [_workoutTemplateId, exercises] of reorderedWorkouts.entries()) {
         for (let i = 0; i < exercises.length; i++) {
           await db.exerciseTemplates.update(exercises[i].id, {
             orderIndex: i,

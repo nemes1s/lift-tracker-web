@@ -54,7 +54,7 @@ export function VolumeChartSection({ chartData }: VolumeChartSectionProps) {
                 borderRadius: '0.75rem',
                 fontWeight: 'bold',
               }}
-              formatter={(value: number) => [`${value}kg`, 'Volume (Weight × Reps)']}
+              formatter={(value: number | undefined) => value !== undefined ? [`${value}kg`, 'Volume (Weight × Reps)'] : ['-', 'Volume (Weight × Reps)']}
               labelFormatter={(label) => {
                 const entry = chartData.find((d) => d.date === label);
                 return entry ? entry.fullDate : label;
