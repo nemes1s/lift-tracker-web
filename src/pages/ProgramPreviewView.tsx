@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Eye, CheckCircle, X, Dumbbell, Calendar, Activity, Edit3, Save, Zap, Maximize2 } from 'lucide-react';
+import { Eye, CheckCircle, X, Dumbbell, Calendar, Activity, Edit3, Save, Zap, Maximize2, ArrowUp, ArrowDown } from 'lucide-react';
 import { db } from '../db/database';
 import { saveProgramPreviewData, type ProgramPreviewData } from '../utils/programTemplates';
 import type { WorkoutTemplate, ExerciseTemplate } from '../types/models';
@@ -24,6 +24,7 @@ export function ProgramPreviewView() {
   const [isSaving, setIsSaving] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedExercises, setEditedExercises] = useState<Map<string, { isMyoreps?: boolean; isLengthenedPartials?: boolean }>>(new Map());
+  const [reorderedWorkouts, setReorderedWorkouts] = useState<Map<string, ExerciseTemplate[]>>(new Map());
 
   useEffect(() => {
     const loadData = async () => {
@@ -132,7 +133,11 @@ export function ProgramPreviewView() {
     setIsEditMode(true);
     // Initialize edited exercises with current values
     const initialEdits = new Map();
+    const initialReordered = new Map();
     programData?.workouts.forEach(workout => {
+      // Initialize reordered exercises with current order
+      initialReordered.set(workout.template.id, [...workout.exercises]);
+
       workout.exercises.forEach(exercise => {
         initialEdits.set(exercise.id, {
           isMyoreps: exercise.isMyoreps || false,
@@ -141,11 +146,13 @@ export function ProgramPreviewView() {
       });
     });
     setEditedExercises(initialEdits);
+    setReorderedWorkouts(initialReordered);
   };
 
   const handleCancelEdit = () => {
     setIsEditMode(false);
     setEditedExercises(new Map());
+    setReorderedWorkouts(new Map());
   };
 
   const handleToggleMyoreps = (exerciseId: string) => {
@@ -166,6 +173,43 @@ export function ProgramPreviewView() {
     });
   };
 
+  const handleMoveExerciseUp = (workoutTemplateId: string, exerciseIndex: number) => {
+    if (exerciseIndex === 0) return; // Can't move first exercise up
+
+    setReorderedWorkouts(prev => {
+      const newMap = new Map(prev);
+      const exercises = newMap.get(workoutTemplateId);
+      if (!exercises) return prev;
+
+      const newExercises = [...exercises];
+      // Swap with previous exercise
+      [newExercises[exerciseIndex - 1], newExercises[exerciseIndex]] =
+        [newExercises[exerciseIndex], newExercises[exerciseIndex - 1]];
+
+      newMap.set(workoutTemplateId, newExercises);
+      return newMap;
+    });
+  };
+
+  const handleMoveExerciseDown = (workoutTemplateId: string, exerciseIndex: number) => {
+    const exercises = reorderedWorkouts.get(workoutTemplateId);
+    if (!exercises || exerciseIndex === exercises.length - 1) return; // Can't move last exercise down
+
+    setReorderedWorkouts(prev => {
+      const newMap = new Map(prev);
+      const exercises = newMap.get(workoutTemplateId);
+      if (!exercises) return prev;
+
+      const newExercises = [...exercises];
+      // Swap with next exercise
+      [newExercises[exerciseIndex], newExercises[exerciseIndex + 1]] =
+        [newExercises[exerciseIndex + 1], newExercises[exerciseIndex]];
+
+      newMap.set(workoutTemplateId, newExercises);
+      return newMap;
+    });
+  };
+
   const handleSaveEdits = async () => {
     setIsSaving(true);
     try {
@@ -175,6 +219,15 @@ export function ProgramPreviewView() {
           isMyoreps: flags.isMyoreps || undefined,
           isLengthenedPartials: flags.isLengthenedPartials || undefined,
         });
+      }
+
+      // Update exercise order for reordered workouts
+      for (const [workoutTemplateId, exercises] of reorderedWorkouts.entries()) {
+        for (let i = 0; i < exercises.length; i++) {
+          await db.exerciseTemplates.update(exercises[i].id, {
+            orderIndex: i,
+          });
+        }
       }
 
       // Reload program data
@@ -213,6 +266,7 @@ export function ProgramPreviewView() {
 
       setIsEditMode(false);
       setEditedExercises(new Map());
+      setReorderedWorkouts(new Map());
       triggerRefresh();
     } catch (error) {
       console.error('Failed to save edits:', error);
@@ -303,14 +357,37 @@ export function ProgramPreviewView() {
               </div>
 
               <div className="space-y-2">
-                {workout.exercises.map((exercise) => {
+                {(isEditMode ? reorderedWorkouts.get(workout.template.id) || workout.exercises : workout.exercises).map((exercise, exerciseIndex) => {
                   const flags = isEditMode ? editedExercises.get(exercise.id) : { isMyoreps: exercise.isMyoreps, isLengthenedPartials: exercise.isLengthenedPartials };
+                  const exercisesArray = isEditMode ? reorderedWorkouts.get(workout.template.id) || workout.exercises : workout.exercises;
 
                   return (
                     <div
                       key={exercise.id}
-                      className="flex items-start justify-between py-3 px-4 bg-gray-50 dark:bg-slate-700 rounded-xl border border-gray-100 dark:border-slate-600"
+                      className="flex items-start gap-3 py-3 px-4 bg-gray-50 dark:bg-slate-700 rounded-xl border border-gray-100 dark:border-slate-600"
                     >
+                      {/* Reorder buttons in edit mode */}
+                      {isEditMode && (
+                        <div className="flex flex-col gap-1 pt-1">
+                          <button
+                            onClick={() => handleMoveExerciseUp(workout.template.id, exerciseIndex)}
+                            disabled={exerciseIndex === 0}
+                            className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            title="Move up"
+                          >
+                            <ArrowUp className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                          </button>
+                          <button
+                            onClick={() => handleMoveExerciseDown(workout.template.id, exerciseIndex)}
+                            disabled={exerciseIndex === exercisesArray.length - 1}
+                            className="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            title="Move down"
+                          >
+                            <ArrowDown className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                          </button>
+                        </div>
+                      )}
+
                       <div className="flex-1">
                         <p className="font-bold text-gray-900 dark:text-gray-100">{exercise.name}</p>
                         {exercise.notes && (
@@ -439,7 +516,7 @@ export function ProgramPreviewView() {
                 className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition-all font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 <Edit3 className="w-5 h-5" />
-                <span>Edit Techniques</span>
+                <span>Edit Program</span>
               </button>
               <button
                 onClick={handleCancel}
