@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Plus, Download } from 'lucide-react';
+import { Calendar, Plus, Download, Play } from 'lucide-react';
 import { db } from '../db/database';
 import type { Workout, ExerciseInstance, SettingsModel } from '../types/models';
 import { calculateWorkoutStats, calculate1RMChange } from '../utils/workoutStats';
@@ -16,6 +16,7 @@ import { getAllExerciseNames } from '../data/exerciseSubstitutions';
 import { formatMonthStatsAsCSV } from '../utils/workoutExporter';
 import type { ExerciseWithSets } from '../utils/workoutExporter';
 import { v4 as uuidv4 } from 'uuid';
+import { useAppStore } from '../store/appStore';
 
 export function CalendarView() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -260,6 +261,28 @@ export function WorkoutDetail() {
   const [exercise1RMChanges, setExercise1RMChanges] = useState<Map<string, any>>(new Map());
   const [showAddCustomExercise, setShowAddCustomExercise] = useState(false);
   const [exerciseSuggestions, setExerciseSuggestions] = useState<string[]>([]);
+  const navigate = useNavigate();
+  const { setActiveWorkout } = useAppStore();
+
+  // Check if workout is from today
+  const isWorkoutFromToday = (w: Workout) => {
+    const today = new Date();
+    const workoutDate = new Date(w.startedAt);
+    return (
+      workoutDate.getDate() === today.getDate() &&
+      workoutDate.getMonth() === today.getMonth() &&
+      workoutDate.getFullYear() === today.getFullYear()
+    );
+  };
+
+  // Check if workout can be resumed (is from today and not completed)
+  const canResumeWorkout = workout && isWorkoutFromToday(workout) && !workout.endedAt;
+
+  const handleResumeWorkout = () => {
+    if (!workout) return;
+    setActiveWorkout(workout);
+    navigate('/');
+  };
 
   useEffect(() => {
     const loadWorkout = async () => {
@@ -435,6 +458,19 @@ export function WorkoutDetail() {
               }))}
             />
           </div>
+
+          {/* Resume Workout Button - only show if workout is from today and not completed */}
+          {canResumeWorkout && (
+            <div className="mt-4">
+              <button
+                onClick={handleResumeWorkout}
+                className="w-full px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <Play className="w-5 h-5" />
+                Resume Workout
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Exercises */}
