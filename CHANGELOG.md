@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2025-01-28
+
+### Features
+- **Resume/Continue workout from calendar**. When viewing a workout from today in the calendar detail view, a button now appears to resume or continue the workout. "Resume Workout" shows for in-progress workouts, while "Continue Workout" shows for accidentally ended workouts. Clicking the button navigates to the Today view where you can continue logging sets. For ended workouts, the completion status is cleared so the workout becomes active again.
+
 ## [0.17.0] - 2024-12-25
 
 ### Features
