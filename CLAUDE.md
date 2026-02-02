@@ -133,18 +133,22 @@ const template = createMockWorkoutTemplate({ programId: program.id });
 
 **Critical areas to maintain test coverage**:
 
-1. **Program Logic** (`programLogic.ts`)
+1. **Program Logic** (`programLogic.ts`) - 31 tests
    - Week calculation and cycling
    - Template selection (week-based)
    - Workout instantiation
    - Progressive overload suggestions
+   - Template finding and matching
+   - Save as Template functionality
+   - Exercise order and flag preservation
 
-2. **CSV Import** (`csvParser.ts`)
+2. **CSV Import** (`csvParser.ts`) - 19 tests
    - Both Format 1 and Format 2 parsing
    - Error handling for malformed CSVs
    - Exercise ordering preservation
+   - Myoreps and lengthened partials flags
 
-3. **Workout Flow** (integration tests)
+3. **Workout Flow** (integration tests) - 5 tests
    - Complete workout creation → logging → completion
    - Quick workout mode (reduced sets)
    - Recommended day calculation
@@ -154,6 +158,8 @@ const template = createMockWorkoutTemplate({ programId: program.id });
    - CRUD operations on all tables
    - Template queries with compound indexes
    - Workout history queries
+
+**Total: 55 tests**
 
 ### Testing Best Practices
 
