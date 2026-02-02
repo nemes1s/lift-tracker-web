@@ -1,10 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   currentWeek,
   selectTemplate,
   recommendedDay,
   instantiateWorkout,
   getProgressiveOverloadSuggestion,
+  findTemplateForWorkout,
+  updateTemplateFromWorkout,
 } from './programLogic';
 import { db } from '../db/database';
 import {
@@ -454,6 +456,301 @@ describe('programLogic', () => {
       const suggestion = await getProgressiveOverloadSuggestion('Bench Press', '8-10');
       expect(suggestion.hasData).toBe(true);
       expect(suggestion.reason).toContain('Need to hit');
+    });
+  });
+
+  describe('findTemplateForWorkout', () => {
+    beforeEach(async () => {
+      const program = createMockProgram({ id: 'prog-1' });
+      await db.programs.add(program);
+
+      // Create templates
+      await db.workoutTemplates.add(
+        createMockWorkoutTemplate({
+          id: 'template-1',
+          programId: 'prog-1',
+          name: 'Upper Body Day',
+          dayIndex: 0,
+          weekNumber: 1,
+        })
+      );
+      await db.workoutTemplates.add(
+        createMockWorkoutTemplate({
+          id: 'template-2',
+          programId: 'prog-1',
+          name: 'Lower Body Day',
+          dayIndex: 1,
+          weekNumber: 1,
+        })
+      );
+    });
+
+    it('should find template by exact name match', async () => {
+      const workout = createMockWorkout({
+        id: 'workout-1',
+        programId: 'prog-1',
+        name: 'Upper Body Day',
+      });
+      await db.workouts.add(workout);
+
+      const template = await findTemplateForWorkout(workout);
+      expect(template).toBeDefined();
+      expect(template?.id).toBe('template-1');
+      expect(template?.name).toBe('Upper Body Day');
+    });
+
+    it('should find template when workout name includes template name', async () => {
+      const workout = createMockWorkout({
+        id: 'workout-1',
+        programId: 'prog-1',
+        name: 'Upper Body Day - Week 1',
+      });
+      await db.workouts.add(workout);
+
+      const template = await findTemplateForWorkout(workout);
+      expect(template).toBeDefined();
+      expect(template?.id).toBe('template-1');
+    });
+
+    it('should return undefined if workout has no programId', async () => {
+      const workout = createMockWorkout({
+        id: 'workout-1',
+        programId: undefined,
+        name: 'Standalone Workout',
+      });
+      await db.workouts.add(workout);
+
+      const template = await findTemplateForWorkout(workout);
+      expect(template).toBeUndefined();
+    });
+
+    it('should return undefined if no matching template found', async () => {
+      const workout = createMockWorkout({
+        id: 'workout-1',
+        programId: 'prog-1',
+        name: 'Nonexistent Workout',
+      });
+      await db.workouts.add(workout);
+
+      const template = await findTemplateForWorkout(workout);
+      expect(template).toBeUndefined();
+    });
+  });
+
+  describe('updateTemplateFromWorkout', () => {
+    let workout: any;
+    let template: any;
+
+    beforeEach(async () => {
+      const program = createMockProgram({ id: 'prog-1' });
+      await db.programs.add(program);
+
+      // Create template with initial exercises
+      template = createMockWorkoutTemplate({
+        id: 'template-1',
+        programId: 'prog-1',
+        name: 'Upper Body',
+        dayIndex: 0,
+        weekNumber: 1,
+      });
+      await db.workoutTemplates.add(template);
+
+      await db.exerciseTemplates.add(
+        createMockExerciseTemplate({
+          id: 'old-ex-1',
+          workoutTemplateId: 'template-1',
+          name: 'Old Exercise 1',
+          targetSets: 3,
+          targetReps: '8-10',
+          orderIndex: 0,
+        })
+      );
+      await db.exerciseTemplates.add(
+        createMockExerciseTemplate({
+          id: 'old-ex-2',
+          workoutTemplateId: 'template-1',
+          name: 'Old Exercise 2',
+          targetSets: 3,
+          targetReps: '8-10',
+          orderIndex: 1,
+        })
+      );
+
+      // Create workout based on template
+      workout = createMockWorkout({
+        id: 'workout-1',
+        programId: 'prog-1',
+        name: 'Upper Body',
+      });
+      await db.workouts.add(workout);
+    });
+
+    it('should update template with new exercises from workout', async () => {
+      // Create new exercise instances
+      const exercises = [
+        {
+          id: 'new-ex-1',
+          workoutId: 'workout-1',
+          name: 'Bench Press',
+          targetSets: 4,
+          targetReps: '6-8',
+          orderIndex: 0,
+          notes: 'Focus on form',
+        },
+        {
+          id: 'new-ex-2',
+          workoutId: 'workout-1',
+          name: 'Rows',
+          targetSets: 4,
+          targetReps: '8-10',
+          orderIndex: 1,
+          notes: '',
+        },
+      ];
+
+      for (const ex of exercises) {
+        await db.exerciseInstances.add(ex);
+      }
+
+      const result = await updateTemplateFromWorkout(workout, exercises);
+
+      expect(result.success).toBe(true);
+      expect(result.message).toContain('Updated "Upper Body" template');
+      expect(result.message).toContain('2 exercises');
+      expect(result.updatedTemplateId).toBe('template-1');
+
+      // Verify old exercises were deleted
+      const updatedExercises = await db.exerciseTemplates
+        .where('workoutTemplateId')
+        .equals('template-1')
+        .sortBy('orderIndex');
+
+      expect(updatedExercises).toHaveLength(2);
+      expect(updatedExercises.find(e => e.name === 'Old Exercise 1')).toBeUndefined();
+      expect(updatedExercises.find(e => e.name === 'Old Exercise 2')).toBeUndefined();
+
+      // Verify new exercises were added
+      expect(updatedExercises[0].name).toBe('Bench Press');
+      expect(updatedExercises[0].targetSets).toBe(4);
+      expect(updatedExercises[0].targetReps).toBe('6-8');
+      expect(updatedExercises[0].notes).toBe('Focus on form');
+
+      expect(updatedExercises[1].name).toBe('Rows');
+      expect(updatedExercises[1].targetSets).toBe(4);
+      expect(updatedExercises[1].targetReps).toBe('8-10');
+    });
+
+    it('should preserve exercise order', async () => {
+      const exercises = [
+        {
+          id: 'ex-1',
+          workoutId: 'workout-1',
+          name: 'Exercise 1',
+          targetSets: 3,
+          targetReps: '10',
+          orderIndex: 0,
+        },
+        {
+          id: 'ex-2',
+          workoutId: 'workout-1',
+          name: 'Exercise 2',
+          targetSets: 3,
+          targetReps: '10',
+          orderIndex: 1,
+        },
+        {
+          id: 'ex-3',
+          workoutId: 'workout-1',
+          name: 'Exercise 3',
+          targetSets: 3,
+          targetReps: '10',
+          orderIndex: 2,
+        },
+      ];
+
+      for (const ex of exercises) {
+        await db.exerciseInstances.add(ex);
+      }
+
+      await updateTemplateFromWorkout(workout, exercises);
+
+      const updatedExercises = await db.exerciseTemplates
+        .where('workoutTemplateId')
+        .equals('template-1')
+        .sortBy('orderIndex');
+
+      expect(updatedExercises[0].orderIndex).toBe(0);
+      expect(updatedExercises[1].orderIndex).toBe(1);
+      expect(updatedExercises[2].orderIndex).toBe(2);
+    });
+
+    it('should preserve myoreps and lengthened partials flags', async () => {
+      const exercises = [
+        {
+          id: 'ex-1',
+          workoutId: 'workout-1',
+          name: 'Lateral Raise',
+          targetSets: 3,
+          targetReps: '12-15',
+          orderIndex: 0,
+          isMyoreps: true,
+        },
+        {
+          id: 'ex-2',
+          workoutId: 'workout-1',
+          name: 'Dumbbell Curl',
+          targetSets: 3,
+          targetReps: '10-12',
+          orderIndex: 1,
+          isMyoreps: true,
+          isLengthenedPartials: true,
+        },
+      ];
+
+      for (const ex of exercises) {
+        await db.exerciseInstances.add(ex);
+      }
+
+      await updateTemplateFromWorkout(workout, exercises);
+
+      const updatedExercises = await db.exerciseTemplates
+        .where('workoutTemplateId')
+        .equals('template-1')
+        .sortBy('orderIndex');
+
+      expect(updatedExercises[0].isMyoreps).toBe(true);
+      expect(updatedExercises[0].isLengthenedPartials).toBeUndefined();
+
+      expect(updatedExercises[1].isMyoreps).toBe(true);
+      expect(updatedExercises[1].isLengthenedPartials).toBe(true);
+    });
+
+    it('should fail if workout has no programId', async () => {
+      const workoutWithoutProgram = createMockWorkout({
+        id: 'workout-2',
+        programId: undefined,
+        name: 'Standalone',
+      });
+      await db.workouts.add(workoutWithoutProgram);
+
+      const result = await updateTemplateFromWorkout(workoutWithoutProgram, []);
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain('not linked to a program');
+    });
+
+    it('should fail if no matching template found', async () => {
+      const workoutWithNoTemplate = createMockWorkout({
+        id: 'workout-2',
+        programId: 'prog-1',
+        name: 'Nonexistent Workout',
+      });
+      await db.workouts.add(workoutWithNoTemplate);
+
+      const result = await updateTemplateFromWorkout(workoutWithNoTemplate, []);
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain('Could not find matching workout template');
     });
   });
 });

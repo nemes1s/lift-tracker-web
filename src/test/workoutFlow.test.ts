@@ -144,11 +144,11 @@ describe('Workout Flow Integration', () => {
     const loggedSets = await db.setRecords
       .where('exerciseId')
       .equals(exercise1.id)
-      .sortBy('timestamp');
+      .toArray();
 
     expect(loggedSets).toHaveLength(3);
-    expect(loggedSets[0].weight).toBe(135);
-    expect(loggedSets[0].reps).toBe(10);
+    expect(loggedSets.every(s => s.weight === 135)).toBe(true);
+    expect(loggedSets.map(s => s.reps).sort((a, b) => a - b)).toEqual([8, 9, 10]);
 
     // 10. Complete the workout
     await db.workouts.update(workout.id, {
