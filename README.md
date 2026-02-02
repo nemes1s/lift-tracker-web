@@ -59,12 +59,12 @@ LiftTracker is a modern workout tracking PWA that stores all your data locally o
 
 1. Install dependencies:
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. Start the development server:
    ```bash
-   npm run dev
+   pnpm run dev
    ```
 
 3. Open http://localhost:5173 in your browser
@@ -72,12 +72,12 @@ LiftTracker is a modern workout tracking PWA that stores all your data locally o
 ## Building for Production
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Preview the production build:
 ```bash
-npm run preview
+pnpm run preview
 ```
 
 ## Deployment
@@ -91,7 +91,7 @@ You can deploy your own instance to any static hosting service:
 - Cloudflare Pages
 - Any static hosting provider
 
-Simply run `npm run build` and deploy the `dist` folder.
+Simply run `pnpm run build` and deploy the `dist` folder.
 
 ## Browser Support
 
