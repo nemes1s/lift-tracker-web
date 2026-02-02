@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2025-02-02
+
+### Features
+- **Save workout as template**. When viewing a past workout in the calendar detail view, a new "Save as Template" button appears for workouts linked to a program. This allows users to update their program template with exercises from a completed workout, including any custom exercises added during the session. Future workouts for that day will use the updated exercise list.
+
 ## [0.18.0] - 2025-01-28
 
 ### Features
