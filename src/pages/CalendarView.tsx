@@ -275,12 +275,23 @@ export function WorkoutDetail() {
     );
   };
 
-  // Check if workout can be resumed (is from today and not completed)
-  const canResumeWorkout = workout && isWorkoutFromToday(workout) && !workout.endedAt;
+  // Check if workout can be resumed/continued (is from today)
+  const canResumeWorkout = workout && isWorkoutFromToday(workout);
+  const isWorkoutEnded = workout?.endedAt;
 
-  const handleResumeWorkout = () => {
+  const handleResumeWorkout = async () => {
     if (!workout) return;
-    setActiveWorkout(workout);
+
+    // If workout was ended, clear the endedAt to resume it
+    if (workout.endedAt) {
+      await db.workouts.update(workout.id, { endedAt: undefined });
+      // Update local state with cleared endedAt
+      const updatedWorkout = { ...workout, endedAt: undefined };
+      setActiveWorkout(updatedWorkout);
+    } else {
+      setActiveWorkout(workout);
+    }
+
     navigate('/');
   };
 
@@ -459,7 +470,7 @@ export function WorkoutDetail() {
             />
           </div>
 
-          {/* Resume Workout Button - only show if workout is from today and not completed */}
+          {/* Resume/Continue Workout Button - show if workout is from today */}
           {canResumeWorkout && (
             <div className="mt-4">
               <button
@@ -467,7 +478,7 @@ export function WorkoutDetail() {
                 className="w-full px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
               >
                 <Play className="w-5 h-5" />
-                Resume Workout
+                {isWorkoutEnded ? 'Continue Workout' : 'Resume Workout'}
               </button>
             </div>
           )}
