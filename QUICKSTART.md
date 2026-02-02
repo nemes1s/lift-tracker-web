@@ -19,14 +19,14 @@ I've recreated your iOS LiftTracker app as a fully functional web application wi
 ### Development Mode
 ```bash
 cd /Users/dmytrozadorozhnyi/Projects/Github/LiftTrackerWeb
-npm run dev
+pnpm run dev
 ```
 Open http://localhost:5173
 
 ### Production Build
 ```bash
-npm run build
-npm run preview
+pnpm run build
+pnpm run preview
 ```
 Open http://localhost:4173
 
@@ -54,8 +54,8 @@ src/
 ## Deployment
 
 The app is ready to deploy to:
-- **Vercel** (recommended): `npm i -g vercel && vercel`
-- **Netlify**: `npm i -g netlify-cli && netlify deploy --prod --dir=dist`
+- **Vercel** (recommended): `pnpm add -g vercel && vercel`
+- **Netlify**: `pnpm add -g netlify-cli && netlify deploy --prod --dir=dist`
 - **GitHub Pages**: Install gh-pages and run deploy script
 
 ## Data Storage
@@ -83,7 +83,7 @@ All workout data is stored **locally in your browser** using IndexedDB:
 
 ## Next Steps
 
-1. **Test the app**: Run `npm run dev` and try creating a program
+1. **Test the app**: Run `pnpm run dev` and try creating a program
 2. **Customize**: Modify program templates in `src/utils/programTemplates.ts`
 3. **Deploy**: Choose a hosting platform and deploy
 4. **Enhance**: Add progress charts, export/import, PWA features

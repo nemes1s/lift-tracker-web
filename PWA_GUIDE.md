@@ -66,8 +66,8 @@
 ### Test Install Prompt
 ```bash
 # Run production build
-npm run build
-npm run preview
+pnpm run build
+pnpm run preview
 ```
 
 1. Open http://localhost:4173
@@ -221,7 +221,7 @@ Edit in:
 
 ### Production Build
 ```bash
-npm run build
+pnpm run build
 # dist/ folder ready for deployment
 ```
 

@@ -10,34 +10,34 @@ LiftTracker Web is a Progressive Web App (PWA) for tracking weightlifting workou
 
 ```bash
 # Start development server (http://localhost:5173)
-npm run dev
+pnpm run dev
 
 # Build for production
-npm run build
+pnpm run build
 
 # Type check
 tsc -b
 
 # Lint code
-npm run lint
+pnpm run lint
 
 # Preview production build
-npm run preview
+pnpm run preview
 
 # Bump version (used in CI/CD)
-npm run version:bump
+pnpm run version:bump
 
 # Run tests
-npm test
+pnpm test
 
 # Run tests with UI
-npm run test:ui
+pnpm run test:ui
 
 # Run tests once (CI mode)
-npm run test:run
+pnpm run test:run
 
 # Run tests with coverage
-npm run test:coverage
+pnpm run test:coverage
 ```
 
 ## Testing
@@ -56,16 +56,16 @@ Tests are located next to the files they test with `.test.ts` or `.test.tsx` ext
 
 ```bash
 # Watch mode (runs tests as you code)
-npm test
+pnpm test
 
 # Run once (for CI/CD)
-npm run test:run
+pnpm run test:run
 
 # Interactive UI
-npm run test:ui
+pnpm run test:ui
 
 # With coverage report
-npm run test:coverage
+pnpm run test:coverage
 ```
 
 ### Writing Tests
@@ -174,7 +174,7 @@ const template = createMockWorkoutTemplate({ programId: program.id });
 
 Before deploying, run:
 ```bash
-npm run test:run && npm run build
+pnpm run test:run && pnpm run build
 ```
 
 This ensures all tests pass and the app builds successfully.
