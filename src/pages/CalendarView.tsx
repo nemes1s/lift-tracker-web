@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Plus, Download, Play } from 'lucide-react';
+import { Calendar, Plus, Download, Play, Save } from 'lucide-react';
 import { db } from '../db/database';
 import type { Workout, ExerciseInstance, SettingsModel } from '../types/models';
 import { calculateWorkoutStats, calculate1RMChange } from '../utils/workoutStats';
@@ -8,6 +8,7 @@ import { CalendarGrid } from '../components/CalendarGrid';
 import { EmptyWorkoutsState } from '../components/CalendarView/EmptyWorkoutsState';
 import { SelectedDayWorkoutsSection } from '../components/CalendarView/SelectedDayWorkoutsSection';
 import { DeleteConfirmModal } from '../components/CalendarView/DeleteConfirmModal';
+import { UpdateTemplateModal } from '../components/CalendarView/UpdateTemplateModal';
 import { WorkoutStatsSection } from '../components/CalendarView/WorkoutStatsSection';
 import { ExerciseListSection } from '../components/CalendarView/ExerciseListSection';
 import { AddCustomExerciseModal } from '../components/shared/AddCustomExerciseModal';
@@ -17,6 +18,7 @@ import { formatMonthStatsAsCSV } from '../utils/workoutExporter';
 import type { ExerciseWithSets } from '../utils/workoutExporter';
 import { v4 as uuidv4 } from 'uuid';
 import { useAppStore } from '../store/appStore';
+import { findTemplateForWorkout, updateTemplateFromWorkout } from '../utils/programLogic';
 
 export function CalendarView() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -260,9 +262,11 @@ export function WorkoutDetail() {
   const [exercises, setExercises] = useState<any[]>([]);
   const [exercise1RMChanges, setExercise1RMChanges] = useState<Map<string, any>>(new Map());
   const [showAddCustomExercise, setShowAddCustomExercise] = useState(false);
+  const [showUpdateTemplateModal, setShowUpdateTemplateModal] = useState(false);
+  const [canUpdateTemplate, setCanUpdateTemplate] = useState(false);
   const [exerciseSuggestions, setExerciseSuggestions] = useState<string[]>([]);
   const navigate = useNavigate();
-  const { setActiveWorkout } = useAppStore();
+  const { setActiveWorkout, triggerRefresh } = useAppStore();
 
   // Check if workout is from today
   const isWorkoutFromToday = (w: Workout) => {
@@ -335,6 +339,12 @@ export function WorkoutDetail() {
         }
       }
       setExercise1RMChanges(changes);
+
+      // Check if this workout can update a template
+      if (w.programId) {
+        const template = await findTemplateForWorkout(w);
+        setCanUpdateTemplate(!!template);
+      }
     };
 
     loadWorkout();
@@ -413,6 +423,35 @@ export function WorkoutDetail() {
     }
   };
 
+  const handleUpdateTemplate = async () => {
+    if (!workout) return;
+
+    // Convert exercises to ExerciseInstance array (strip the sets property)
+    const exerciseInstances: ExerciseInstance[] = exercises.map((ex) => ({
+      id: ex.id,
+      name: ex.name,
+      workoutId: ex.workoutId,
+      orderIndex: ex.orderIndex,
+      targetSets: ex.targetSets,
+      targetReps: ex.targetReps,
+      notes: ex.notes,
+      isCustom: ex.isCustom,
+      isMyoreps: ex.isMyoreps,
+      isLengthenedPartials: ex.isLengthenedPartials,
+    }));
+
+    const result = await updateTemplateFromWorkout(workout, exerciseInstances);
+
+    setShowUpdateTemplateModal(false);
+
+    if (result.success) {
+      triggerRefresh();
+      alert(result.message);
+    } else {
+      alert(result.message);
+    }
+  };
+
   if (!workout) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -482,6 +521,22 @@ export function WorkoutDetail() {
               </button>
             </div>
           )}
+
+          {/* Update Template Button - show if workout is linked to a program */}
+          {canUpdateTemplate && exercises.length > 0 && (
+            <div className="mt-4">
+              <button
+                onClick={() => setShowUpdateTemplateModal(true)}
+                className="w-full px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <Save className="w-5 h-5" />
+                Save as Template
+              </button>
+              <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+                Update your program to use this workout's exercises
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Exercises */}
@@ -541,6 +596,15 @@ export function WorkoutDetail() {
           onCancel={() => setShowAddCustomExercise(false)}
           suggestions={exerciseSuggestions}
           allowCustomSetsReps={true}
+        />
+      )}
+
+      {showUpdateTemplateModal && workout && (
+        <UpdateTemplateModal
+          workoutName={workout.name}
+          exercises={exercises}
+          onConfirm={handleUpdateTemplate}
+          onCancel={() => setShowUpdateTemplateModal(false)}
         />
       )}
     </div>

@@ -1,5 +1,5 @@
 import { db } from '../db/database';
-import type { Program, WorkoutTemplate, Workout, ExerciseInstance } from '../types/models';
+import type { Program, WorkoutTemplate, Workout, ExerciseInstance, ExerciseTemplate } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
 
 // Calculate current week number based on program start date
@@ -388,6 +388,92 @@ export async function getProgressiveOverloadSuggestion(
     return {
       reason: 'Unable to calculate suggestion',
       hasData: false,
+    };
+  }
+}
+
+// Find the workout template that matches a completed workout
+export async function findTemplateForWorkout(
+  workout: Workout
+): Promise<WorkoutTemplate | undefined> {
+  if (!workout.programId) {
+    return undefined;
+  }
+
+  // Get all templates for this program
+  const templates = await db.workoutTemplates
+    .where('programId')
+    .equals(workout.programId)
+    .toArray();
+
+  // Find template by matching name
+  return templates.find(
+    (t) => t.name === workout.name || workout.name.includes(t.name)
+  );
+}
+
+// Update a workout template with exercises from a completed workout
+export async function updateTemplateFromWorkout(
+  workout: Workout,
+  exercises: ExerciseInstance[]
+): Promise<{ success: boolean; message: string; updatedTemplateId?: string }> {
+  if (!workout.programId) {
+    return {
+      success: false,
+      message: 'This workout is not linked to a program',
+    };
+  }
+
+  // Find the matching template
+  const template = await findTemplateForWorkout(workout);
+
+  if (!template) {
+    return {
+      success: false,
+      message: 'Could not find matching workout template in the program',
+    };
+  }
+
+  try {
+    // Delete existing exercise templates for this workout template
+    const existingExercises = await db.exerciseTemplates
+      .where('workoutTemplateId')
+      .equals(template.id)
+      .toArray();
+
+    for (const ex of existingExercises) {
+      await db.exerciseTemplates.delete(ex.id);
+    }
+
+    // Create new exercise templates from the workout's exercise instances
+    for (let i = 0; i < exercises.length; i++) {
+      const instance = exercises[i];
+
+      const exerciseTemplate: ExerciseTemplate = {
+        id: uuidv4(),
+        name: instance.name,
+        targetSets: instance.targetSets,
+        targetReps: instance.targetReps,
+        notes: instance.notes,
+        orderIndex: i,
+        workoutTemplateId: template.id,
+        isMyoreps: instance.isMyoreps,
+        isLengthenedPartials: instance.isLengthenedPartials,
+      };
+
+      await db.exerciseTemplates.add(exerciseTemplate);
+    }
+
+    return {
+      success: true,
+      message: `Updated "${template.name}" template with ${exercises.length} exercises`,
+      updatedTemplateId: template.id,
+    };
+  } catch (error) {
+    console.error('Error updating template from workout:', error);
+    return {
+      success: false,
+      message: 'Failed to update template. Please try again.',
     };
   }
 }
