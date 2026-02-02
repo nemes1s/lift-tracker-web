@@ -26,7 +26,158 @@ npm run preview
 
 # Bump version (used in CI/CD)
 npm run version:bump
+
+# Run tests
+npm test
+
+# Run tests with UI
+npm run test:ui
+
+# Run tests once (CI mode)
+npm run test:run
+
+# Run tests with coverage
+npm run test:coverage
 ```
+
+## Testing
+
+The app uses **Vitest** with **React Testing Library** for unit and integration tests. Tests mock IndexedDB using `fake-indexeddb`.
+
+### Test Organization
+
+Tests are located next to the files they test with `.test.ts` or `.test.tsx` extension:
+
+- **Unit tests**: `src/utils/*.test.ts` - Test individual utility functions
+- **Integration tests**: `src/test/*.test.ts` - Test complete user flows
+- **Test utilities**: `src/test/testUtils.tsx` - Shared test helpers and mock data
+
+### Running Tests
+
+```bash
+# Watch mode (runs tests as you code)
+npm test
+
+# Run once (for CI/CD)
+npm run test:run
+
+# Interactive UI
+npm run test:ui
+
+# With coverage report
+npm run test:coverage
+```
+
+### Writing Tests
+
+**Unit Test Example** (`programLogic.test.ts`):
+```typescript
+import { describe, it, expect, beforeEach } from 'vitest';
+import { currentWeek } from './programLogic';
+import { db } from '../db/database';
+
+describe('currentWeek', () => {
+  beforeEach(async () => {
+    await db.programs.clear(); // Clear DB before each test
+  });
+
+  it('should calculate week correctly', () => {
+    const startDate = new Date();
+    expect(currentWeek(startDate, 12)).toBe(1);
+  });
+});
+```
+
+**Integration Test Example** (`workoutFlow.test.ts`):
+```typescript
+it('should complete full workout flow', async () => {
+  // 1. Create program and templates
+  const programId = uuidv4();
+  await db.programs.add({ id: programId, name: 'Test', ... });
+
+  // 2. Select template
+  const template = await selectTemplate(programId, 1, 0);
+
+  // 3. Create workout
+  const workout = await instantiateWorkout(template);
+
+  // 4. Log sets
+  await db.setRecords.add({ ... });
+
+  // 5. Complete workout
+  await db.workouts.update(workout.id, { endedAt: ... });
+
+  // 6. Verify
+  expect(workout.endedAt).toBeDefined();
+});
+```
+
+### Test Utilities
+
+Use helper functions from `src/test/testUtils.tsx`:
+
+```typescript
+import {
+  createMockProgram,
+  createMockWorkoutTemplate,
+  createMockExerciseTemplate,
+  renderWithProviders,
+} from '../test/testUtils';
+
+// Create test data
+const program = createMockProgram({ name: 'Test Program' });
+const template = createMockWorkoutTemplate({ programId: program.id });
+```
+
+### What to Test
+
+**Critical areas to maintain test coverage**:
+
+1. **Program Logic** (`programLogic.ts`) - 31 tests
+   - Week calculation and cycling
+   - Template selection (week-based)
+   - Workout instantiation
+   - Progressive overload suggestions
+   - Template finding and matching
+   - Save as Template functionality
+   - Exercise order and flag preservation
+
+2. **CSV Import** (`csvParser.ts`) - 19 tests
+   - Both Format 1 and Format 2 parsing
+   - Error handling for malformed CSVs
+   - Exercise ordering preservation
+   - Myoreps and lengthened partials flags
+
+3. **Workout Flow** (integration tests) - 5 tests
+   - Complete workout creation → logging → completion
+   - Quick workout mode (reduced sets)
+   - Recommended day calculation
+   - Multiple day/week handling
+
+4. **Database Operations**
+   - CRUD operations on all tables
+   - Template queries with compound indexes
+   - Workout history queries
+
+**Total: 55 tests**
+
+### Testing Best Practices
+
+- **Always clear the database** in `beforeEach()` hooks to ensure test isolation
+- **Use descriptive test names** that explain what is being tested
+- **Test edge cases**: Empty data, week cycling, invalid inputs
+- **Keep tests focused**: One concept per test
+- **Use async/await** for all database operations
+- **Mock external dependencies**: IndexedDB is mocked with `fake-indexeddb`
+
+### Pre-deployment Testing
+
+Before deploying, run:
+```bash
+npm run test:run && npm run build
+```
+
+This ensures all tests pass and the app builds successfully.
 
 ## Architecture Overview
 
