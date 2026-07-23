@@ -57,11 +57,5 @@
     "vite-plugin-pwa": "^1.1.0",
     "vitest": "^4.0.16",
     "workbox-window": "^7.3.0"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "core-js",
-      "esbuild"
-    ]
   }
 }
