@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-19T00:00:00.000Z",
+  "title": "Design System: LiftTracker",
+  "extensions": {
+    "colorMeta": {
+      "ink-blue": {
+        "role": "primary",
+        "displayName": "Ink Blue",
+        "canonical": "oklch(50% 0.22 264)",
+        "tonalRamp": ["#1e3a8a", "#1e40af", "#1d4ed8", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe"]
+      },
+      "fuchsia-signal": {
+        "role": "secondary",
+        "displayName": "Fuchsia Signal",
+        "canonical": "oklch(62% 0.28 316)",
+        "tonalRamp": ["#701a75", "#86198f", "#a21caf", "#c026d3", "#d946ef", "#e879f9", "#f0abfc", "#f5d0fe"]
+      },
+      "surface-light": {
+        "role": "neutral",
+        "displayName": "Surface Light",
+        "canonical": "oklch(100% 0 0)"
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "Surface Dark",
+        "canonical": "oklch(26% 0.025 240)"
+      },
+      "bg-deep": {
+        "role": "neutral",
+        "displayName": "Background Deep",
+        "canonical": "oklch(13% 0.02 240)"
+      },
+      "gradient-from": {
+        "role": "neutral",
+        "displayName": "Gradient From (Periwinkle)",
+        "canonical": "oklch(65% 0.12 260)"
+      },
+      "gradient-to": {
+        "role": "neutral",
+        "displayName": "Gradient To (Grape)",
+        "canonical": "oklch(44% 0.15 302)"
+      }
+    },
+    "shadows": [
+      {
+        "name": "ambient",
+        "value": "0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04)",
+        "purpose": "Cards at rest. Provides ground-plane separation from the gradient surface."
+      },
+      {
+        "name": "lifted",
+        "value": "0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)",
+        "purpose": "Cards on hover. Amplified to signal interactivity."
+      },
+      {
+        "name": "button-primary",
+        "value": "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)",
+        "purpose": "Primary CTA buttons at rest."
+      },
+      {
+        "name": "glow",
+        "value": "0 0 20px rgba(59,130,246,0.5)",
+        "purpose": "Focus ring supplement for heavily emphasized interactive elements."
+      }
+    ],
+    "motion": [
+      {
+        "name": "fade-in",
+        "value": "fadeIn 0.5s ease-in",
+        "purpose": "Page and section entrances."
+      },
+      {
+        "name": "slide-up",
+        "value": "slideUp 0.3s ease-out",
+        "purpose": "Bottom-sheet and panel entrance from below."
+      },
+      {
+        "name": "slide-down",
+        "value": "slideDown 0.3s ease-out",
+        "purpose": "Panel entrance from above."
+      },
+      {
+        "name": "state-transition",
+        "value": "all 0.2s ease",
+        "purpose": "Button hover/active, input focus, card hover. Default state transition duration."
+      },
+      {
+        "name": "button-lift",
+        "value": "translateY(-2px)",
+        "purpose": "Button hover transform. Combined with amplified shadow for tactile lift signal."
+      }
+    ],
+    "breakpoints": [
+      { "name": "mobile-first", "value": "375px", "purpose": "Primary target. All layouts designed mobile-first." },
+      { "name": "sm", "value": "640px", "purpose": "Wider phone landscape / small tablet." },
+      { "name": "xl", "value": "1280px", "purpose": "max-w-screen-xl on nav bar centers content on large screens." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main CTA — start workout, save, confirm. The most prominent interactive element on any screen.",
+      "html": "<button class=\"ds-btn-primary\">Start Workout</button>",
+      "css": ".ds-btn-primary { background: #2563eb; color: #ffffff; font-weight: 600; font-size: 0.875rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 12px 24px; border-radius: 12px; border: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); transition: all 0.2s ease; transform: translateY(0); cursor: pointer; min-height: 44px; } .ds-btn-primary:hover { background: #1d4ed8; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); transform: translateY(-2px); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px #3b82f6; } .ds-btn-primary:active { transform: translateY(0); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Lower-emphasis action alongside a primary button. Uses border + white background.",
+      "html": "<button class=\"ds-btn-secondary\">View History</button>",
+      "css": ".ds-btn-secondary { background: #ffffff; color: #1d4ed8; font-weight: 600; font-size: 0.875rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 12px 24px; border-radius: 12px; border: 2px solid #bfdbfe; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); transition: all 0.2s ease; transform: translateY(0); cursor: pointer; min-height: 44px; } .ds-btn-secondary:hover { border-color: #93c5fd; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); transform: translateY(-2px); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 2px #3b82f6; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Numeric input for weight, reps, RPE. Always paired with an ALL-CAPS label above.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field-label\">Weight (kg)</label><input type=\"number\" class=\"ds-input\" placeholder=\"0\" /></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 4px; } .ds-field-label { font-size: 0.75rem; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: 0.05em; text-transform: uppercase; color: #4b5563; } .ds-input { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; background: #ffffff; color: #111827; font-size: 0.875rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; transition: all 0.2s ease; box-sizing: border-box; min-height: 44px; } .ds-input:focus { outline: none; border-color: transparent; box-shadow: 0 0 0 2px #3b82f6; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Primary content container. Floats above the gradient surface. Never nests inside another card.",
+      "html": "<div class=\"ds-card\"><p class=\"ds-card-label\">Bench Press</p><p class=\"ds-card-body\">4 sets × 6-8 reps</p></div>",
+      "css": ".ds-card { background: #ffffff; border-radius: 16px; padding: 20px; box-shadow: 0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04); transition: box-shadow 0.3s ease; } .ds-card:hover { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); } .ds-card-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #374151; margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; } .ds-card-body { font-size: 0.875rem; color: #111827; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }"
+    },
+    {
+      "name": "Bottom Navigation",
+      "kind": "nav",
+      "description": "Primary navigation. Fixed to bottom of viewport. 64px height for gym-condition thumb reach.",
+      "html": "<nav class=\"ds-bottom-nav\"><a class=\"ds-nav-item ds-nav-active\" href=\"#\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z\"/></svg><span class=\"ds-nav-label\">Today</span></a><a class=\"ds-nav-item\" href=\"#\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" ry=\"2\"/><line x1=\"16\" x2=\"16\" y1=\"2\" y2=\"6\"/><line x1=\"8\" x2=\"8\" y1=\"2\" y2=\"6\"/><line x1=\"3\" x2=\"21\" y1=\"10\" y2=\"10\"/></svg><span class=\"ds-nav-label\">Calendar</span></a></nav>",
+      "css": ".ds-bottom-nav { display: flex; justify-content: space-around; align-items: center; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-top: 1px solid rgba(229,231,235,0.5); box-shadow: 0 -4px 25px rgba(0,0,0,0.15); padding-bottom: env(safe-area-inset-bottom); } .ds-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; text-decoration: none; color: #6b7280; transition: all 0.2s ease; position: relative; } .ds-nav-active { color: #2563eb; } .ds-nav-active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 48px; height: 4px; background: #2563eb; border-radius: 0 0 4px 4px; } .ds-nav-label { font-size: 0.75rem; font-weight: 500; margin-top: 4px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; } .ds-nav-active .ds-nav-label { font-weight: 700; }"
+    },
+    {
+      "name": "Progressive Overload Hint",
+      "kind": "custom",
+      "description": "Inline suggestion card shown below set inputs when a progressive overload recommendation is available.",
+      "html": "<div class=\"ds-hint\"><svg class=\"ds-hint-icon\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\"/><path d=\"M9 18h6\"/><path d=\"M10 22h4\"/></svg><div class=\"ds-hint-content\"><p class=\"ds-hint-reason\">Hit 8 reps — increase weight to 82.5</p><button class=\"ds-hint-apply\">Apply weight: 82.5 kg</button></div></div>",
+      "css": ".ds-hint { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; } .ds-hint-icon { color: #2563eb; flex-shrink: 0; margin-top: 2px; } .ds-hint-content { flex: 1; } .ds-hint-reason { font-size: 0.75rem; font-weight: 600; color: #1e3a8a; margin: 0 0 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; } .ds-hint-apply { font-size: 0.75rem; background: #2563eb; color: #ffffff; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; transition: background 0.2s ease; } .ds-hint-apply:hover { background: #1d4ed8; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Iron Ledger",
+    "overview": "LiftTracker is a tool, not a product. Every interface decision serves one purpose: let a lifter log their sets with minimum friction, then get out of the way. The visual language takes cues from high-density professional tools — Linear, Raycast — where the data is the hero and decoration is a cost.\n\nThe system is anchored by a confident ink-blue as the single authoritative action color. Typography is the native system font stack: crisp, immediately legible, no network request. Cards sit on a neutral periwinkle-to-slate gradient that acts as a physical surface — the app is always elevated above it. Layout density is calibrated for a sweaty thumb between sets: large tap targets, clear hierarchy, no visual noise. Uppercase tracked labels give the interface the feel of a physical log entry — precise, professional, built for practitioners.\n\nThis system explicitly rejects the Garmin/TrainingPeaks aesthetic, the neon bodybuilder look, and the Strava social model.",
+    "keyCharacteristics": [
+      "System typography — no loading fonts, no flash of unstyled content",
+      "Ink-blue is the single authoritative action color; fuchsia appears only for personal records",
+      "Uppercase tracked bold labels — field entries in a log book",
+      "Cards lift off the gradient surface via soft shadows",
+      "44px minimum touch targets; designed for one-handed use between heavy sets"
+    ],
+    "rules": [
+      { "name": "The One Signal Rule", "body": "Fuchsia is prohibited everywhere except personal record moments. If you're considering fuchsia for a status, a tag, a button, or a highlight — the answer is no.", "section": "colors" },
+      { "name": "The Gradient Is a Surface, Not a Brand", "body": "The body gradient functions as a physical tabletop that cards rest on. It must not be extracted for use in components, icons, or text.", "section": "colors" },
+      { "name": "The System Font Rule", "body": "No web fonts, ever. Loading a font file during a gym session on 4G is prohibited.", "section": "typography" },
+      { "name": "The All-Caps Label Rule", "body": "Section labels and field labels are always uppercase with letter-spacing: 0.05em. Sentence-case labels soften the log-book precision that defines the aesthetic.", "section": "typography" },
+      { "name": "The Flat-by-Default Rule", "body": "No element that is not a floating card or a CTA button should carry a shadow at rest. Shadows are a state response, not a style choice.", "section": "elevation" },
+      { "name": "The One-Level Rule", "body": "Cards do not nest inside other cards.", "section": "components" }
+    ],
+    "dos": [
+      "Do use ink-blue (#2563eb) for every primary interactive element — buttons, links, focus rings, active states.",
+      "Do use uppercase tracked labels (0.05em) for every form field label and stat caption.",
+      "Do size tap targets to a minimum of 44×44px.",
+      "Do use backdrop-blur-lg on the navigation bar — it is the one structural blur in the system.",
+      "Do use translateY(-2px) on button hover/active consistently.",
+      "Do apply dark mode equivalents for every component via dark: prefixes.",
+      "Do collapse empty states gracefully — remove the space rather than showing a placeholder."
+    ],
+    "donts": [
+      "Don't use fuchsia (#d946ef) anywhere except personal record moments.",
+      "Don't nest cards inside cards — The One-Level Rule is absolute.",
+      "Don't add a border-left stripe greater than 1px as a colored accent on any card or callout.",
+      "Don't use gradient text (background-clip: text). All text is a solid color.",
+      "Don't use glassmorphism as a decorative pattern — the nav bar blur is the only permitted instance.",
+      "Don't replicate Garmin Connect density: nested sub-menus, redundant chart stacking, settings with more than 6 options visible at once.",
+      "Don't add social or community scaffolding to any surface.",
+      "Don't use a neon-on-dark color scheme.",
+      "Don't add decorative motion — feedback animations only (fadeIn 0.5s, slideUp/slideDown 0.3s ease-out)."
+    ]
+  }
+}

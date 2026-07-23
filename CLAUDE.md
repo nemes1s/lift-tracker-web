@@ -12,242 +12,112 @@ LiftTracker Web is a Progressive Web App (PWA) for tracking weightlifting workou
 # Start development server (http://localhost:5173)
 pnpm run dev
 
-# Build for production
+# Build for production (runs tsc -b then vite build)
 pnpm run build
 
-# Type check
+# Type check only
 tsc -b
 
-# Lint code
+# Lint
 pnpm run lint
 
-# Preview production build
-pnpm run preview
-
-# Bump version (used in CI/CD)
-pnpm run version:bump
-
-# Run tests
+# Run tests in watch mode
 pnpm test
-
-# Run tests with UI
-pnpm run test:ui
 
 # Run tests once (CI mode)
 pnpm run test:run
+
+# Run a single test file
+pnpm test src/utils/programLogic.test.ts
 
 # Run tests with coverage
 pnpm run test:coverage
 ```
 
-## Testing
-
-The app uses **Vitest** with **React Testing Library** for unit and integration tests. Tests mock IndexedDB using `fake-indexeddb`.
-
-### Test Organization
-
-Tests are located next to the files they test with `.test.ts` or `.test.tsx` extension:
-
-- **Unit tests**: `src/utils/*.test.ts` - Test individual utility functions
-- **Integration tests**: `src/test/*.test.ts` - Test complete user flows
-- **Test utilities**: `src/test/testUtils.tsx` - Shared test helpers and mock data
-
-### Running Tests
-
-```bash
-# Watch mode (runs tests as you code)
-pnpm test
-
-# Run once (for CI/CD)
-pnpm run test:run
-
-# Interactive UI
-pnpm run test:ui
-
-# With coverage report
-pnpm run test:coverage
-```
-
-### Writing Tests
-
-**Unit Test Example** (`programLogic.test.ts`):
-```typescript
-import { describe, it, expect, beforeEach } from 'vitest';
-import { currentWeek } from './programLogic';
-import { db } from '../db/database';
-
-describe('currentWeek', () => {
-  beforeEach(async () => {
-    await db.programs.clear(); // Clear DB before each test
-  });
-
-  it('should calculate week correctly', () => {
-    const startDate = new Date();
-    expect(currentWeek(startDate, 12)).toBe(1);
-  });
-});
-```
-
-**Integration Test Example** (`workoutFlow.test.ts`):
-```typescript
-it('should complete full workout flow', async () => {
-  // 1. Create program and templates
-  const programId = uuidv4();
-  await db.programs.add({ id: programId, name: 'Test', ... });
-
-  // 2. Select template
-  const template = await selectTemplate(programId, 1, 0);
-
-  // 3. Create workout
-  const workout = await instantiateWorkout(template);
-
-  // 4. Log sets
-  await db.setRecords.add({ ... });
-
-  // 5. Complete workout
-  await db.workouts.update(workout.id, { endedAt: ... });
-
-  // 6. Verify
-  expect(workout.endedAt).toBeDefined();
-});
-```
-
-### Test Utilities
-
-Use helper functions from `src/test/testUtils.tsx`:
-
-```typescript
-import {
-  createMockProgram,
-  createMockWorkoutTemplate,
-  createMockExerciseTemplate,
-  renderWithProviders,
-} from '../test/testUtils';
-
-// Create test data
-const program = createMockProgram({ name: 'Test Program' });
-const template = createMockWorkoutTemplate({ programId: program.id });
-```
-
-### What to Test
-
-**Critical areas to maintain test coverage**:
-
-1. **Program Logic** (`programLogic.ts`) - 31 tests
-   - Week calculation and cycling
-   - Template selection (week-based)
-   - Workout instantiation
-   - Progressive overload suggestions
-   - Template finding and matching
-   - Save as Template functionality
-   - Exercise order and flag preservation
-
-2. **CSV Import** (`csvParser.ts`) - 19 tests
-   - Both Format 1 and Format 2 parsing
-   - Error handling for malformed CSVs
-   - Exercise ordering preservation
-   - Myoreps and lengthened partials flags
-
-3. **Workout Flow** (integration tests) - 5 tests
-   - Complete workout creation → logging → completion
-   - Quick workout mode (reduced sets)
-   - Recommended day calculation
-   - Multiple day/week handling
-
-4. **Database Operations**
-   - CRUD operations on all tables
-   - Template queries with compound indexes
-   - Workout history queries
-
-**Total: 55 tests**
-
-### Testing Best Practices
-
-- **Always clear the database** in `beforeEach()` hooks to ensure test isolation
-- **Use descriptive test names** that explain what is being tested
-- **Test edge cases**: Empty data, week cycling, invalid inputs
-- **Keep tests focused**: One concept per test
-- **Use async/await** for all database operations
-- **Mock external dependencies**: IndexedDB is mocked with `fake-indexeddb`
-
-### Pre-deployment Testing
-
-Before deploying, run:
-```bash
-pnpm run test:run && pnpm run build
-```
-
-This ensures all tests pass and the app builds successfully.
+Pre-deployment: `pnpm run test:run && pnpm run build`
 
 ## Architecture Overview
 
-### Data Layer Architecture
+### Data Layer
 
 The app uses a **template-based workout system** with week-based progression:
 
 1. **Programs** contain multiple **WorkoutTemplates** (one per day + week combination)
-2. **WorkoutTemplates** have a `weekNumber` field (1, 5, 9, etc.) to enable exercise variations
-3. **ExerciseTemplates** define the exercises for each WorkoutTemplate
-4. When a workout is started, templates are **instantiated** into:
-   - **Workout** (the active/completed workout session)
-   - **ExerciseInstance** (exercises for this specific workout)
-   - **SetRecord** (individual logged sets)
+2. **WorkoutTemplates** have a `weekNumber` field (1, 5, 9…) to enable phase-based exercise variations
+3. When a workout is started, templates are **instantiated** into live records: `Workout` → `ExerciseInstance` → `SetRecord`
 
-**Key insight**: The `selectTemplate()` function (in `src/utils/programLogic.ts:33-53`) finds templates by querying for the highest `weekNumber <= currentWeek`. This allows week ranges to work (e.g., week 2-4 use the week 1 template, weeks 6-8 use the week 5 template).
+**Key insight**: `selectTemplate()` (`src/utils/programLogic.ts`) finds the template with the highest `weekNumber <= currentWeek`. This means weeks 2–4 use the week-1 template, weeks 6–8 use the week-5 template, etc.
 
-### Database Schema (Dexie.js)
+### Database Schema (Dexie.js) — `src/db/database.ts`
 
-All data is stored in IndexedDB via `src/db/database.ts`:
+Currently at **version 9**. Tables:
 
-- **programs** - Training program definitions
-- **workoutTemplates** - Day templates with `weekNumber` for periodization
-- **exerciseTemplates** - Exercise definitions within templates
-- **workouts** - Workout instances (sessions)
-- **exerciseInstances** - Exercise instances within workouts
-- **setRecords** - Individual set logs (weight, reps, RPE)
-- **personalRecords** - PR tracking
-- **settings** - App settings (includes `activeProgramId`)
+| Table | Key fields |
+|---|---|
+| `programs` | `id`, `name`, `startDate`, `totalWeeks` |
+| `workoutTemplates` | `id`, `programId`, `dayIndex`, `weekNumber`, compound index `[programId+weekNumber+dayIndex]` |
+| `exerciseTemplates` | `id`, `workoutTemplateId`, `orderIndex` |
+| `workouts` | `id`, `startedAt`, `endedAt`, `programId` |
+| `exerciseInstances` | `id`, `workoutId`, `orderIndex` |
+| `setRecords` | `id`, `exerciseId`, `timestamp` |
+| `personalRecords` | `id`, `exerciseName`, `occurredAt` |
+| `settings` | `id` (singleton row) |
+| `programCompletions` | `id`, `programId`, `completionDate` |
 
-**Important indexes**:
-- `workoutTemplates` has compound index `[programId+weekNumber+dayIndex]` for efficient template queries
-- Query patterns: Always filter by `programId` first, then by `dayIndex` and/or `weekNumber`
+New optional fields on existing records don't require a schema version bump — Dexie handles them automatically. Only add a new version when adding tables or indexes.
 
-### State Management
+Query pattern: always filter by `programId` first, then `dayIndex` / `weekNumber` in memory.
 
-**Zustand** (`src/store/appStore.ts`) manages:
-- `activeProgram` - Currently selected program
-- `activeWorkout` - Currently active workout session (null when no workout in progress)
-- `selectedDayIndex` - Which day (0-6) the user has selected
-- `weekNumber` - Current week in the program (calculated from `program.startDate`)
-- `darkMode` - Theme preference (persisted to localStorage)
-- `refreshTrigger` - Counter to force re-renders when data changes
+### State Management — `src/store/appStore.ts`
 
-**Important**: Most state is ephemeral except `darkMode`. Database queries happen in components/pages.
+Zustand store persisted to `localStorage` under key `app-storage`. Only these fields survive page reload:
+
+- `darkMode`, `lastSeenVersion`, `tourCompleted`, `restTimer`, `progressPreferences`
+
+Ephemeral (reset on reload): `activeProgram`, `activeWorkout`, `selectedDayIndex`, `currentExerciseIndex`, `weekNumber`, `refreshTrigger`.
+
+After any database mutation, call `triggerRefresh()` to force component re-renders.
+
+### App Startup Sequence — `src/App.tsx`
+
+On mount, `App` runs in parallel:
+1. `initializePersistence()` — requests browser persistent storage for IndexedDB
+2. `checkDisclaimer()` — shows disclaimer modal if not permanently accepted (re-shows every 24h)
+3. `checkWhatsNew()` — shows What's New modal when `APP_VERSION` differs from `lastSeenVersion`
+4. `runMigrations()` — two data migrations run once and are tracked in `settings`: technique-flags backfill and `programId` backfill on workouts
+
+After splash + hydration: if no active program → show `InitialProgramSelection`; else if tour not completed → auto-start `Tour` after 1 s.
+
+### Workout Flow
+
+1. User selects day in `TodayView` → `setSelectedDayIndex()`
+2. "Start Workout" → `instantiateWorkout(template)` writes `Workout` + `ExerciseInstance` rows to DB; quick workout mode reduces sets to ~70%
+3. `setActiveWorkout(workout)` stores in Zustand
+4. `WorkoutRunner` shows exercises; user logs sets → creates `SetRecord` rows
+5. "Finish Workout" → sets `workout.endedAt` → clears `activeWorkout`
+6. `cleanupAbandonedWorkouts()` runs on app init to delete unfinished workouts from previous days
+
+### Progressive Overload Logic
+
+`getProgressiveOverloadSuggestion()` in `programLogic.ts` analyzes last 3 completed workouts:
+- If consistently hitting upper rep bound (≥2 of 3 sessions) → suggest rep range increase
+- If hit upper bound once → suggest adaptive weight increase (5% / 3.75% / 2.5% based on weight magnitude)
+- If not yet hitting upper bound → suggest keeping weight
 
 ### Program Templates System
 
-Programs support **3-phase periodization** with exercise variations:
+Programs support 3-phase periodization by having 3 template entries per day:
+- **Week 1** — base phase
+- **Week 5** — variation phase (higher volume, different exercises)
+- **Week 9** — strength phase (heavy compounds, lower reps)
 
-- **Weeks 1-4**: Base Phase (foundation exercises)
-- **Weeks 5-8**: Variation Phase (different exercises, higher volume)
-- **Weeks 9-12**: Strength Phase (heavy compounds, lower reps)
+Built-in programs are defined in `src/utils/programTemplates.ts`. When creating new programs, always include all three `weekNumber` entries per day.
 
-Built-in programs in `src/utils/programTemplates.ts`:
-- 3-Day Split: 9 templates (3 days × 3 phases)
-- 5-Day Split: 15 templates (5 days × 3 phases)
-- Upper/Lower 4-Day: 12 templates (4 days × 3 phases)
-- Minimal Effort 4-Day: 12 templates (4 days × 3 phases)
+### CSV Import — `src/utils/csvParser.ts`
 
-**When creating new templates**, always include:
-1. Multiple entries with different `weekNumber` values (1, 5, 9)
-2. Different exercises for each phase
-3. Progressive overload (lower reps, higher sets in strength phase)
+Two supported formats:
 
-### CSV Import/Export
-
-The app supports two CSV formats (see `src/utils/csvParser.ts`):
-
-**Format 1** (Simple, comma-delimited):
+**Format 1** (comma-delimited, no week-specificity):
 ```csv
 Program Name,My Program
 Total Weeks,12
@@ -255,176 +125,93 @@ Day Index,Day Name,Exercise Name,Sets,Reps,Notes
 0,Push Day,Bench Press,3,8-10,
 ```
 
-**Format 2** (Advanced, semicolon-delimited, week-specific):
+**Format 2** (semicolon-delimited, week-specific for periodization):
 ```csv
 week;day_index;workout_name;exercise_name;target_sets;target_reps;notes
 1;0;Upper A;Bench Press;4;6-8;Focus on form
 5;0;Upper A;Dumbbell Press;4;8-10;
 ```
 
-Format 2 allows defining different exercises per week for periodization.
+### Exercise Substitutions — `src/data/exerciseSubstitutions.ts`
 
-### Navigation Structure
+Contains `EXERCISE_SUBSTITUTIONS` map (40+ exercises, 2 substitutions each) plus helpers:
+- `getExerciseSubstitutions(name)` — direct alternatives
+- `getAllPossibleSubstitutions(name)` — bidirectional lookup
+- `getExerciseNotes(name)` — form cues
+- `searchExercises(query)` — partial name match
 
-5 main pages (see `src/App.tsx` for routing):
+### Navigation — `src/App.tsx`
 
-- **TodayView** (`/`) - Select and start workouts, shows recommended day
-- **ProgressView** (`/progress`) - Charts and exercise history
-- **CalendarView** (`/calendar`) - Workout history calendar
-- **ProgramPreviewView** (`/programs`) - View/create/import programs
-- **SettingsView** (`/settings`) - App settings, active program selection
+| Route | Component | Purpose |
+|---|---|---|
+| `/` | `TodayView` | Select day, start workout |
+| `/calendar` | `CalendarView` | Workout history calendar |
+| `/workout/:id` | `WorkoutDetail` | Single workout detail |
+| `/progress` | `ProgressView` | Charts and PRs |
+| `/settings` | `SettingsView` | Program management, preferences |
+| `/program/preview` | `ProgramPreviewView` | View/create/import programs |
 
-### Key Utility Functions
+## Testing
 
-**`src/utils/programLogic.ts`**:
-- `currentWeek()` - Calculates current week from program start date
-- `selectTemplate()` - Finds appropriate template for week + day (uses `weekNumber <= currentWeek` logic)
-- `recommendedDay()` - Suggests next workout based on history
-- `instantiateWorkout()` - Creates Workout + ExerciseInstances from template
-- `previousWorkoutInstances()` - Fetches history for "last time" reference
+Tests use **Vitest** + **React Testing Library**. IndexedDB is mocked with `fake-indexeddb` (configured in `src/test/setup.ts`).
 
-**`src/utils/workoutCleanup.ts`**:
-- `cleanupAbandonedWorkouts()` - Deletes unfinished workouts from previous days (runs on app init)
+Test files sit next to the files they test (`.test.ts` / `.test.tsx`), except integration tests which live in `src/test/`.
 
-## Important Patterns
+Always `clear()` all relevant DB tables in `beforeEach()` for isolation. Use helpers from `src/test/testUtils.tsx` (`createMockProgram`, `createMockWorkoutTemplate`, `createMockExerciseTemplate`, `renderWithProviders`).
 
-### Adding Exercise Variations
+Critical coverage areas: `programLogic.ts` (week calculation, template selection, instantiation, progressive overload), `csvParser.ts` (both formats, edge cases), and `src/test/workoutFlow.test.ts` (end-to-end workout lifecycle).
 
-When updating programs with exercise variations across weeks:
+## Component Organization
 
-1. Add `weekNumber` field to each day object (1, 5, 9 for 12-week programs)
-2. Create multiple entries for the same `dayIndex` with different `weekNumber` values
-3. Ensure the loop uses `day.weekNumber` instead of hardcoded `1`:
-   ```typescript
-   const template: WorkoutTemplate = {
-     id: templateId,
-     name: day.name,
-     dayIndex: day.idx,
-     weekNumber: day.weekNumber,  // NOT hardcoded to 1
-     programId,
-   };
-   ```
+Follow a **Page → Section → Component** hierarchy:
 
-### Querying Templates
+- **Pages** (`src/pages/*.tsx`) — route-level, 200–300 lines max; compose sections
+- **Sections** (`src/components/[PageName]/*.tsx`) — major functional areas, 100–200 lines
+- **Components** (`src/components/shared/*.tsx`) — reusable, presentational, 50–100 lines
 
-Always query templates by `programId` first, then filter by `dayIndex` and `weekNumber`:
+Extract into a new section when a file exceeds 300 lines or a UI area has its own state.
+
+## Key Patterns
+
+### Querying templates
 
 ```typescript
 const templates = await db.workoutTemplates
   .where({ programId, dayIndex })
   .toArray();
 
-// Then filter by weekNumber in memory
 const validTemplates = templates.filter(t => t.weekNumber <= currentWeek);
 validTemplates.sort((a, b) => b.weekNumber - a.weekNumber);
 return validTemplates[0];
 ```
 
-### Triggering UI Refresh
+### Creating programs with week variations
 
-After database mutations, trigger a refresh:
+Always include `weekNumber` from the data structure, not hardcoded to `1`:
 ```typescript
-const { triggerRefresh } = useAppStore();
-// ... perform database operations
-triggerRefresh();
+const template: WorkoutTemplate = {
+  weekNumber: day.weekNumber,  // NOT hardcoded to 1
+  ...
+};
 ```
 
-### Workout Flow
+### Weight units
 
-1. User selects day in TodayView → `setSelectedDayIndex()`
-2. Click "Start Workout" → `instantiateWorkout(template)` creates Workout + ExerciseInstances
-3. `setActiveWorkout(workout)` stores in Zustand
-4. WorkoutRunner component shows exercises, user logs sets → creates SetRecords
-5. Click "Finish Workout" → sets `workout.endedAt` → clears `activeWorkout`
+`SetRecord.weight` is always stored in **kilograms**. Convert for display using `src/utils/weightUnit.ts` based on `settings.weightUnit`.
 
-## Component Organization Guidelines
+## Tech Stack
 
-**Prefer small, focused component files over large monolithic ones.** Use a **Page → Section → Component** structure:
+- **React 19** + **TypeScript** — UI framework
+- **Vite 7** + `vite-plugin-pwa` — build tool and PWA support
+- **React Router v7** — client-side routing
+- **Zustand 5** — state management (`persist` middleware for localStorage)
+- **Dexie.js 4** — IndexedDB wrapper
+- **Tailwind CSS v4** — styling (use `dark:` prefix for dark-mode variants)
+- **Recharts** — progress charts
+- **Lucide React** — icons
+- **driver.js** — guided tour
+- **html2canvas + jspdf** — PDF export
 
-### Structure Hierarchy
+## Changelog
 
-1. **Pages** (`src/pages/*.tsx`) - Route-level components (200-300 lines max)
-   - Handle routing, data fetching, and page-level state
-   - Compose Sections together
-   - Example: `TodayView`, `ProgressView`, `SettingsView`
-
-2. **Sections** (`src/components/[PageName]/*.tsx`) - Major functional areas (100-200 lines max)
-   - Represent distinct UI sections within a page
-   - Handle section-specific logic and state
-   - Example: `WorkoutHeader`, `ExerciseList`, `StatsPanel`, `ProgramSettings`
-
-3. **Components** (`src/components/*.tsx` or `src/components/shared/*.tsx`) - Reusable UI elements (50-100 lines max)
-   - Small, focused, reusable pieces
-   - Minimal logic, mostly presentational
-   - Example: `Button`, `Card`, `ExerciseCard`, `SetRow`, `Modal`
-
-### When to Extract a Component
-
-Extract when:
-- A file exceeds 300 lines
-- A logical section of UI can be named (e.g., "Exercise List Section")
-- Code is repeated across pages
-- A section has its own useState/useEffect
-- Testing or debugging becomes difficult
-
-### Example Structure
-
-```
-src/
-├── pages/
-│   ├── ProgressView.tsx          (Page - orchestrates sections)
-│   └── SettingsView.tsx          (Page - orchestrates sections)
-├── components/
-│   ├── ProgressView/             (Sections for ProgressView)
-│   │   ├── ExerciseStatsSection.tsx
-│   │   ├── ProgressChartSection.tsx
-│   │   └── WorkoutHistorySection.tsx
-│   ├── SettingsView/             (Sections for SettingsView)
-│   │   ├── ProgramSettingsSection.tsx
-│   │   ├── RestTimerSection.tsx
-│   │   └── DataManagementSection.tsx
-│   ├── shared/                   (Reusable components)
-│   │   ├── Button.tsx
-│   │   ├── Card.tsx
-│   │   └── Modal.tsx
-│   ├── WorkoutRunner.tsx         (Complex component - could be split)
-│   └── Layout.tsx
-```
-
-### Current Large Files to Refactor
-
-When working on these files, consider breaking them into sections:
-- `WorkoutRunner.tsx` (847 lines) → Extract: ExerciseListSection, SetLoggerSection, WorkoutControlsSection
-- `SettingsView.tsx` (863 lines) → Extract: ProgramSettingsSection, RestTimerSection, DataManagementSection
-- `ProgressView.tsx` (552 lines) → Extract: ExerciseStatsSection, ProgressChartSection
-- `CalendarView.tsx` (466 lines) → Extract: CalendarHeaderSection, WorkoutCalendarSection
-
-## Tech Stack Details
-
-- **React 19** + **TypeScript** - UI framework
-- **Vite** - Build tool with PWA plugin
-- **React Router v7** - Client-side routing
-- **Zustand** - Lightweight state management
-- **Dexie.js** - IndexedDB wrapper
-- **Tailwind CSS v4** - Utility-first styling
-- **Lucide React** - Icon library
-- **Recharts** - Charts for progress tracking
-
-## Database Versioning
-
-Database schema versions are managed in `src/db/database.ts`:
-- Version 1: Initial schema
-- Version 2: Added compound index for workoutTemplates
-- Version 3: Added disclaimer fields (no schema change)
-- Version 4: Added rest timer fields (no schema change)
-
-Dexie automatically handles schema migrations. New optional fields don't require schema changes.
-
-## Dark mode
-
-Implemented components should be dark-mode ready. `dark:` prefix should be used to define styling for dark mode.
-
-
-## Changelog.md
-
-Changelog should contain only records of major and minor version release data. Keep that in mind when updating changelog.
+`CHANGELOG.md` tracks only major and minor releases, not patches.
