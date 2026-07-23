@@ -1,0 +1,409 @@
+week;day_index;workout_name;exercise_name;target_sets;target_reps;notes
+1;0;Upper (Strength Focus);45° Incline Barbell Press;2;6-8;1 second pause at the bottom of each rep while maintaining tension on the pecs
+1;0;Upper (Strength Focus);Cable Crossover Ladder;2;6-10;Do one set with low cable position, one set with medium-height cable position, and one height with a high cable position. If you only have one or two sets, choose the one or two cable positions you prefer.
+1;0;Upper (Strength Focus);Wide-Grip Pull-Up;2;6-10;1.5x shoulder width overhand grip. Slow 2-3 second negative. Feel your lats pulling apart on the way down.
+1;0;Upper (Strength Focus);High-Cable Lateral Raise;2;6-10;Focus on squeezing your lateral delt to move the weight.
+1;0;Upper (Strength Focus);Pendlay Deficit Row;2;6-8;Stand on a bumper plate. Focus on getting a big stretch and touch your stomach/chest on each rep! 
+1;0;Upper (Strength Focus);Overhead Cable Triceps Extension (Bar);2;6-10;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+1;0;Upper (Strength Focus);Bayesian Cable Curl;2;6-10;If you have a left-right bicep size imbalance, do these 1 arm at a time, starting with the weaker arm. Take the weaker arm to the listed RPE. Then match the reps with the other arm (stop once you've matched the reps, even if the RPE is lower). If you don't have a size imbalance, do these both arms at the same time.
+1;1;Lower (Strength Focus);Lying Leg Curl;2;6-10;Set the machine so that you get the biggest stretch possible at the bottom. Prevent your butt from popping up as you curl. 
+1;1;Lower (Strength Focus);Smith Machine Squat;2;6-8;Once you are under the bar, set up your feet as you would a normal squat and then bring them forward ~3-6 inches. This will cause you to lean back into the bar slightly, allowing for a more upright squat, while also placing more tension on the quads. If your heels are raising at the bottom, you may need to bring your feet more forward. If your feet feel like they are slipping or your lower back is rounding at the bottom, try bringing your feet back a bit.
+1;1;Lower (Strength Focus);Barbell RDL;2;6-8;To keep tension on the hamstrings, stop about 75% of the way to full lockout on each rep (i.e. stay in the bottom 3/4 of the range of motion).
+1;1;Lower (Strength Focus);Leg Extension;2;6-10;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+1;1;Lower (Strength Focus);Standing Calf Raise;2;6-8;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+1;1;Lower (Strength Focus);Cable Crunch;2;6-10;Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.
+1;2;Pull (Hypertrophy Focus);Neutral-Grip Lat Pulldown;2;6-10;Do these pulldowns with the handle more out in front of you, more like a cross between pullover and a pulldown. Focus on feeling your lats working more than the weight you're using.
+1;2;Pull (Hypertrophy Focus);Chest-Supported Machine Row;2;6-10;Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.
+1;2;Pull (Hypertrophy Focus);Neutral-Grip Seated Cable Row;2;10-12;Focus on squeezing your shoulder blades together, driving your elbows down and back.
+1;2;Pull (Hypertrophy Focus);1-Arm 45° Cable Rear Delt Flye;2;10-12;Pause for 1-2 seconds in the squeeze of each rep. Contract the rear delts hard!
+1;2;Pull (Hypertrophy Focus);Machine Shrug;2;10-12;Brief pause at the top of the bottom of ROM. Think about pulling your shoulders up to your ears!
+1;2;Pull (Hypertrophy Focus);EZ-Bar Cable Curl;2;10-12;Set up the cable at the lowest position. Maintain constant tension on the biceps. Slow, controlled reps!
+1;2;Pull (Hypertrophy Focus);Machine Preacher Curl;1;12-15;Smooth, controlled reps. Mind-muscle connection with the biceps.
+1;3;Push (Hypertrophy Focus);Barbell Bench Press;2;6-10;Set up a comfortable arch, quick pause on the chest and explode up on each rep.
+1;3;Push (Hypertrophy Focus);Machine Shoulder Press;2;6-10;Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.
+1;3;Push (Hypertrophy Focus);Bottom-Half DB Flye;2;10-12;All reps and sets are to be performed in the bottom half of the ROM. Focus on feeling a deep stretch in your pecs at the bottom of each rep.
+1;3;Push (Hypertrophy Focus);High-Cable Lateral Raise;2;10-12;Focus on squeezing your lateral delt to move the weight.
+1;3;Push (Hypertrophy Focus);Overhead Cable Triceps Extension (Bar);2;10-12;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+1;3;Push (Hypertrophy Focus);Cable Triceps Kickback;1;12-15;There are two ways you can do this: upright or bent over. Choose the one that feels more comfortable for you. The main thing is that when you're in the full squeeze, your shoulder should be positioned back behind your torso.
+1;3;Push (Hypertrophy Focus);Roman Chair Leg Raise;2;10-20;Allow your lower back to round as you curl your legs up. 10-20 reps is a broad range on purpose: just go until you hit the listed RPE with controlled form.
+1;4;Legs (Hypertrophy Focus);Leg Press;2;6-10;Feet lower on the platform for more quad focus. Get as deep as you can without excessive back rounding. Control the negative and do a slight pause at the bottom of each rep.
+1;4;Legs (Hypertrophy Focus);Seated Leg Curl;2;10-12;Lean forward over the machine to get a maximum stretch in your hamstrings.
+1;4;Legs (Hypertrophy Focus);DB Bulgarian Split Squat;2;6-10;Lower all the way down until your front thigh is parallel to the ground. Drive through your front heel on the way up.
+1;4;Legs (Hypertrophy Focus);Leg Extension;2;10-12;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+1;4;Legs (Hypertrophy Focus);Machine Hip Adduction;2;10-12;Mind-muscle connection with your inner thighs. These are great for adding thigh mass from the front! Push them hard!
+1;4;Legs (Hypertrophy Focus);Machine Hip Abduction;2;10-12;If possible, use pads to increase the range of motion on the machine. Lean forward and grab onto the machine rails to stretch the glutes further.
+1;4;Legs (Hypertrophy Focus);Standing Calf Raise;2;10-12;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+2;0;Upper (Strength Focus);45° Incline Barbell Press;3;6-8;1 second pause at the bottom of each rep while maintaining tension on the pecs
+2;0;Upper (Strength Focus);Cable Crossover Ladder;2;6-10;Do one set with low cable position, one set with medium-height cable position, and one height with a high cable position. If you only have one or two sets, choose the one or two cable positions you prefer.
+2;0;Upper (Strength Focus);Wide-Grip Pull-Up;3;6-10;1.5x shoulder width overhand grip. Slow 2-3 second negative. Feel your lats pulling apart on the way down.
+2;0;Upper (Strength Focus);High-Cable Lateral Raise;2;6-10;Focus on squeezing your lateral delt to move the weight.
+2;0;Upper (Strength Focus);Pendlay Deficit Row;2;6-8;Stand on a bumper plate. Focus on getting a big stretch and touch your stomach/chest on each rep! 
+2;0;Upper (Strength Focus);Overhead Cable Triceps Extension (Bar);2;6-10;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+2;0;Upper (Strength Focus);Bayesian Cable Curl;2;6-10;If you have a left-right bicep size imbalance, do these 1 arm at a time, starting with the weaker arm. Take the weaker arm to the listed RPE. Then match the reps with the other arm (stop once you've matched the reps, even if the RPE is lower). If you don't have a size imbalance, do these both arms at the same time.
+2;1;Lower (Strength Focus);Lying Leg Curl;2;6-10;Set the machine so that you get the biggest stretch possible at the bottom. Prevent your butt from popping up as you curl. 
+2;1;Lower (Strength Focus);Smith Machine Squat;3;6-8;Once you are under the bar, set up your feet as you would a normal squat and then bring them forward ~3-6 inches. This will cause you to lean back into the bar slightly, allowing for a more upright squat, while also placing more tension on the quads. If your heels are raising at the bottom, you may need to bring your feet more forward. If your feet feel like they are slipping or your lower back is rounding at the bottom, try bringing your feet back a bit.
+2;1;Lower (Strength Focus);Barbell RDL;3;6-8;To keep tension on the hamstrings, stop about 75% of the way to full lockout on each rep (i.e. stay in the bottom 3/4 of the range of motion).
+2;1;Lower (Strength Focus);Leg Extension;2;6-10;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+2;1;Lower (Strength Focus);Standing Calf Raise;2;6-8;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+2;1;Lower (Strength Focus);Cable Crunch;2;6-10;Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.
+2;2;Pull (Hypertrophy Focus);Neutral-Grip Lat Pulldown;2;6-10;Do these pulldowns with the handle more out in front of you, more like a cross between pullover and a pulldown. Focus on feeling your lats working more than the weight you're using.
+2;2;Pull (Hypertrophy Focus);Chest-Supported Machine Row;3;6-10;Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.
+2;2;Pull (Hypertrophy Focus);Neutral-Grip Seated Cable Row;2;10-12;Focus on squeezing your shoulder blades together, driving your elbows down and back.
+2;2;Pull (Hypertrophy Focus);1-Arm 45° Cable Rear Delt Flye;2;10-12;Pause for 1-2 seconds in the squeeze of each rep. Contract the rear delts hard!
+2;2;Pull (Hypertrophy Focus);Machine Shrug;2;10-12;Brief pause at the top of the bottom of ROM. Think about pulling your shoulders up to your ears!
+2;2;Pull (Hypertrophy Focus);EZ-Bar Cable Curl;2;10-12;Set up the cable at the lowest position. Maintain constant tension on the biceps. Slow, controlled reps!
+2;2;Pull (Hypertrophy Focus);Machine Preacher Curl;1;12-15;Smooth, controlled reps. Mind-muscle connection with the biceps.
+2;3;Push (Hypertrophy Focus);Barbell Bench Press;3;6-10;Set up a comfortable arch, quick pause on the chest and explode up on each rep.
+2;3;Push (Hypertrophy Focus);Machine Shoulder Press;2;6-10;Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.
+2;3;Push (Hypertrophy Focus);Bottom-Half DB Flye;2;10-12;All reps and sets are to be performed in the bottom half of the ROM. Focus on feeling a deep stretch in your pecs at the bottom of each rep.
+2;3;Push (Hypertrophy Focus);High-Cable Lateral Raise;2;10-12;Focus on squeezing your lateral delt to move the weight.
+2;3;Push (Hypertrophy Focus);Overhead Cable Triceps Extension (Bar);2;10-12;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+2;3;Push (Hypertrophy Focus);Cable Triceps Kickback;1;12-15;There are two ways you can do this: upright or bent over. Choose the one that feels more comfortable for you. The main thing is that when you're in the full squeeze, your shoulder should be positioned back behind your torso.
+2;3;Push (Hypertrophy Focus);Roman Chair Leg Raise;2;10-20;Allow your lower back to round as you curl your legs up. 10-20 reps is a broad range on purpose: just go until you hit the listed RPE with controlled form.
+2;4;Legs (Hypertrophy Focus);Leg Press;3;6-10;Feet lower on the platform for more quad focus. Get as deep as you can without excessive back rounding. Control the negative and do a slight pause at the bottom of each rep.
+2;4;Legs (Hypertrophy Focus);Seated Leg Curl;2;10-12;Lean forward over the machine to get a maximum stretch in your hamstrings.
+2;4;Legs (Hypertrophy Focus);DB Bulgarian Split Squat;2;6-10;Lower all the way down until your front thigh is parallel to the ground. Drive through your front heel on the way up.
+2;4;Legs (Hypertrophy Focus);Leg Extension;2;10-12;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+2;4;Legs (Hypertrophy Focus);Machine Hip Adduction;2;10-12;Mind-muscle connection with your inner thighs. These are great for adding thigh mass from the front! Push them hard!
+2;4;Legs (Hypertrophy Focus);Machine Hip Abduction;2;10-12;If possible, use pads to increase the range of motion on the machine. Lean forward and grab onto the machine rails to stretch the glutes further.
+2;4;Legs (Hypertrophy Focus);Standing Calf Raise;2;10-12;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+3;0;Upper (Strength Focus);45° Incline Barbell Press;3;6-8;1 second pause at the bottom of each rep while maintaining tension on the pecs
+3;0;Upper (Strength Focus);Cable Crossover Ladder;2;6-10;Do one set with low cable position, one set with medium-height cable position, and one height with a high cable position. If you only have one or two sets, choose the one or two cable positions you prefer.
+3;0;Upper (Strength Focus);Wide-Grip Pull-Up;3;6-10;1.5x shoulder width overhand grip. Slow 2-3 second negative. Feel your lats pulling apart on the way down.
+3;0;Upper (Strength Focus);High-Cable Lateral Raise;2;6-10;Focus on squeezing your lateral delt to move the weight.
+3;0;Upper (Strength Focus);Pendlay Deficit Row;2;6-8;Stand on a bumper plate. Focus on getting a big stretch and touch your stomach/chest on each rep! 
+3;0;Upper (Strength Focus);Overhead Cable Triceps Extension (Bar);2;6-10;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+3;0;Upper (Strength Focus);Bayesian Cable Curl;2;6-10;If you have a left-right bicep size imbalance, do these 1 arm at a time, starting with the weaker arm. Take the weaker arm to the listed RPE. Then match the reps with the other arm (stop once you've matched the reps, even if the RPE is lower). If you don't have a size imbalance, do these both arms at the same time.
+3;1;Lower (Strength Focus);Lying Leg Curl;2;6-10;Set the machine so that you get the biggest stretch possible at the bottom. Prevent your butt from popping up as you curl. 
+3;1;Lower (Strength Focus);Smith Machine Squat;3;6-8;Once you are under the bar, set up your feet as you would a normal squat and then bring them forward ~3-6 inches. This will cause you to lean back into the bar slightly, allowing for a more upright squat, while also placing more tension on the quads. If your heels are raising at the bottom, you may need to bring your feet more forward. If your feet feel like they are slipping or your lower back is rounding at the bottom, try bringing your feet back a bit.
+3;1;Lower (Strength Focus);Barbell RDL;3;6-8;To keep tension on the hamstrings, stop about 75% of the way to full lockout on each rep (i.e. stay in the bottom 3/4 of the range of motion).
+3;1;Lower (Strength Focus);Leg Extension;2;6-10;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+3;1;Lower (Strength Focus);Standing Calf Raise;2;6-8;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+3;1;Lower (Strength Focus);Cable Crunch;2;6-10;Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.
+3;2;Pull (Hypertrophy Focus);Neutral-Grip Lat Pulldown;2;6-10;Do these pulldowns with the handle more out in front of you, more like a cross between pullover and a pulldown. Focus on feeling your lats working more than the weight you're using.
+3;2;Pull (Hypertrophy Focus);Chest-Supported Machine Row;3;6-10;Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.
+3;2;Pull (Hypertrophy Focus);Neutral-Grip Seated Cable Row;2;10-12;Focus on squeezing your shoulder blades together, driving your elbows down and back.
+3;2;Pull (Hypertrophy Focus);1-Arm 45° Cable Rear Delt Flye;2;10-12;Pause for 1-2 seconds in the squeeze of each rep. Contract the rear delts hard!
+3;2;Pull (Hypertrophy Focus);Machine Shrug;2;10-12;Brief pause at the top of the bottom of ROM. Think about pulling your shoulders up to your ears!
+3;2;Pull (Hypertrophy Focus);EZ-Bar Cable Curl;2;10-12;Set up the cable at the lowest position. Maintain constant tension on the biceps. Slow, controlled reps!
+3;2;Pull (Hypertrophy Focus);Machine Preacher Curl;1;12-15;Smooth, controlled reps. Mind-muscle connection with the biceps.
+3;3;Push (Hypertrophy Focus);Barbell Bench Press;3;6-10;Set up a comfortable arch, quick pause on the chest and explode up on each rep.
+3;3;Push (Hypertrophy Focus);Machine Shoulder Press;2;6-10;Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.
+3;3;Push (Hypertrophy Focus);Bottom-Half DB Flye;2;10-12;All reps and sets are to be performed in the bottom half of the ROM. Focus on feeling a deep stretch in your pecs at the bottom of each rep.
+3;3;Push (Hypertrophy Focus);High-Cable Lateral Raise;2;10-12;Focus on squeezing your lateral delt to move the weight.
+3;3;Push (Hypertrophy Focus);Overhead Cable Triceps Extension (Bar);2;10-12;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+3;3;Push (Hypertrophy Focus);Cable Triceps Kickback;1;12-15;There are two ways you can do this: upright or bent over. Choose the one that feels more comfortable for you. The main thing is that when you're in the full squeeze, your shoulder should be positioned back behind your torso.
+3;3;Push (Hypertrophy Focus);Roman Chair Leg Raise;2;10-20;Allow your lower back to round as you curl your legs up. 10-20 reps is a broad range on purpose: just go until you hit the listed RPE with controlled form.
+3;4;Legs (Hypertrophy Focus);Leg Press;3;6-10;Feet lower on the platform for more quad focus. Get as deep as you can without excessive back rounding. Control the negative and do a slight pause at the bottom of each rep.
+3;4;Legs (Hypertrophy Focus);Seated Leg Curl;2;10-12;Lean forward over the machine to get a maximum stretch in your hamstrings.
+3;4;Legs (Hypertrophy Focus);DB Bulgarian Split Squat;2;6-10;Lower all the way down until your front thigh is parallel to the ground. Drive through your front heel on the way up.
+3;4;Legs (Hypertrophy Focus);Leg Extension;2;10-12;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+3;4;Legs (Hypertrophy Focus);Machine Hip Adduction;2;10-12;Mind-muscle connection with your inner thighs. These are great for adding thigh mass from the front! Push them hard!
+3;4;Legs (Hypertrophy Focus);Machine Hip Abduction;2;10-12;If possible, use pads to increase the range of motion on the machine. Lean forward and grab onto the machine rails to stretch the glutes further.
+3;4;Legs (Hypertrophy Focus);Standing Calf Raise;2;10-12;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+4;0;Upper (Strength Focus);45° Incline Barbell Press;3;6-8;1 second pause at the bottom of each rep while maintaining tension on the pecs
+4;0;Upper (Strength Focus);Cable Crossover Ladder;2;6-10;Do one set with low cable position, one set with medium-height cable position, and one height with a high cable position. If you only have one or two sets, choose the one or two cable positions you prefer.
+4;0;Upper (Strength Focus);Wide-Grip Pull-Up;3;6-10;1.5x shoulder width overhand grip. Slow 2-3 second negative. Feel your lats pulling apart on the way down.
+4;0;Upper (Strength Focus);High-Cable Lateral Raise;2;6-10;Focus on squeezing your lateral delt to move the weight.
+4;0;Upper (Strength Focus);Pendlay Deficit Row;2;6-8;Stand on a bumper plate. Focus on getting a big stretch and touch your stomach/chest on each rep! 
+4;0;Upper (Strength Focus);Overhead Cable Triceps Extension (Bar);2;6-10;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+4;0;Upper (Strength Focus);Bayesian Cable Curl;2;6-10;If you have a left-right bicep size imbalance, do these 1 arm at a time, starting with the weaker arm. Take the weaker arm to the listed RPE. Then match the reps with the other arm (stop once you've matched the reps, even if the RPE is lower). If you don't have a size imbalance, do these both arms at the same time.
+4;1;Lower (Strength Focus);Lying Leg Curl;2;6-10;Set the machine so that you get the biggest stretch possible at the bottom. Prevent your butt from popping up as you curl. 
+4;1;Lower (Strength Focus);Smith Machine Squat;3;6-8;Once you are under the bar, set up your feet as you would a normal squat and then bring them forward ~3-6 inches. This will cause you to lean back into the bar slightly, allowing for a more upright squat, while also placing more tension on the quads. If your heels are raising at the bottom, you may need to bring your feet more forward. If your feet feel like they are slipping or your lower back is rounding at the bottom, try bringing your feet back a bit.
+4;1;Lower (Strength Focus);Barbell RDL;3;6-8;To keep tension on the hamstrings, stop about 75% of the way to full lockout on each rep (i.e. stay in the bottom 3/4 of the range of motion).
+4;1;Lower (Strength Focus);Leg Extension;2;6-10;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+4;1;Lower (Strength Focus);Standing Calf Raise;2;6-8;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+4;1;Lower (Strength Focus);Cable Crunch;2;6-10;Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.
+4;2;Pull (Hypertrophy Focus);Neutral-Grip Lat Pulldown;2;6-10;Do these pulldowns with the handle more out in front of you, more like a cross between pullover and a pulldown. Focus on feeling your lats working more than the weight you're using.
+4;2;Pull (Hypertrophy Focus);Chest-Supported Machine Row;3;6-10;Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.
+4;2;Pull (Hypertrophy Focus);Neutral-Grip Seated Cable Row;2;10-12;Focus on squeezing your shoulder blades together, driving your elbows down and back.
+4;2;Pull (Hypertrophy Focus);1-Arm 45° Cable Rear Delt Flye;2;10-12;Pause for 1-2 seconds in the squeeze of each rep. Contract the rear delts hard!
+4;2;Pull (Hypertrophy Focus);Machine Shrug;2;10-12;Brief pause at the top of the bottom of ROM. Think about pulling your shoulders up to your ears!
+4;2;Pull (Hypertrophy Focus);EZ-Bar Cable Curl;2;10-12;Set up the cable at the lowest position. Maintain constant tension on the biceps. Slow, controlled reps!
+4;2;Pull (Hypertrophy Focus);Machine Preacher Curl;1;12-15;Smooth, controlled reps. Mind-muscle connection with the biceps.
+4;3;Push (Hypertrophy Focus);Barbell Bench Press;3;6-10;Set up a comfortable arch, quick pause on the chest and explode up on each rep.
+4;3;Push (Hypertrophy Focus);Machine Shoulder Press;2;6-10;Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.
+4;3;Push (Hypertrophy Focus);Bottom-Half DB Flye;2;10-12;All reps and sets are to be performed in the bottom half of the ROM. Focus on feeling a deep stretch in your pecs at the bottom of each rep.
+4;3;Push (Hypertrophy Focus);High-Cable Lateral Raise;2;10-12;Focus on squeezing your lateral delt to move the weight.
+4;3;Push (Hypertrophy Focus);Overhead Cable Triceps Extension (Bar);2;10-12;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+4;3;Push (Hypertrophy Focus);Cable Triceps Kickback;1;12-15;There are two ways you can do this: upright or bent over. Choose the one that feels more comfortable for you. The main thing is that when you're in the full squeeze, your shoulder should be positioned back behind your torso.
+4;3;Push (Hypertrophy Focus);Roman Chair Leg Raise;2;10-20;Allow your lower back to round as you curl your legs up. 10-20 reps is a broad range on purpose: just go until you hit the listed RPE with controlled form.
+4;4;Legs (Hypertrophy Focus);Leg Press;3;6-10;Feet lower on the platform for more quad focus. Get as deep as you can without excessive back rounding. Control the negative and do a slight pause at the bottom of each rep.
+4;4;Legs (Hypertrophy Focus);Seated Leg Curl;2;10-12;Lean forward over the machine to get a maximum stretch in your hamstrings.
+4;4;Legs (Hypertrophy Focus);DB Bulgarian Split Squat;2;6-10;Lower all the way down until your front thigh is parallel to the ground. Drive through your front heel on the way up.
+4;4;Legs (Hypertrophy Focus);Leg Extension;2;10-12;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+4;4;Legs (Hypertrophy Focus);Machine Hip Adduction;2;10-12;Mind-muscle connection with your inner thighs. These are great for adding thigh mass from the front! Push them hard!
+4;4;Legs (Hypertrophy Focus);Machine Hip Abduction;2;10-12;If possible, use pads to increase the range of motion on the machine. Lean forward and grab onto the machine rails to stretch the glutes further.
+4;4;Legs (Hypertrophy Focus);Standing Calf Raise;2;10-12;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+5;0;Upper (Strength Focus);45° Incline Barbell Press;3;6-8;1 second pause at the bottom of each rep while maintaining tension on the pecs
+5;0;Upper (Strength Focus);Cable Crossover Ladder;2;6-10;Do one set with low cable position, one set with medium-height cable position, and one height with a high cable position. If you only have one or two sets, choose the one or two cable positions you prefer.
+5;0;Upper (Strength Focus);Wide-Grip Pull-Up;3;6-10;1.5x shoulder width overhand grip. Slow 2-3 second negative. Feel your lats pulling apart on the way down.
+5;0;Upper (Strength Focus);High-Cable Lateral Raise;2;6-10;Focus on squeezing your lateral delt to move the weight.
+5;0;Upper (Strength Focus);Pendlay Deficit Row;2;6-8;Stand on a bumper plate. Focus on getting a big stretch and touch your stomach/chest on each rep! 
+5;0;Upper (Strength Focus);Overhead Cable Triceps Extension (Bar);2;6-10;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+5;0;Upper (Strength Focus);Bayesian Cable Curl;2;6-10;If you have a left-right bicep size imbalance, do these 1 arm at a time, starting with the weaker arm. Take the weaker arm to the listed RPE. Then match the reps with the other arm (stop once you've matched the reps, even if the RPE is lower). If you don't have a size imbalance, do these both arms at the same time.
+5;1;Lower (Strength Focus);Lying Leg Curl;2;6-10;Set the machine so that you get the biggest stretch possible at the bottom. Prevent your butt from popping up as you curl. 
+5;1;Lower (Strength Focus);Smith Machine Squat;3;6-8;Once you are under the bar, set up your feet as you would a normal squat and then bring them forward ~3-6 inches. This will cause you to lean back into the bar slightly, allowing for a more upright squat, while also placing more tension on the quads. If your heels are raising at the bottom, you may need to bring your feet more forward. If your feet feel like they are slipping or your lower back is rounding at the bottom, try bringing your feet back a bit.
+5;1;Lower (Strength Focus);Barbell RDL;3;6-8;To keep tension on the hamstrings, stop about 75% of the way to full lockout on each rep (i.e. stay in the bottom 3/4 of the range of motion).
+5;1;Lower (Strength Focus);Leg Extension;2;6-10;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+5;1;Lower (Strength Focus);Standing Calf Raise;2;6-8;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+5;1;Lower (Strength Focus);Cable Crunch;2;6-10;Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.
+5;2;Pull (Hypertrophy Focus);Neutral-Grip Lat Pulldown;2;6-10;Do these pulldowns with the handle more out in front of you, more like a cross between pullover and a pulldown. Focus on feeling your lats working more than the weight you're using.
+5;2;Pull (Hypertrophy Focus);Chest-Supported Machine Row;3;6-10;Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.
+5;2;Pull (Hypertrophy Focus);Neutral-Grip Seated Cable Row;2;10-12;Focus on squeezing your shoulder blades together, driving your elbows down and back.
+5;2;Pull (Hypertrophy Focus);1-Arm 45° Cable Rear Delt Flye;2;10-12;Pause for 1-2 seconds in the squeeze of each rep. Contract the rear delts hard!
+5;2;Pull (Hypertrophy Focus);Machine Shrug;2;10-12;Brief pause at the top of the bottom of ROM. Think about pulling your shoulders up to your ears!
+5;2;Pull (Hypertrophy Focus);EZ-Bar Cable Curl;2;10-12;Set up the cable at the lowest position. Maintain constant tension on the biceps. Slow, controlled reps!
+5;2;Pull (Hypertrophy Focus);Machine Preacher Curl;1;12-15;Smooth, controlled reps. Mind-muscle connection with the biceps.
+5;3;Push (Hypertrophy Focus);Barbell Bench Press;3;6-10;Set up a comfortable arch, quick pause on the chest and explode up on each rep.
+5;3;Push (Hypertrophy Focus);Machine Shoulder Press;2;6-10;Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.
+5;3;Push (Hypertrophy Focus);Bottom-Half DB Flye;2;10-12;All reps and sets are to be performed in the bottom half of the ROM. Focus on feeling a deep stretch in your pecs at the bottom of each rep.
+5;3;Push (Hypertrophy Focus);High-Cable Lateral Raise;2;10-12;Focus on squeezing your lateral delt to move the weight.
+5;3;Push (Hypertrophy Focus);Overhead Cable Triceps Extension (Bar);2;10-12;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+5;3;Push (Hypertrophy Focus);Cable Triceps Kickback;1;12-15;There are two ways you can do this: upright or bent over. Choose the one that feels more comfortable for you. The main thing is that when you're in the full squeeze, your shoulder should be positioned back behind your torso.
+5;3;Push (Hypertrophy Focus);Roman Chair Leg Raise;2;10-20;Allow your lower back to round as you curl your legs up. 10-20 reps is a broad range on purpose: just go until you hit the listed RPE with controlled form.
+5;4;Legs (Hypertrophy Focus);Leg Press;3;6-10;Feet lower on the platform for more quad focus. Get as deep as you can without excessive back rounding. Control the negative and do a slight pause at the bottom of each rep.
+5;4;Legs (Hypertrophy Focus);Seated Leg Curl;2;10-12;Lean forward over the machine to get a maximum stretch in your hamstrings.
+5;4;Legs (Hypertrophy Focus);DB Bulgarian Split Squat;2;6-10;Lower all the way down until your front thigh is parallel to the ground. Drive through your front heel on the way up.
+5;4;Legs (Hypertrophy Focus);Leg Extension;2;10-12;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+5;4;Legs (Hypertrophy Focus);Machine Hip Adduction;2;10-12;Mind-muscle connection with your inner thighs. These are great for adding thigh mass from the front! Push them hard!
+5;4;Legs (Hypertrophy Focus);Machine Hip Abduction;2;10-12;If possible, use pads to increase the range of motion on the machine. Lean forward and grab onto the machine rails to stretch the glutes further.
+5;4;Legs (Hypertrophy Focus);Standing Calf Raise;2;10-12;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+6;0;Upper (Strength Focus);45° Incline DB Press;2;6-10;1 second pause at the bottom of each rep while maintaining tension on the pecs
+6;0;Upper (Strength Focus);Pec Deck;2;10-12;Focus on bringing your elbows together - not your hands
+6;0;Upper (Strength Focus);Dual-Handle Lat Pulldown;2;10-12;Lean back by ~15° and drive your elbows down as you squeeze your shoulder blades together. This should feel like a mix of lats and mid-traps.
+6;0;Upper (Strength Focus);High-Cable Lateral Raise;2;10-12;Focus on squeezing your lateral delt to move the weight.
+6;0;Upper (Strength Focus);Smith Machine Row;2;6-10;Focus on squeezing your shoulder blades together, keeping your elbows at a ~45° angle
+6;0;Upper (Strength Focus);Overhead Cable Triceps Extension (Bar);2;10-12;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+6;0;Upper (Strength Focus);Bayesian Cable Curl;2;10-12;If you have a left-right bicep size imbalance, do these 1 arm at a time, starting with the weaker arm. Take the weaker arm to the listed RPE. Then match the reps with the other arm (stop once you've matched the reps, even if the RPE is lower). If you don't have a size imbalance, do these both arms at the same time.
+6;1;Lower (Strength Focus);Lying Leg Curl;2;10-12;Set the machine so that you get the biggest stretch possible at the bottom. Prevent your butt from popping up as you curl. 
+6;1;Lower (Strength Focus);Smith Machine Static Lunge w/ Elevated Front Foot;2;6-10;Elevate your front foot on a small box. Minimize contribution from your back leg.
+6;1;Lower (Strength Focus);45° Hyperextension;2;6-10;Squeeze your glutes hard at the top of each rep. Slow controlled reps on the way down, followed by an explosive positive.
+6;1;Lower (Strength Focus);Leg Extension;2;10-12;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+6;1;Lower (Strength Focus);Leg Press Calf Press;2;6-10;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+6;1;Lower (Strength Focus);Machine Crunch;2;10-12;Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.
+6;2;Pull (Hypertrophy Focus);Lean-Back Lat Pulldown;2;10-12;Initiate the pulldown with a straight up posture. As you pull the bar down, lean back by about 15-30° to get the mid-back more involved. Softly touch the bar to your chest on every rep and, even though you're leaning back, still control the weight!
+6;2;Pull (Hypertrophy Focus);Chest-Supported T-Bar Row;2;10-12;Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.
+6;2;Pull (Hypertrophy Focus);Dual-Handle Elbows-Out Cable Row;2;12-15;Flare your elbows out ~45°. Smooth, controlled reps.
+6;2;Pull (Hypertrophy Focus);1-Arm 45° Cable Rear Delt Flye;2;12-15;Pause for 1-2 seconds in the squeeze of each rep. Contract the rear delts hard!
+6;2;Pull (Hypertrophy Focus);Cable Paused Shrug-In;2;12-15;"Shrug up and in. Think about shrugging ""up to your ears."" 1-2 second pause in the squeeze (at the top) of each rep, then another 1-2 second pause in the stretch (at the bottom) of each rep."
+6;2;Pull (Hypertrophy Focus);Cable Rope Hammer Curl;2;12-15;Squeeze the rope hard as you curl the weight up. Smooth, controlled reps.
+6;2;Pull (Hypertrophy Focus); DB Concentration Curl;1;15-20;Smooth, controlled reps. Mind-muscle connection with the biceps.
+6;3;Push (Hypertrophy Focus);Machine Chest Press;2;10-12;1 second pause at the bottom of each rep while maintaining tension on the pecs
+6;3;Push (Hypertrophy Focus);Seated DB Shoulder Press;2;10-12;Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.
+6;3;Push (Hypertrophy Focus);Bottom-Half Seated Cable Flye;2;12-15;All reps and sets are to be performed in the bottom half of the ROM. Focus on feeling a deep stretch in your pecs at the bottom of each rep.
+6;3;Push (Hypertrophy Focus);High-Cable Lateral Raise;2;12-15;Focus on squeezing your lateral delt to move the weight.
+6;3;Push (Hypertrophy Focus);EZ-Bar Skull Crusher;2;12-15;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+6;3;Push (Hypertrophy Focus);Triceps Pressdown (Bar);1;15-20;Focus on squeezing your triceps to move the weight
+6;3;Push (Hypertrophy Focus);Ab Wheel Rollout;2;12-15;Don't just bend at your hips, use your abs to lower yourself down under control and pull yourself back up. If you don't have the core strength to get all the way extended at the bottom, try to progressively increase the ROM week to week.
+6;4;Legs (Hypertrophy Focus);Hack Squat;2;10-12;Use a controlled negative (don't free fall) and then explode on the positive.
+6;4;Legs (Hypertrophy Focus);Seated Leg Curl;2;12-15;Lean forward over the machine to get a maximum stretch in your hamstrings.
+6;4;Legs (Hypertrophy Focus);Walking Lunge;2;10-12;Take medium strides. Minimize contribution from the back leg
+6;4;Legs (Hypertrophy Focus);Leg Extension;2;12-15;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+6;4;Legs (Hypertrophy Focus);Machine Hip Adduction;2;12-15;Mind-muscle connection with your inner thighs. These are great for adding thigh mass from the front! Push them hard!
+6;4;Legs (Hypertrophy Focus);Machine Hip Abduction;2;12-15;If possible, use pads to increase the range of motion on the machine. Lean forward and grab onto the machine rails to stretch the glutes further.
+6;4;Legs (Hypertrophy Focus);Standing Calf Raise;2;12-15;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+7;0;Upper (Strength Focus);45° Incline DB Press;3;6-10;1 second pause at the bottom of each rep while maintaining tension on the pecs
+7;0;Upper (Strength Focus);Pec Deck;3;10-12;Focus on bringing your elbows together - not your hands
+7;0;Upper (Strength Focus);Dual-Handle Lat Pulldown;3;10-12;Lean back by ~15° and drive your elbows down as you squeeze your shoulder blades together. This should feel like a mix of lats and mid-traps.
+7;0;Upper (Strength Focus);High-Cable Lateral Raise;2;10-12;Focus on squeezing your lateral delt to move the weight.
+7;0;Upper (Strength Focus);Smith Machine Row;3;6-10;Focus on squeezing your shoulder blades together, keeping your elbows at a ~45° angle
+7;0;Upper (Strength Focus);Overhead Cable Triceps Extension (Bar);2;10-12;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+7;0;Upper (Strength Focus);Bayesian Cable Curl;2;10-12;If you have a left-right bicep size imbalance, do these 1 arm at a time, starting with the weaker arm. Take the weaker arm to the listed RPE. Then match the reps with the other arm (stop once you've matched the reps, even if the RPE is lower). If you don't have a size imbalance, do these both arms at the same time.
+7;1;Lower (Strength Focus);Lying Leg Curl;2;10-12;Set the machine so that you get the biggest stretch possible at the bottom. Prevent your butt from popping up as you curl. 
+7;1;Lower (Strength Focus);Smith Machine Static Lunge w/ Elevated Front Foot;3;6-10;Elevate your front foot on a small box. Minimize contribution from your back leg.
+7;1;Lower (Strength Focus);45° Hyperextension;3;6-10;Squeeze your glutes hard at the top of each rep. Slow controlled reps on the way down, followed by an explosive positive.
+7;1;Lower (Strength Focus);Leg Extension;3;10-12;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+7;1;Lower (Strength Focus);Leg Press Calf Press;3;6-10;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+7;1;Lower (Strength Focus);Machine Crunch;2;10-12;Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.
+7;2;Pull (Hypertrophy Focus);Lean-Back Lat Pulldown;3;10-12;Initiate the pulldown with a straight up posture. As you pull the bar down, lean back by about 15-30° to get the mid-back more involved. Softly touch the bar to your chest on every rep and, even though you're leaning back, still control the weight!
+7;2;Pull (Hypertrophy Focus);Chest-Supported T-Bar Row;3;10-12;Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.
+7;2;Pull (Hypertrophy Focus);Dual-Handle Elbows-Out Cable Row;2;12-15;Flare your elbows out ~45°. Smooth, controlled reps.
+7;2;Pull (Hypertrophy Focus);1-Arm 45° Cable Rear Delt Flye;3;12-15;Pause for 1-2 seconds in the squeeze of each rep. Contract the rear delts hard!
+7;2;Pull (Hypertrophy Focus);Cable Paused Shrug-In;2;12-15;"Shrug up and in. Think about shrugging ""up to your ears."" 1-2 second pause in the squeeze (at the top) of each rep, then another 1-2 second pause in the stretch (at the bottom) of each rep."
+7;2;Pull (Hypertrophy Focus);Cable Rope Hammer Curl;3;12-15;Squeeze the rope hard as you curl the weight up. Smooth, controlled reps.
+7;2;Pull (Hypertrophy Focus); DB Concentration Curl;2;15-20;Smooth, controlled reps. Mind-muscle connection with the biceps.
+7;3;Push (Hypertrophy Focus);Machine Chest Press;3;10-12;1 second pause at the bottom of each rep while maintaining tension on the pecs
+7;3;Push (Hypertrophy Focus);Seated DB Shoulder Press;3;10-12;Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.
+7;3;Push (Hypertrophy Focus);Bottom-Half Seated Cable Flye;2;12-15;All reps and sets are to be performed in the bottom half of the ROM. Focus on feeling a deep stretch in your pecs at the bottom of each rep.
+7;3;Push (Hypertrophy Focus);High-Cable Lateral Raise;2;12-15;Focus on squeezing your lateral delt to move the weight.
+7;3;Push (Hypertrophy Focus);EZ-Bar Skull Crusher;3;12-15;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+7;3;Push (Hypertrophy Focus);Triceps Pressdown (Bar);2;15-20;Focus on squeezing your triceps to move the weight
+7;3;Push (Hypertrophy Focus);Ab Wheel Rollout;2;12-15;Don't just bend at your hips, use your abs to lower yourself down under control and pull yourself back up. If you don't have the core strength to get all the way extended at the bottom, try to progressively increase the ROM week to week.
+7;4;Legs (Hypertrophy Focus);Hack Squat;3;10-12;Use a controlled negative (don't free fall) and then explode on the positive.
+7;4;Legs (Hypertrophy Focus);Seated Leg Curl;3;12-15;Lean forward over the machine to get a maximum stretch in your hamstrings.
+7;4;Legs (Hypertrophy Focus);Walking Lunge;2;10-12;Take medium strides. Minimize contribution from the back leg
+7;4;Legs (Hypertrophy Focus);Leg Extension;2;12-15;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+7;4;Legs (Hypertrophy Focus);Machine Hip Adduction;2;12-15;Mind-muscle connection with your inner thighs. These are great for adding thigh mass from the front! Push them hard!
+7;4;Legs (Hypertrophy Focus);Machine Hip Abduction;2;12-15;If possible, use pads to increase the range of motion on the machine. Lean forward and grab onto the machine rails to stretch the glutes further.
+7;4;Legs (Hypertrophy Focus);Standing Calf Raise;2;12-15;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+8;0;Upper (Strength Focus);45° Incline DB Press;3;6-10;1 second pause at the bottom of each rep while maintaining tension on the pecs
+8;0;Upper (Strength Focus);Pec Deck;3;10-12;Focus on bringing your elbows together - not your hands
+8;0;Upper (Strength Focus);Dual-Handle Lat Pulldown;3;10-12;Lean back by ~15° and drive your elbows down as you squeeze your shoulder blades together. This should feel like a mix of lats and mid-traps.
+8;0;Upper (Strength Focus);High-Cable Lateral Raise;2;10-12;Focus on squeezing your lateral delt to move the weight.
+8;0;Upper (Strength Focus);Smith Machine Row;3;6-10;Focus on squeezing your shoulder blades together, keeping your elbows at a ~45° angle
+8;0;Upper (Strength Focus);Overhead Cable Triceps Extension (Bar);2;10-12;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+8;0;Upper (Strength Focus);Bayesian Cable Curl;2;10-12;If you have a left-right bicep size imbalance, do these 1 arm at a time, starting with the weaker arm. Take the weaker arm to the listed RPE. Then match the reps with the other arm (stop once you've matched the reps, even if the RPE is lower). If you don't have a size imbalance, do these both arms at the same time.
+8;1;Lower (Strength Focus);Lying Leg Curl;2;10-12;Set the machine so that you get the biggest stretch possible at the bottom. Prevent your butt from popping up as you curl. 
+8;1;Lower (Strength Focus);Smith Machine Static Lunge w/ Elevated Front Foot;3;6-10;Elevate your front foot on a small box. Minimize contribution from your back leg.
+8;1;Lower (Strength Focus);45° Hyperextension;3;6-10;Squeeze your glutes hard at the top of each rep. Slow controlled reps on the way down, followed by an explosive positive.
+8;1;Lower (Strength Focus);Leg Extension;3;10-12;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+8;1;Lower (Strength Focus);Leg Press Calf Press;3;6-10;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+8;1;Lower (Strength Focus);Machine Crunch;2;10-12;Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.
+8;2;Pull (Hypertrophy Focus);Lean-Back Lat Pulldown;3;10-12;Initiate the pulldown with a straight up posture. As you pull the bar down, lean back by about 15-30° to get the mid-back more involved. Softly touch the bar to your chest on every rep and, even though you're leaning back, still control the weight!
+8;2;Pull (Hypertrophy Focus);Chest-Supported T-Bar Row;3;10-12;Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.
+8;2;Pull (Hypertrophy Focus);Dual-Handle Elbows-Out Cable Row;2;12-15;Flare your elbows out ~45°. Smooth, controlled reps.
+8;2;Pull (Hypertrophy Focus);1-Arm 45° Cable Rear Delt Flye;3;12-15;Pause for 1-2 seconds in the squeeze of each rep. Contract the rear delts hard!
+8;2;Pull (Hypertrophy Focus);Cable Paused Shrug-In;2;12-15;"Shrug up and in. Think about shrugging ""up to your ears."" 1-2 second pause in the squeeze (at the top) of each rep, then another 1-2 second pause in the stretch (at the bottom) of each rep."
+8;2;Pull (Hypertrophy Focus);Cable Rope Hammer Curl;3;12-15;Squeeze the rope hard as you curl the weight up. Smooth, controlled reps.
+8;2;Pull (Hypertrophy Focus); DB Concentration Curl;2;15-20;Smooth, controlled reps. Mind-muscle connection with the biceps.
+8;3;Push (Hypertrophy Focus);Machine Chest Press;3;10-12;1 second pause at the bottom of each rep while maintaining tension on the pecs
+8;3;Push (Hypertrophy Focus);Seated DB Shoulder Press;3;10-12;Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.
+8;3;Push (Hypertrophy Focus);Bottom-Half Seated Cable Flye;2;12-15;All reps and sets are to be performed in the bottom half of the ROM. Focus on feeling a deep stretch in your pecs at the bottom of each rep.
+8;3;Push (Hypertrophy Focus);High-Cable Lateral Raise;2;12-15;Focus on squeezing your lateral delt to move the weight.
+8;3;Push (Hypertrophy Focus);EZ-Bar Skull Crusher;3;12-15;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+8;3;Push (Hypertrophy Focus);Triceps Pressdown (Bar);2;15-20;Focus on squeezing your triceps to move the weight
+8;3;Push (Hypertrophy Focus);Ab Wheel Rollout;2;12-15;Don't just bend at your hips, use your abs to lower yourself down under control and pull yourself back up. If you don't have the core strength to get all the way extended at the bottom, try to progressively increase the ROM week to week.
+8;4;Legs (Hypertrophy Focus);Hack Squat;3;10-12;Use a controlled negative (don't free fall) and then explode on the positive.
+8;4;Legs (Hypertrophy Focus);Seated Leg Curl;3;12-15;Lean forward over the machine to get a maximum stretch in your hamstrings.
+8;4;Legs (Hypertrophy Focus);Walking Lunge;2;10-12;Take medium strides. Minimize contribution from the back leg
+8;4;Legs (Hypertrophy Focus);Leg Extension;2;12-15;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+8;4;Legs (Hypertrophy Focus);Machine Hip Adduction;2;12-15;Mind-muscle connection with your inner thighs. These are great for adding thigh mass from the front! Push them hard!
+8;4;Legs (Hypertrophy Focus);Machine Hip Abduction;2;12-15;If possible, use pads to increase the range of motion on the machine. Lean forward and grab onto the machine rails to stretch the glutes further.
+8;4;Legs (Hypertrophy Focus);Standing Calf Raise;2;12-15;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+9;0;Upper (Strength Focus);45° Incline DB Press;3;6-10;1 second pause at the bottom of each rep while maintaining tension on the pecs
+9;0;Upper (Strength Focus);Pec Deck;3;10-12;Focus on bringing your elbows together - not your hands
+9;0;Upper (Strength Focus);Dual-Handle Lat Pulldown;3;10-12;Lean back by ~15° and drive your elbows down as you squeeze your shoulder blades together. This should feel like a mix of lats and mid-traps.
+9;0;Upper (Strength Focus);High-Cable Lateral Raise;2;10-12;Focus on squeezing your lateral delt to move the weight.
+9;0;Upper (Strength Focus);Smith Machine Row;3;6-10;Focus on squeezing your shoulder blades together, keeping your elbows at a ~45° angle
+9;0;Upper (Strength Focus);Overhead Cable Triceps Extension (Bar);3;10-12;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+9;0;Upper (Strength Focus);Bayesian Cable Curl;3;10-12;If you have a left-right bicep size imbalance, do these 1 arm at a time, starting with the weaker arm. Take the weaker arm to the listed RPE. Then match the reps with the other arm (stop once you've matched the reps, even if the RPE is lower). If you don't have a size imbalance, do these both arms at the same time.
+9;1;Lower (Strength Focus);Lying Leg Curl;3;10-12;Set the machine so that you get the biggest stretch possible at the bottom. Prevent your butt from popping up as you curl. 
+9;1;Lower (Strength Focus);Smith Machine Static Lunge w/ Elevated Front Foot;3;6-10;Elevate your front foot on a small box. Minimize contribution from your back leg.
+9;1;Lower (Strength Focus);45° Hyperextension;3;6-10;Squeeze your glutes hard at the top of each rep. Slow controlled reps on the way down, followed by an explosive positive.
+9;1;Lower (Strength Focus);Leg Extension;3;10-12;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+9;1;Lower (Strength Focus);Leg Press Calf Press;3;6-10;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+9;1;Lower (Strength Focus);Machine Crunch;3;10-12;Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.
+9;2;Pull (Hypertrophy Focus);Lean-Back Lat Pulldown;3;10-12;Initiate the pulldown with a straight up posture. As you pull the bar down, lean back by about 15-30° to get the mid-back more involved. Softly touch the bar to your chest on every rep and, even though you're leaning back, still control the weight!
+9;2;Pull (Hypertrophy Focus);Chest-Supported T-Bar Row;3;10-12;Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.
+9;2;Pull (Hypertrophy Focus);Dual-Handle Elbows-Out Cable Row;3;12-15;Flare your elbows out ~45°. Smooth, controlled reps.
+9;2;Pull (Hypertrophy Focus);1-Arm 45° Cable Rear Delt Flye;3;12-15;Pause for 1-2 seconds in the squeeze of each rep. Contract the rear delts hard!
+9;2;Pull (Hypertrophy Focus);Cable Paused Shrug-In;3;12-15;"Shrug up and in. Think about shrugging ""up to your ears."" 1-2 second pause in the squeeze (at the top) of each rep, then another 1-2 second pause in the stretch (at the bottom) of each rep."
+9;2;Pull (Hypertrophy Focus);Cable Rope Hammer Curl;3;12-15;Squeeze the rope hard as you curl the weight up. Smooth, controlled reps.
+9;2;Pull (Hypertrophy Focus); DB Concentration Curl;2;15-20;Smooth, controlled reps. Mind-muscle connection with the biceps.
+9;3;Push (Hypertrophy Focus);Machine Chest Press;3;10-12;1 second pause at the bottom of each rep while maintaining tension on the pecs
+9;3;Push (Hypertrophy Focus);Seated DB Shoulder Press;3;10-12;Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.
+9;3;Push (Hypertrophy Focus);Bottom-Half Seated Cable Flye;3;12-15;All reps and sets are to be performed in the bottom half of the ROM. Focus on feeling a deep stretch in your pecs at the bottom of each rep.
+9;3;Push (Hypertrophy Focus);High-Cable Lateral Raise;3;12-15;Focus on squeezing your lateral delt to move the weight.
+9;3;Push (Hypertrophy Focus);EZ-Bar Skull Crusher;3;12-15;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+9;3;Push (Hypertrophy Focus);Triceps Pressdown (Bar);2;15-20;Focus on squeezing your triceps to move the weight
+9;3;Push (Hypertrophy Focus);Ab Wheel Rollout;3;12-15;Don't just bend at your hips, use your abs to lower yourself down under control and pull yourself back up. If you don't have the core strength to get all the way extended at the bottom, try to progressively increase the ROM week to week.
+9;4;Legs (Hypertrophy Focus);Hack Squat;3;10-12;Use a controlled negative (don't free fall) and then explode on the positive.
+9;4;Legs (Hypertrophy Focus);Seated Leg Curl;3;12-15;Lean forward over the machine to get a maximum stretch in your hamstrings.
+9;4;Legs (Hypertrophy Focus);Walking Lunge;2;10-12;Take medium strides. Minimize contribution from the back leg
+9;4;Legs (Hypertrophy Focus);Leg Extension;3;12-15;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+9;4;Legs (Hypertrophy Focus);Machine Hip Adduction;3;12-15;Mind-muscle connection with your inner thighs. These are great for adding thigh mass from the front! Push them hard!
+9;4;Legs (Hypertrophy Focus);Machine Hip Abduction;3;12-15;If possible, use pads to increase the range of motion on the machine. Lean forward and grab onto the machine rails to stretch the glutes further.
+9;4;Legs (Hypertrophy Focus);Standing Calf Raise;3;12-15;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+10;0;Upper (Strength Focus);45° Incline DB Press;3;6-10;1 second pause at the bottom of each rep while maintaining tension on the pecs
+10;0;Upper (Strength Focus);Pec Deck;3;10-12;Focus on bringing your elbows together - not your hands
+10;0;Upper (Strength Focus);Dual-Handle Lat Pulldown;3;10-12;Lean back by ~15° and drive your elbows down as you squeeze your shoulder blades together. This should feel like a mix of lats and mid-traps.
+10;0;Upper (Strength Focus);High-Cable Lateral Raise;2;10-12;Focus on squeezing your lateral delt to move the weight.
+10;0;Upper (Strength Focus);Smith Machine Row;3;6-10;Focus on squeezing your shoulder blades together, keeping your elbows at a ~45° angle
+10;0;Upper (Strength Focus);Overhead Cable Triceps Extension (Bar);3;10-12;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+10;0;Upper (Strength Focus);Bayesian Cable Curl;3;10-12;If you have a left-right bicep size imbalance, do these 1 arm at a time, starting with the weaker arm. Take the weaker arm to the listed RPE. Then match the reps with the other arm (stop once you've matched the reps, even if the RPE is lower). If you don't have a size imbalance, do these both arms at the same time.
+10;1;Lower (Strength Focus);Lying Leg Curl;3;10-12;Set the machine so that you get the biggest stretch possible at the bottom. Prevent your butt from popping up as you curl. 
+10;1;Lower (Strength Focus);Smith Machine Static Lunge w/ Elevated Front Foot;3;6-10;Elevate your front foot on a small box. Minimize contribution from your back leg.
+10;1;Lower (Strength Focus);45° Hyperextension;3;6-10;Squeeze your glutes hard at the top of each rep. Slow controlled reps on the way down, followed by an explosive positive.
+10;1;Lower (Strength Focus);Leg Extension;3;10-12;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+10;1;Lower (Strength Focus);Leg Press Calf Press;3;6-10;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+10;1;Lower (Strength Focus);Machine Crunch;3;10-12;Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.
+10;2;Pull (Hypertrophy Focus);Lean-Back Lat Pulldown;3;10-12;Initiate the pulldown with a straight up posture. As you pull the bar down, lean back by about 15-30° to get the mid-back more involved. Softly touch the bar to your chest on every rep and, even though you're leaning back, still control the weight!
+10;2;Pull (Hypertrophy Focus);Chest-Supported T-Bar Row;3;10-12;Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.
+10;2;Pull (Hypertrophy Focus);Dual-Handle Elbows-Out Cable Row;3;12-15;Flare your elbows out ~45°. Smooth, controlled reps.
+10;2;Pull (Hypertrophy Focus);1-Arm 45° Cable Rear Delt Flye;3;12-15;Pause for 1-2 seconds in the squeeze of each rep. Contract the rear delts hard!
+10;2;Pull (Hypertrophy Focus);Cable Paused Shrug-In;3;12-15;"Shrug up and in. Think about shrugging ""up to your ears."" 1-2 second pause in the squeeze (at the top) of each rep, then another 1-2 second pause in the stretch (at the bottom) of each rep."
+10;2;Pull (Hypertrophy Focus);Cable Rope Hammer Curl;3;12-15;Squeeze the rope hard as you curl the weight up. Smooth, controlled reps.
+10;2;Pull (Hypertrophy Focus); DB Concentration Curl;2;15-20;Smooth, controlled reps. Mind-muscle connection with the biceps.
+10;3;Push (Hypertrophy Focus);Machine Chest Press;3;10-12;1 second pause at the bottom of each rep while maintaining tension on the pecs
+10;3;Push (Hypertrophy Focus);Seated DB Shoulder Press;3;10-12;Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.
+10;3;Push (Hypertrophy Focus);Bottom-Half Seated Cable Flye;3;12-15;All reps and sets are to be performed in the bottom half of the ROM. Focus on feeling a deep stretch in your pecs at the bottom of each rep.
+10;3;Push (Hypertrophy Focus);High-Cable Lateral Raise;3;12-15;Focus on squeezing your lateral delt to move the weight.
+10;3;Push (Hypertrophy Focus);EZ-Bar Skull Crusher;3;12-15;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+10;3;Push (Hypertrophy Focus);Triceps Pressdown (Bar);2;15-20;Focus on squeezing your triceps to move the weight
+10;3;Push (Hypertrophy Focus);Ab Wheel Rollout;3;12-15;Don't just bend at your hips, use your abs to lower yourself down under control and pull yourself back up. If you don't have the core strength to get all the way extended at the bottom, try to progressively increase the ROM week to week.
+10;4;Legs (Hypertrophy Focus);Hack Squat;3;10-12;Use a controlled negative (don't free fall) and then explode on the positive.
+10;4;Legs (Hypertrophy Focus);Seated Leg Curl;3;12-15;Lean forward over the machine to get a maximum stretch in your hamstrings.
+10;4;Legs (Hypertrophy Focus);Walking Lunge;2;10-12;Take medium strides. Minimize contribution from the back leg
+10;4;Legs (Hypertrophy Focus);Leg Extension;3;12-15;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+10;4;Legs (Hypertrophy Focus);Machine Hip Adduction;3;12-15;Mind-muscle connection with your inner thighs. These are great for adding thigh mass from the front! Push them hard!
+10;4;Legs (Hypertrophy Focus);Machine Hip Abduction;3;12-15;If possible, use pads to increase the range of motion on the machine. Lean forward and grab onto the machine rails to stretch the glutes further.
+10;4;Legs (Hypertrophy Focus);Standing Calf Raise;3;12-15;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+11;0;Upper (Strength Focus);45° Incline DB Press;4;6-10;1 second pause at the bottom of each rep while maintaining tension on the pecs
+11;0;Upper (Strength Focus);Pec Deck;3;10-12;Focus on bringing your elbows together - not your hands
+11;0;Upper (Strength Focus);Dual-Handle Lat Pulldown;3;10-12;Lean back by ~15° and drive your elbows down as you squeeze your shoulder blades together. This should feel like a mix of lats and mid-traps.
+11;0;Upper (Strength Focus);High-Cable Lateral Raise;3;10-12;Focus on squeezing your lateral delt to move the weight.
+11;0;Upper (Strength Focus);Smith Machine Row;3;6-10;Focus on squeezing your shoulder blades together, keeping your elbows at a ~45° angle
+11;0;Upper (Strength Focus);Overhead Cable Triceps Extension (Bar);3;10-12;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+11;0;Upper (Strength Focus);Bayesian Cable Curl;3;10-12;If you have a left-right bicep size imbalance, do these 1 arm at a time, starting with the weaker arm. Take the weaker arm to the listed RPE. Then match the reps with the other arm (stop once you've matched the reps, even if the RPE is lower). If you don't have a size imbalance, do these both arms at the same time.
+11;1;Lower (Strength Focus);Lying Leg Curl;3;10-12;Set the machine so that you get the biggest stretch possible at the bottom. Prevent your butt from popping up as you curl. 
+11;1;Lower (Strength Focus);Smith Machine Static Lunge w/ Elevated Front Foot;3;6-10;Elevate your front foot on a small box. Minimize contribution from your back leg.
+11;1;Lower (Strength Focus);45° Hyperextension;4;6-10;Squeeze your glutes hard at the top of each rep. Slow controlled reps on the way down, followed by an explosive positive.
+11;1;Lower (Strength Focus);Leg Extension;3;10-12;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+11;1;Lower (Strength Focus);Leg Press Calf Press;4;6-10;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+11;1;Lower (Strength Focus);Machine Crunch;3;10-12;Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.
+11;2;Pull (Hypertrophy Focus);Lean-Back Lat Pulldown;3;10-12;Initiate the pulldown with a straight up posture. As you pull the bar down, lean back by about 15-30° to get the mid-back more involved. Softly touch the bar to your chest on every rep and, even though you're leaning back, still control the weight!
+11;2;Pull (Hypertrophy Focus);Chest-Supported T-Bar Row;4;10-12;Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.
+11;2;Pull (Hypertrophy Focus);Dual-Handle Elbows-Out Cable Row;3;12-15;Flare your elbows out ~45°. Smooth, controlled reps.
+11;2;Pull (Hypertrophy Focus);1-Arm 45° Cable Rear Delt Flye;3;12-15;Pause for 1-2 seconds in the squeeze of each rep. Contract the rear delts hard!
+11;2;Pull (Hypertrophy Focus);Cable Paused Shrug-In;3;12-15;"Shrug up and in. Think about shrugging ""up to your ears."" 1-2 second pause in the squeeze (at the top) of each rep, then another 1-2 second pause in the stretch (at the bottom) of each rep."
+11;2;Pull (Hypertrophy Focus);Cable Rope Hammer Curl;3;12-15;Squeeze the rope hard as you curl the weight up. Smooth, controlled reps.
+11;2;Pull (Hypertrophy Focus); DB Concentration Curl;3;15-20;Smooth, controlled reps. Mind-muscle connection with the biceps.
+11;3;Push (Hypertrophy Focus);Machine Chest Press;4;10-12;1 second pause at the bottom of each rep while maintaining tension on the pecs
+11;3;Push (Hypertrophy Focus);Seated DB Shoulder Press;3;10-12;Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.
+11;3;Push (Hypertrophy Focus);Bottom-Half Seated Cable Flye;3;12-15;All reps and sets are to be performed in the bottom half of the ROM. Focus on feeling a deep stretch in your pecs at the bottom of each rep.
+11;3;Push (Hypertrophy Focus);High-Cable Lateral Raise;3;12-15;Focus on squeezing your lateral delt to move the weight.
+11;3;Push (Hypertrophy Focus);EZ-Bar Skull Crusher;3;12-15;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+11;3;Push (Hypertrophy Focus);Triceps Pressdown (Bar);3;15-20;Focus on squeezing your triceps to move the weight
+11;3;Push (Hypertrophy Focus);Ab Wheel Rollout;3;12-15;Don't just bend at your hips, use your abs to lower yourself down under control and pull yourself back up. If you don't have the core strength to get all the way extended at the bottom, try to progressively increase the ROM week to week.
+11;4;Legs (Hypertrophy Focus);Hack Squat;4;10-12;Use a controlled negative (don't free fall) and then explode on the positive.
+11;4;Legs (Hypertrophy Focus);Seated Leg Curl;4;12-15;Lean forward over the machine to get a maximum stretch in your hamstrings.
+11;4;Legs (Hypertrophy Focus);Walking Lunge;2;10-12;Take medium strides. Minimize contribution from the back leg
+11;4;Legs (Hypertrophy Focus);Leg Extension;3;12-15;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+11;4;Legs (Hypertrophy Focus);Machine Hip Adduction;3;12-15;Mind-muscle connection with your inner thighs. These are great for adding thigh mass from the front! Push them hard!
+11;4;Legs (Hypertrophy Focus);Machine Hip Abduction;3;12-15;If possible, use pads to increase the range of motion on the machine. Lean forward and grab onto the machine rails to stretch the glutes further.
+11;4;Legs (Hypertrophy Focus);Standing Calf Raise;3;12-15;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+12;0;Upper (Strength Focus);45° Incline DB Press;4;6-10;1 second pause at the bottom of each rep while maintaining tension on the pecs
+12;0;Upper (Strength Focus);Pec Deck;3;10-12;Focus on bringing your elbows together - not your hands
+12;0;Upper (Strength Focus);Dual-Handle Lat Pulldown;3;10-12;Lean back by ~15° and drive your elbows down as you squeeze your shoulder blades together. This should feel like a mix of lats and mid-traps.
+12;0;Upper (Strength Focus);High-Cable Lateral Raise;3;10-12;Focus on squeezing your lateral delt to move the weight.
+12;0;Upper (Strength Focus);Smith Machine Row;3;6-10;Focus on squeezing your shoulder blades together, keeping your elbows at a ~45° angle
+12;0;Upper (Strength Focus);Overhead Cable Triceps Extension (Bar);3;10-12;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+12;0;Upper (Strength Focus);Bayesian Cable Curl;3;10-12;If you have a left-right bicep size imbalance, do these 1 arm at a time, starting with the weaker arm. Take the weaker arm to the listed RPE. Then match the reps with the other arm (stop once you've matched the reps, even if the RPE is lower). If you don't have a size imbalance, do these both arms at the same time.
+12;1;Lower (Strength Focus);Lying Leg Curl;3;10-12;Set the machine so that you get the biggest stretch possible at the bottom. Prevent your butt from popping up as you curl. 
+12;1;Lower (Strength Focus);Smith Machine Static Lunge w/ Elevated Front Foot;3;6-10;Elevate your front foot on a small box. Minimize contribution from your back leg.
+12;1;Lower (Strength Focus);45° Hyperextension;4;6-10;Squeeze your glutes hard at the top of each rep. Slow controlled reps on the way down, followed by an explosive positive.
+12;1;Lower (Strength Focus);Leg Extension;3;10-12;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+12;1;Lower (Strength Focus);Leg Press Calf Press;4;6-10;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.
+12;1;Lower (Strength Focus);Machine Crunch;3;10-12;Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.
+12;2;Pull (Hypertrophy Focus);Lean-Back Lat Pulldown;3;10-12;Initiate the pulldown with a straight up posture. As you pull the bar down, lean back by about 15-30° to get the mid-back more involved. Softly touch the bar to your chest on every rep and, even though you're leaning back, still control the weight!
+12;2;Pull (Hypertrophy Focus);Chest-Supported T-Bar Row;4;10-12;Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.
+12;2;Pull (Hypertrophy Focus);Dual-Handle Elbows-Out Cable Row;3;12-15;Flare your elbows out ~45°. Smooth, controlled reps.
+12;2;Pull (Hypertrophy Focus);1-Arm 45° Cable Rear Delt Flye;3;12-15;Pause for 1-2 seconds in the squeeze of each rep. Contract the rear delts hard!
+12;2;Pull (Hypertrophy Focus);Cable Paused Shrug-In;3;12-15;"Shrug up and in. Think about shrugging ""up to your ears."" 1-2 second pause in the squeeze (at the top) of each rep, then another 1-2 second pause in the stretch (at the bottom) of each rep."
+12;2;Pull (Hypertrophy Focus);Cable Rope Hammer Curl;3;12-15;Squeeze the rope hard as you curl the weight up. Smooth, controlled reps.
+12;2;Pull (Hypertrophy Focus); DB Concentration Curl;3;15-20;Smooth, controlled reps. Mind-muscle connection with the biceps.
+12;3;Push (Hypertrophy Focus);Machine Chest Press;4;10-12;1 second pause at the bottom of each rep while maintaining tension on the pecs
+12;3;Push (Hypertrophy Focus);Seated DB Shoulder Press;3;10-12;Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.
+12;3;Push (Hypertrophy Focus);Bottom-Half Seated Cable Flye;3;12-15;All reps and sets are to be performed in the bottom half of the ROM. Focus on feeling a deep stretch in your pecs at the bottom of each rep.
+12;3;Push (Hypertrophy Focus);High-Cable Lateral Raise;3;12-15;Focus on squeezing your lateral delt to move the weight.
+12;3;Push (Hypertrophy Focus);EZ-Bar Skull Crusher;3;12-15;Optionally pause for 0.5-1 second in the stretched aspect of each rep
+12;3;Push (Hypertrophy Focus);Triceps Pressdown (Bar);3;15-20;Focus on squeezing your triceps to move the weight
+12;3;Push (Hypertrophy Focus);Ab Wheel Rollout;3;12-15;Don't just bend at your hips, use your abs to lower yourself down under control and pull yourself back up. If you don't have the core strength to get all the way extended at the bottom, try to progressively increase the ROM week to week.
+12;4;Legs (Hypertrophy Focus);Hack Squat;4;10-12;Use a controlled negative (don't free fall) and then explode on the positive.
+12;4;Legs (Hypertrophy Focus);Seated Leg Curl;4;12-15;Lean forward over the machine to get a maximum stretch in your hamstrings.
+12;4;Legs (Hypertrophy Focus);Walking Lunge;2;10-12;Take medium strides. Minimize contribution from the back leg
+12;4;Legs (Hypertrophy Focus);Leg Extension;3;12-15;Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat. Use a 2-3 second negative. Feel your quads pulling apart on the negative.
+12;4;Legs (Hypertrophy Focus);Machine Hip Adduction;3;12-15;Mind-muscle connection with your inner thighs. These are great for adding thigh mass from the front! Push them hard!
+12;4;Legs (Hypertrophy Focus);Machine Hip Abduction;3;12-15;If possible, use pads to increase the range of motion on the machine. Lean forward and grab onto the machine rails to stretch the glutes further.
+12;4;Legs (Hypertrophy Focus);Standing Calf Raise;3;12-15;1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.

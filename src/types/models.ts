@@ -91,6 +91,19 @@ export interface SettingsModel {
   weightUnit?: 'kg' | 'lbs'; // Weight unit preference (default: 'kg')
   // Migration tracking
   programIdMigrationComplete?: boolean; // Whether programId migration has been run
+  exerciseMigrationComplete?: boolean; // Whether exercise name migration to exercise library has been run
+}
+
+export interface ExerciseDefinition {
+  id: string;
+  name: string;
+  force: 'push' | 'pull' | 'static' | null;
+  level: 'beginner' | 'intermediate' | 'expert';
+  mechanic: 'compound' | 'isolation' | null;
+  equipment: string | null;
+  primaryMuscles: string[];
+  secondaryMuscles: string[];
+  category: string;
 }
 
 export interface ProgramCompletion {

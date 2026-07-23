@@ -33,6 +33,7 @@ import { RepPRsSection } from '../components/ProgressView/RepPRsSection';
 import { WeightProgressionChartSection } from '../components/ProgressView/WeightProgressionChartSection';
 import { VolumeChartSection } from '../components/ProgressView/VolumeChartSection';
 import { EmptyStates } from '../components/ProgressView/EmptyStates';
+import { MuscleGroupsSection } from '../components/ProgressView/MuscleGroupsSection';
 import { useAppStore } from '../store/appStore';
 import { getExerciseVariants } from '../utils/exerciseMatching';
 
@@ -194,6 +195,9 @@ export function ProgressView() {
 
         {/* Weekly Volume Trend */}
         <WeeklyVolumeTrendSection weeklyTrend={weeklyTrend} />
+
+        {/* Muscle Group Frequency */}
+        <MuscleGroupsSection />
 
         {/* Exercise Selector */}
         <ExerciseSelectorSection

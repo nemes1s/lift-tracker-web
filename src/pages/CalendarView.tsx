@@ -13,12 +13,13 @@ import { WorkoutStatsSection } from '../components/CalendarView/WorkoutStatsSect
 import { ExerciseListSection } from '../components/CalendarView/ExerciseListSection';
 import { AddCustomExerciseModal } from '../components/shared/AddCustomExerciseModal';
 import { WorkoutExportMenu } from '../components/shared/WorkoutExportMenu';
-import { getAllExerciseNames } from '../data/exerciseSubstitutions';
+import { getAllDefinitionNames } from '../utils/exerciseLibrary';
 import { formatMonthStatsAsCSV } from '../utils/workoutExporter';
 import type { ExerciseWithSets } from '../utils/workoutExporter';
 import { v4 as uuidv4 } from 'uuid';
 import { useAppStore } from '../store/appStore';
 import { findTemplateForWorkout, updateTemplateFromWorkout } from '../utils/programLogic';
+import { MuscleTagsSection } from '../components/WorkoutDetail/MuscleTagsSection';
 
 export function CalendarView() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -352,12 +353,12 @@ export function WorkoutDetail() {
 
   // Load exercise suggestions for autocomplete
   useEffect(() => {
-    const allExerciseNames = getAllExerciseNames();
+    const allExerciseNames = getAllDefinitionNames();
 
     // Also add current exercises in this workout
     const currentExerciseNames = exercises
       .map(ex => ex.name)
-      .filter(name => !allExerciseNames.includes(name)); // Only add if not already in substitutions
+      .filter(name => !allExerciseNames.includes(name));
 
     // Combine and sort
     const combined = [...allExerciseNames, ...currentExerciseNames].sort();
@@ -538,6 +539,9 @@ export function WorkoutDetail() {
             </div>
           )}
         </div>
+
+        {/* Muscles worked */}
+        <MuscleTagsSection workoutId={workout.id} />
 
         {/* Exercises */}
         <ExerciseListSection
