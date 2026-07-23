@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.0] - 2026-07-23
+
+### Features
+- **Exercise library integration**. Bundled the free-exercise-db dataset (581 strength exercises) with muscle group, equipment, and technique metadata. Exercise substitution search now pulls from the full library instead of a 40-exercise hardcoded list, and a new Settings tool lets you migrate your existing exercise names to their canonical library match (with a confidence-scored preview before applying).
+- **Muscle group analytics**. Progress view now shows muscle training frequency over time, and completed workouts display a "Muscles Worked" summary broken down by primary/secondary muscles.
+- **Local backup and restore**. Export all your workout data to a JSON file from Settings, and restore from a backup file if needed.
+
+### Improvements
+- **Streamlined active-workout UI**. A sticky header now keeps the current exercise name, set progress, and "replace exercise" button visible while scrolling, so you no longer need to scroll up to see which exercise you're on. The app no longer auto-advances to the next exercise once the target set count is hit, so extra sets can be logged without navigating back. The program header and day picker are hidden while a workout is running to reduce clutter.
+
 ## [0.19.0] - 2025-02-02
 
 ### Features
