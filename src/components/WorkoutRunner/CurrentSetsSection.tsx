@@ -6,12 +6,19 @@ interface CurrentSetsSectionProps {
   sets: SetRecord[];
   onDeleteSet: (setId: string) => void;
   weightUnit?: WeightUnit;
+  targetSets?: number;
+  targetReps?: string;
 }
 
-export function CurrentSetsSection({ sets, onDeleteSet, weightUnit = 'kg' }: CurrentSetsSectionProps) {
+export function CurrentSetsSection({ sets, onDeleteSet, weightUnit = 'kg', targetSets, targetReps }: CurrentSetsSectionProps) {
   return (
     <div>
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Today's Sets</p>
+      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+        Today's Sets
+        {targetSets && targetReps && (
+          <span className="normal-case font-medium text-gray-400"> (target: {targetSets} sets, {targetReps} reps)</span>
+        )}
+      </p>
       {sets.length > 0 ? (
         <div className="flex flex-wrap gap-2">
           {sets.map((set) => (

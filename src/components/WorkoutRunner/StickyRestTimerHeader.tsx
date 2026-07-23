@@ -5,9 +5,7 @@ interface StickyRestTimerHeaderProps {
   isCompleted: boolean;
   secondsLeft: number;
   duration: number;
-  onStart: (duration: number) => void;
   onSkip: () => void;
-  onAddTime: (seconds: number) => void;
 }
 
 export function StickyRestTimerHeader({
@@ -15,9 +13,7 @@ export function StickyRestTimerHeader({
   isCompleted,
   secondsLeft,
   duration,
-  onStart,
-  onSkip,
-  onAddTime
+  onSkip
 }: StickyRestTimerHeaderProps) {
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -31,7 +27,7 @@ export function StickyRestTimerHeader({
   }
 
   return (
-    <div className={`sticky top-0 z-40 transition-all duration-300 ${
+    <div className={`transition-all duration-300 ${
       isCompleted
         ? 'bg-gradient-to-br from-green-50 to-white border-b-2 border-green-300'
         : secondsLeft <= duration * 0.2
@@ -86,52 +82,6 @@ export function StickyRestTimerHeader({
             </div>
           )}
         </div>
-
-        {!isCompleted && (
-          <div className="grid grid-cols-4 gap-2 text-xs">
-            <button
-              onClick={() => onStart(60)}
-              className="px-2 py-1 bg-white hover:bg-blue-50 border border-blue-200 rounded text-xs font-bold text-gray-700 transition-all"
-            >
-              1:00
-            </button>
-            <button
-              onClick={() => onStart(90)}
-              className="px-2 py-1 bg-white hover:bg-blue-50 border border-blue-200 rounded text-xs font-bold text-gray-700 transition-all"
-            >
-              1:30
-            </button>
-            <button
-              onClick={() => onStart(120)}
-              className="px-2 py-1 bg-white hover:bg-blue-50 border border-blue-200 rounded text-xs font-bold text-gray-700 transition-all"
-            >
-              2:00
-            </button>
-            <button
-              onClick={() => onStart(180)}
-              className="px-2 py-1 bg-white hover:bg-blue-50 border border-blue-200 rounded text-xs font-bold text-gray-700 transition-all"
-            >
-              3:00
-            </button>
-          </div>
-        )}
-
-        {!isCompleted && isActive && (
-          <div className="flex gap-2 mt-2">
-            <button
-              onClick={() => onAddTime(15)}
-              className="flex-1 px-2 py-1 bg-white hover:bg-green-50 border border-green-200 rounded text-xs font-bold text-green-700 transition-all"
-            >
-              +15s
-            </button>
-            <button
-              onClick={() => onAddTime(30)}
-              className="flex-1 px-2 py-1 bg-white hover:bg-green-50 border border-green-200 rounded text-xs font-bold text-green-700 transition-all"
-            >
-              +30s
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

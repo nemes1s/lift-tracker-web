@@ -221,10 +221,13 @@ export function TodayView() {
     );
   }
 
+  const isWorkoutRunning = !!(activeWorkout && activeWorkout.name === template?.name);
+
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto p-6 space-y-6">
-        {/* Program Header */}
+        {/* Program Header - hidden while a workout is running, it's just clutter mid-session */}
+        {!isWorkoutRunning && (
         <div className="card p-6 bg-white dark:bg-slate-800" data-tour="welcome">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-3 bg-primary-600 rounded-2xl shadow-lg">
@@ -281,6 +284,7 @@ export function TodayView() {
             ))}
           </div>
         </div>
+        )}
 
         {/* Program Completion Banner */}
         {showCompletionBanner && (
@@ -358,7 +362,7 @@ export function TodayView() {
         )}
 
         {/* Workout Section */}
-        {activeWorkout && activeWorkout.name === template?.name ? (
+        {isWorkoutRunning ? (
           <div className="card p-6">
             <WorkoutRunner workout={activeWorkout} />
           </div>

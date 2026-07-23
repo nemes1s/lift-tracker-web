@@ -9,14 +9,16 @@ import type { Workout, ExerciseInstance, SetRecord, SettingsModel } from '../typ
 import { v4 as uuidv4 } from 'uuid';
 import { calculateWorkoutStats } from '../utils/workoutStats';
 import { convertToKg, convertWeight, type WeightUnit } from '../utils/weightUnit';
-import { getExerciseNotes, getAllExerciseNames } from '../data/exerciseSubstitutions';
+import { getExerciseNotes } from '../data/exerciseSubstitutions';
+import { getAllDefinitionNames } from '../utils/exerciseLibrary';
 import { playTimerNotification, initAudioContext, playCountdownBeep } from '../utils/audio';
 import { WorkoutControlsSection } from './WorkoutRunner/WorkoutControlsSection';
-import { ExerciseHeaderSection } from './WorkoutRunner/ExerciseHeaderSection';
+import { ExerciseDetailsSection } from './WorkoutRunner/ExerciseDetailsSection';
 import { ExerciseSubstitutionSection } from './WorkoutRunner/ExerciseSubstitutionSection';
 import { CurrentSetsSection } from './WorkoutRunner/CurrentSetsSection';
 import { RestTimerSection } from './WorkoutRunner/RestTimerSection';
 import { StickyRestTimerHeader } from './WorkoutRunner/StickyRestTimerHeader';
+import { StickyExerciseHeader } from './WorkoutRunner/StickyExerciseHeader';
 import { SetLoggerSection } from './WorkoutRunner/SetLoggerSection';
 import { PreviousWorkoutsSection } from './WorkoutRunner/PreviousWorkoutsSection';
 import { WorkoutStatsSection } from './WorkoutRunner/WorkoutStatsSection';
@@ -114,12 +116,12 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   // Load exercise suggestions for autocomplete
   useEffect(() => {
     const loadSuggestions = async () => {
-      const allExerciseNames = getAllExerciseNames();
+      const allExerciseNames = getAllDefinitionNames();
 
       // Also add current exercises in this workout
       const currentExerciseNames = exercises
         .map(ex => ex.name)
-        .filter(name => !allExerciseNames.includes(name)); // Only add if not already in substitutions
+        .filter(name => !allExerciseNames.includes(name));
 
       // Combine and sort
       const combined = [...allExerciseNames, ...currentExerciseNames].sort();
@@ -407,13 +409,6 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     if (settings?.restTimerEnabled !== false && settings?.restTimerAutoStart !== false) {
       startRestTimer();
     }
-
-    // Auto-advance if target sets reached
-    if (updatedSets.length >= currentExercise.targetSets && currentExerciseIndex < exercises.length - 1) {
-      setTimeout(() => {
-        setCurrentExerciseIndex(currentExerciseIndex + 1);
-      }, 300);
-    }
   };
 
   const handlePrefillSet = (weight: number, reps: number, rpe?: number) => {
@@ -656,15 +651,25 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
   return (
     <>
-      <StickyRestTimerHeader
-        isActive={restTimer.isActive}
-        isCompleted={restTimer.isCompleted}
-        secondsLeft={restTimer.secondsLeft}
-        duration={restTimer.duration}
-        onStart={startRestTimer}
-        onSkip={skipRestTimer}
-        onAddTime={addRestTime}
-      />
+      <div className="sticky top-0 z-40">
+        <StickyExerciseHeader
+          name={currentExercise.name}
+          currentIndex={currentExerciseIndex}
+          totalExercises={exercises.length}
+          setsLogged={sets.length}
+          targetSets={currentExercise.targetSets}
+          onShowSubstitutions={() => setShowSubstitutions(!showSubstitutions)}
+          isSubstituting={isSubstituting}
+        />
+
+        <StickyRestTimerHeader
+          isActive={restTimer.isActive}
+          isCompleted={restTimer.isCompleted}
+          secondsLeft={restTimer.secondsLeft}
+          duration={restTimer.duration}
+          onSkip={skipRestTimer}
+        />
+      </div>
 
       <div className="space-y-6">
         <WorkoutControlsSection
@@ -675,11 +680,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
           isQuickWorkout={workout.isQuickWorkout}
         />
 
-        <ExerciseHeaderSection
-          exercise={currentExercise}
-          onShowSubstitutions={() => setShowSubstitutions(!showSubstitutions)}
-          isSubstituting={isSubstituting}
-        />
+        <ExerciseDetailsSection exercise={currentExercise} />
 
         {showSubstitutions && (
           <ExerciseSubstitutionSection
@@ -694,6 +695,8 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
           sets={sets}
           onDeleteSet={handleDeleteSet}
           weightUnit={settings?.weightUnit || 'kg'}
+          targetSets={currentExercise.targetSets}
+          targetReps={currentExercise.targetReps}
         />
 
         {/* <PRSummarySection sets={sets} /> */}
