@@ -30,6 +30,8 @@ import { ActiveProgramSection } from '../components/SettingsView/ActiveProgramSe
 import { ProgramsManagementSection } from '../components/SettingsView/ProgramsManagementSection';
 import { ProgramStatsExportSection } from '../components/SettingsView/ProgramStatsExportSection';
 import { DeleteConfirmModals } from '../components/SettingsView/DeleteConfirmModals';
+import { ExerciseMigrationSection } from '../components/SettingsView/ExerciseMigrationSection';
+import { BackupSection } from '../components/SettingsView/BackupSection';
 
 export function SettingsView() {
   const navigate = useNavigate();
@@ -449,6 +451,13 @@ export function SettingsView() {
         />
 
         <ProgramStatsExportSection programs={programs} />
+
+        <BackupSection onImportComplete={loadData} />
+
+        <ExerciseMigrationSection
+          settings={settings}
+          onMigrationComplete={loadData}
+        />
 
         {/* Data Cleanup Section */}
         {programs.length > 0 && (
