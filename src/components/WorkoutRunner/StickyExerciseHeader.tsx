@@ -24,15 +24,10 @@ export function StickyExerciseHeader({
 
   return (
     <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 shadow-sm">
-      <div className="pl-4 pr-2 py-1.5 flex items-center justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
-            Exercise {currentIndex + 1}/{totalExercises}
-          </p>
-          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
-            {name}
-          </h2>
-        </div>
+      <div className="pl-4 pr-2 pt-1.5 flex items-center justify-between gap-2">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+          Exercise {currentIndex + 1}/{totalExercises}
+        </p>
         <div className="shrink-0 flex items-center gap-1.5">
           <span
             className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full ${
@@ -54,6 +49,9 @@ export function StickyExerciseHeader({
           </button>
         </div>
       </div>
+      <h2 className="px-4 pb-1.5 text-base font-semibold text-gray-900 dark:text-gray-100">
+        {name}
+      </h2>
       <div className="h-0.5 bg-gray-100 dark:bg-slate-700">
         <div
           className={`h-full transition-all duration-300 ${targetMet ? 'bg-emerald-500' : 'bg-primary-600 dark:bg-primary-400'}`}
