@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0] - 2026-07-24
+
+### Features
+- **Configurable exercise auto-advance**. New "Auto-advance Exercise" toggle in Settings (Workout Behavior) restores the option to jump to the next exercise automatically once your target sets are hit. Off by default, so you can add extra sets without needing to navigate back.
+- **Workout Overview exercise list**. The workout stats section (renamed from "Workout Stats") now shows the full exercise list for the session: the current exercise is marked with a green arrow, completed ones are checked off, and tapping any exercise jumps straight to it, so you can see the whole workout without stepping through Previous/Next.
+
+### Fixes
+- **Exercise name truncation on mobile**. Long exercise names no longer get cut off with an ellipsis in the sticky workout header or the Workout Preview widget on narrow screens; names now wrap instead.
+- **Stale workout stats**. Volume, calories, and per-exercise set counts now update immediately after logging a set instead of lagging until you switch exercises.
+
 ## [0.20.0] - 2026-07-23
 
 ### Features
