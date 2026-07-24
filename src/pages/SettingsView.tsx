@@ -23,6 +23,7 @@ import { AppearanceSection } from '../components/SettingsView/AppearanceSection'
 import { PWAInstallSection, DisclaimerSection, FormulaSection, TourSection, FeedbackSection, WhatsNewSection } from '../components/SettingsView/SimpleSection';
 import { StorageInfoSection } from '../components/SettingsView/StorageInfoSection';
 import { RestTimerSettingsSection } from '../components/SettingsView/RestTimerSettingsSection';
+import { WorkoutBehaviorSection } from '../components/SettingsView/WorkoutBehaviorSection';
 import { WeeklyGoalSection } from '../components/SettingsView/WeeklyGoalSection';
 import { WeekStartDaySection } from '../components/SettingsView/WeekStartDaySection';
 import { WeightUnitSection } from '../components/SettingsView/WeightUnitSection';
@@ -322,7 +323,7 @@ export function SettingsView() {
     }
   };
 
-  const handleRestTimerToggle = async (field: keyof SettingsModel, value: boolean) => {
+  const handleSettingToggle = async (field: keyof SettingsModel, value: boolean) => {
     if (!settings) return;
     await db.settings.update(settings.id, { [field]: value });
     await loadData();
@@ -412,8 +413,13 @@ export function SettingsView() {
 
         <RestTimerSettingsSection
           settings={settings}
-          onToggle={handleRestTimerToggle}
+          onToggle={handleSettingToggle}
           onDurationChange={handleRestTimerDuration}
+        />
+
+        <WorkoutBehaviorSection
+          settings={settings}
+          onToggle={handleSettingToggle}
         />
 
         <WeeklyGoalSection

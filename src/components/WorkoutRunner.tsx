@@ -21,7 +21,7 @@ import { StickyRestTimerHeader } from './WorkoutRunner/StickyRestTimerHeader';
 import { StickyExerciseHeader } from './WorkoutRunner/StickyExerciseHeader';
 import { SetLoggerSection } from './WorkoutRunner/SetLoggerSection';
 import { PreviousWorkoutsSection } from './WorkoutRunner/PreviousWorkoutsSection';
-import { WorkoutStatsSection } from './WorkoutRunner/WorkoutStatsSection';
+import { WorkoutOverviewSection } from './WorkoutRunner/WorkoutOverviewSection';
 // import { PRSummarySection } from './WorkoutRunner/PRSummarySection';
 import { ExerciseNavigationSection } from './WorkoutRunner/ExerciseNavigationSection';
 import { FinishWorkoutButton } from './WorkoutRunner/FinishWorkoutButton';
@@ -402,12 +402,26 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
     setSets(updatedSets);
 
+    // Reload all sets so stats and the exercise overview list reflect this set immediately
+    await loadAllSets();
+
     // Don't clear inputs - form persists for same exercise
     // The form will be cleared only when exercise changes (see useEffect for currentExercise)
 
     // Start rest timer if enabled and auto-start is on
     if (settings?.restTimerEnabled !== false && settings?.restTimerAutoStart !== false) {
       startRestTimer();
+    }
+
+    // Auto-advance to next exercise once target sets are hit, if enabled
+    if (
+      settings?.autoAdvanceOnTargetSets &&
+      updatedSets.length >= currentExercise.targetSets &&
+      currentExerciseIndex < exercises.length - 1
+    ) {
+      setTimeout(() => {
+        setCurrentExerciseIndex(currentExerciseIndex + 1);
+      }, 300);
     }
   };
 
@@ -756,7 +770,13 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
           </div>
         )}
 
-        <WorkoutStatsSection stats={stats} />
+        <WorkoutOverviewSection
+          stats={stats}
+          exercises={exercises}
+          exercisesWithSets={allExercisesWithSets}
+          currentIndex={currentExerciseIndex}
+          onSelectExercise={setCurrentExerciseIndex}
+        />
         
         {showAddCustomExercise && (
           <AddCustomExerciseModal
