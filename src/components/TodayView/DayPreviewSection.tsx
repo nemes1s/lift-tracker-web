@@ -60,11 +60,11 @@ export function DayPreviewSection({ template }: DayPreviewSectionProps) {
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-start gap-2 mb-1">
                   <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-800 rounded-full border border-gray-300 dark:border-slate-600">
                     {index + 1}
                   </span>
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">
                     {exercise.name}
                   </h4>
                 </div>
