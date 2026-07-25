@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.1] - 2026-07-25
+
+### Fixes
+- **Missing exercises in the library**. Added 11 exercises used by the built-in programs (Chest-Supported Row, Bulgarian Split Squat, Hip Thrust, Barbell Hip Thrust, Pec Deck, Diamond Push-Ups, Cable Triceps Kickback, Single Leg Press, Pendlay Row, Nordic Hamstring Curl, Push Press) that weren't present in the bundled free-exercise-db dataset, so they now get substitution suggestions and muscle-group tagging like the rest of the library.
+- **Exercise Name Migration dialog cut off on mobile**. The dialog's footer buttons could render below the visible viewport on iOS Safari when the address bar was showing. Fixed the height calculation to track the same dynamic viewport unit used by the rest of the app.
+
 ## [0.21.0] - 2026-07-24
 
 ### Features
