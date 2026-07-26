@@ -12,6 +12,7 @@ import { NotFoundView } from './pages/NotFoundView';
 import { InstallPrompt } from './components/InstallPrompt';
 import { UpdatePrompt } from './components/UpdatePrompt';
 import { DisclaimerModal } from './components/DisclaimerModal';
+import { CookieConsentModal } from './components/CookieConsentModal';
 import { WhatsNewModal } from './components/WhatsNewModal';
 import { InitialProgramSelection } from './components/InitialProgramSelection';
 import { useAppStore } from './store/appStore';
@@ -22,7 +23,7 @@ import { db } from './db/database';
 import { v4 as uuidv4 } from 'uuid';
 import { initAudioContext } from './utils/audio';
 import { migrateTechniqueFlagsToExistingPrograms, needsTechniqueMigration } from './utils/migrateTechniques';
-import { trackPageView } from './utils/analytics';
+import { trackPageView, initializeGoogleAnalytics, disableGoogleAnalytics } from './utils/analytics';
 
 /**
  * Component that tracks page views whenever the location changes
@@ -66,6 +67,7 @@ function App() {
   const refreshTrigger = useAppStore((state) => state.refreshTrigger);
 
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showCookieConsent, setShowCookieConsent] = useState(false);
   const [changelogData, setChangelogData] = useState<VersionChanges[]>([]);
   const [hasActiveProgram, setHasActiveProgram] = useState<boolean | null>(null);
   const [showProgramSelection, setShowProgramSelection] = useState(false);
@@ -126,6 +128,26 @@ function App() {
       }
     };
 
+    // Check cookie consent and gate Google Analytics accordingly
+    const checkCookieConsent = async () => {
+      let settings = await db.settings.toCollection().first();
+
+      if (!settings) {
+        settings = {
+          id: uuidv4(),
+          useEpley: true,
+        };
+        await db.settings.add(settings);
+      }
+
+      if (settings.cookieConsent === 'granted') {
+        initializeGoogleAnalytics();
+      } else if (settings.cookieConsent === undefined) {
+        setShowCookieConsent(true);
+      }
+      // 'denied' -> do nothing, GA stays uninitialized
+    };
+
     // Check if there's a new version and show What's New modal
     const checkWhatsNew = async () => {
       // If version has changed, show the What's New modal
@@ -154,6 +176,7 @@ function App() {
 
     initPersistence();
     checkDisclaimer();
+    checkCookieConsent();
     checkWhatsNew();
     runMigrations();
   }, [lastSeenVersion, setWhatsNewOpen, setLastSeenVersion]);
@@ -175,7 +198,7 @@ function App() {
   useEffect(() => {
     // Only proceed if the store has been hydrated from localStorage
     // This ensures tourCompleted value is accurate on mobile
-    if (!isHydrated || showSplash || tourCompleted || tourActive || showDisclaimer || whatsNewOpen) {
+    if (!isHydrated || showSplash || tourCompleted || tourActive || showDisclaimer || showCookieConsent || whatsNewOpen) {
       return;
     }
 
@@ -184,7 +207,7 @@ function App() {
       return;
     }
 
-    console.log('[App] Tour/Program selection check:', { isHydrated, showSplash, tourCompleted, tourActive, showDisclaimer, whatsNewOpen, hasActiveProgram });
+    console.log('[App] Tour/Program selection check:', { isHydrated, showSplash, tourCompleted, tourActive, showDisclaimer, showCookieConsent, whatsNewOpen, hasActiveProgram });
 
     // If no active program, show program selection instead of tour
     if (!hasActiveProgram) {
@@ -200,7 +223,7 @@ function App() {
       useAppStore.getState().startTour();
     }, 1000);
     return () => clearTimeout(timer);
-  }, [isHydrated, showSplash, tourCompleted, tourActive, showDisclaimer, whatsNewOpen, hasActiveProgram]);
+  }, [isHydrated, showSplash, tourCompleted, tourActive, showDisclaimer, showCookieConsent, whatsNewOpen, hasActiveProgram]);
 
   const handleDisclaimerAccept = async (dontShowAgain: boolean) => {
     const settings = await db.settings.toCollection().first();
@@ -222,6 +245,30 @@ function App() {
       });
     }
     setShowDisclaimer(false);
+  };
+
+  const handleCookieConsentAccept = async () => {
+    const settings = await db.settings.toCollection().first();
+    if (settings) {
+      await db.settings.update(settings.id, {
+        cookieConsent: 'granted',
+        cookieConsentDate: new Date(),
+      });
+    }
+    initializeGoogleAnalytics();
+    setShowCookieConsent(false);
+  };
+
+  const handleCookieConsentDecline = async () => {
+    const settings = await db.settings.toCollection().first();
+    if (settings) {
+      await db.settings.update(settings.id, {
+        cookieConsent: 'denied',
+        cookieConsentDate: new Date(),
+      });
+    }
+    disableGoogleAnalytics();
+    setShowCookieConsent(false);
   };
 
   const handleProgramSelectionComplete = () => {
@@ -246,6 +293,12 @@ function App() {
         <DisclaimerModal
           onAccept={handleDisclaimerAccept}
           onDismiss={handleDisclaimerDismiss}
+        />
+      )}
+      {!showDisclaimer && showCookieConsent && (
+        <CookieConsentModal
+          onAccept={handleCookieConsentAccept}
+          onDecline={handleCookieConsentDecline}
         />
       )}
       {whatsNewOpen && changelogData.length > 0 && (

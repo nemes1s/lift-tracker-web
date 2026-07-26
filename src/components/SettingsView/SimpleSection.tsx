@@ -1,6 +1,6 @@
 // Reusable components for simple settings sections
 
-import { AlertTriangle, HelpCircle, MessageCircle, Sparkles } from 'lucide-react';
+import { AlertTriangle, Cookie, HelpCircle, MessageCircle, Sparkles } from 'lucide-react';
 import { InstallButton } from '../InstallPrompt';
 
 export function PWAInstallSection() {
@@ -31,6 +31,39 @@ export function DisclaimerSection({ onShowDisclaimer }: { onShowDisclaimer: () =
       >
         <AlertTriangle className="w-5 h-5" />
         View Disclaimer
+      </button>
+    </div>
+  );
+}
+
+export function CookieConsentSection({
+  consent,
+  onShowCookieConsent,
+}: {
+  consent?: 'granted' | 'denied';
+  onShowCookieConsent: () => void;
+}) {
+  return (
+    <div className="card p-6 bg-white dark:bg-slate-800">
+      <div className="flex items-center gap-2 mb-3">
+        <Cookie className="w-6 h-6 text-primary-600 dark:text-primary-500" />
+        <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Cookies & Analytics</h2>
+      </div>
+      <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">
+        We only use Google Analytics cookies to see how the app is used. No other cookies, no ads.
+      </p>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        Current choice:{' '}
+        <span className="font-semibold">
+          {consent === 'granted' ? 'Analytics enabled' : consent === 'denied' ? 'Analytics disabled' : 'Not decided yet'}
+        </span>
+      </p>
+      <button
+        onClick={onShowCookieConsent}
+        className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/50 text-primary-700 dark:text-primary-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-primary-200 dark:border-primary-800 hover:border-primary-300 dark:hover:border-primary-700"
+      >
+        <Cookie className="w-5 h-5" />
+        Change Cookie Preferences
       </button>
     </div>
   );

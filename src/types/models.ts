@@ -78,6 +78,9 @@ export interface SettingsModel {
   activeProgramId?: string;
   disclaimerAccepted?: boolean; // User permanently dismissed disclaimer
   lastDisclaimerShown?: Date; // Last time disclaimer was shown
+  // Cookie / analytics consent
+  cookieConsent?: 'granted' | 'denied'; // Whether the user allowed Google Analytics cookies
+  cookieConsentDate?: Date; // When the consent choice was made
   // Rest timer settings
   restTimerEnabled?: boolean; // Whether rest timer is enabled (default: true)
   restTimerAutoStart?: boolean; // Auto-start timer after logging set (default: true)

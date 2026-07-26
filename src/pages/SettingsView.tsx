@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Settings } from 'lucide-react';
 import { DisclaimerModal } from '../components/DisclaimerModal';
+import { CookieConsentModal } from '../components/CookieConsentModal';
+import { initializeGoogleAnalytics, disableGoogleAnalytics } from '../utils/analytics';
 import { WhatsNewModal } from '../components/WhatsNewModal';
 import { db } from '../db/database';
 import {
@@ -20,7 +22,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { isPersisted, getStorageEstimate } from '../utils/persistence';
 import { APP_VERSION } from '../version';
 import { AppearanceSection } from '../components/SettingsView/AppearanceSection';
-import { PWAInstallSection, DisclaimerSection, FormulaSection, TourSection, FeedbackSection, WhatsNewSection } from '../components/SettingsView/SimpleSection';
+import { PWAInstallSection, DisclaimerSection, CookieConsentSection, FormulaSection, TourSection, FeedbackSection, WhatsNewSection } from '../components/SettingsView/SimpleSection';
 import { StorageInfoSection } from '../components/SettingsView/StorageInfoSection';
 import { RestTimerSettingsSection } from '../components/SettingsView/RestTimerSettingsSection';
 import { WorkoutBehaviorSection } from '../components/SettingsView/WorkoutBehaviorSection';
@@ -48,6 +50,7 @@ export function SettingsView() {
   const [editingProgramName, setEditingProgramName] = useState('');
   const [exportingProgramId, setExportingProgramId] = useState<string | null>(null);
   const [showDisclaimerModal, setShowDisclaimerModal] = useState(false);
+  const [showCookieConsentModal, setShowCookieConsentModal] = useState(false);
   const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
   const [changelogData, setChangelogData] = useState<VersionChanges[]>([]);
   const [showDurationModal, setShowDurationModal] = useState(false);
@@ -309,6 +312,30 @@ export function SettingsView() {
     setShowDisclaimerModal(false);
   };
 
+  const handleCookieConsentAccept = async () => {
+    if (!settings) return;
+
+    await db.settings.update(settings.id, {
+      cookieConsent: 'granted',
+      cookieConsentDate: new Date(),
+    });
+    initializeGoogleAnalytics();
+    setShowCookieConsentModal(false);
+    await loadData();
+  };
+
+  const handleCookieConsentDecline = async () => {
+    if (!settings) return;
+
+    await db.settings.update(settings.id, {
+      cookieConsent: 'denied',
+      cookieConsentDate: new Date(),
+    });
+    disableGoogleAnalytics();
+    setShowCookieConsentModal(false);
+    await loadData();
+  };
+
   const handleShowWhatsNew = async () => {
     try {
       const allVersions = await parseAllVersions();
@@ -400,6 +427,11 @@ export function SettingsView() {
         <PWAInstallSection />
 
         <DisclaimerSection onShowDisclaimer={() => setShowDisclaimerModal(true)} />
+
+        <CookieConsentSection
+          consent={settings?.cookieConsent}
+          onShowCookieConsent={() => setShowCookieConsentModal(true)}
+        />
 
         <TourSection onStartTour={startTour} />
 
@@ -552,6 +584,13 @@ export function SettingsView() {
           <DisclaimerModal
             onAccept={handleDisclaimerAccept}
             onDismiss={handleDisclaimerDismiss}
+          />
+        )}
+
+        {showCookieConsentModal && (
+          <CookieConsentModal
+            onAccept={handleCookieConsentAccept}
+            onDecline={handleCookieConsentDecline}
           />
         )}
 
