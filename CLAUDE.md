@@ -212,6 +212,17 @@ const template: WorkoutTemplate = {
 - **driver.js** — guided tour
 - **html2canvas + jspdf** — PDF export
 
+## Version Bumps
+
+A `pre-push` git hook bumps `package.json` version and `src/version.ts` automatically based on a release tag in the latest commit message: `[release-major]`, `[release-minor]`, or `[release-patch]` (see `scripts/bump-version.js`). No tag means no bump.
+
+**Before making a commit or opening a PR for a feature or fix, ask the user which bump level applies (or suggest one) and include the matching tag in the commit message.** Default guidance:
+- `[release-patch]` — bug fixes, small tweaks
+- `[release-minor]` — new features, non-breaking additions
+- `[release-major]` — breaking changes
+
+Skip asking for commits that don't ship user-facing behavior (docs, tests, CI/config-only changes).
+
 ## Changelog
 
 `CHANGELOG.md` tracks only major and minor releases, not patches.
