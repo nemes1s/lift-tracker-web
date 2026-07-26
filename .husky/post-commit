@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Post-commit hook to automatically bump version and fold it into the
+# same commit via amend. This runs at commit time (not push time) so a
+# single `git push` never needs a follow-up push for a bump commit.
+
+# Guard against the recursive post-commit fired by our own amend below.
+if [ -n "$SKIP_VERSION_BUMP_HOOK" ]; then
+  exit 0
+fi
+
+# Run the version bump script; it inspects HEAD's commit message
+# (the commit we just made) for a [release-major/minor/patch] tag.
+node scripts/bump-version.js
+if [ $? -ne 0 ]; then
+  echo "❌ Version bump failed. Commit was made without a version bump."
+  exit 0
+fi
+
+# If no release tag was found, the script leaves these files untouched.
+if git diff --quiet -- package.json src/version.ts; then
+  exit 0
+fi
+
+# Fold the bump into the commit we just created.
+git add package.json src/version.ts
+SKIP_VERSION_BUMP_HOOK=1 git commit --amend --no-edit --no-verify
+
+if [ $? -ne 0 ]; then
+  echo "❌ Failed to fold version bump into commit."
+  exit 0
+fi
+
+echo "✅ Version bumped and folded into commit"

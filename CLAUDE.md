@@ -214,7 +214,7 @@ const template: WorkoutTemplate = {
 
 ## Version Bumps
 
-A `pre-push` git hook bumps `package.json` version and `src/version.ts` automatically based on a release tag in the latest commit message: `[release-major]`, `[release-minor]`, or `[release-patch]` (see `scripts/bump-version.js`). No tag means no bump.
+A `post-commit` git hook bumps `package.json` version and `src/version.ts` automatically based on a release tag in the commit message you just wrote: `[release-major]`, `[release-minor]`, or `[release-patch]` (see `scripts/bump-version.js`). The hook folds the bump into that same commit via `git commit --amend`, so `git push` never needs a follow-up push for a separate bump commit. No tag means no bump.
 
 **Before making a commit or opening a PR for a feature or fix, ask the user which bump level applies (or suggest one) and include the matching tag in the commit message.** Default guidance:
 - `[release-patch]` — bug fixes, small tweaks
