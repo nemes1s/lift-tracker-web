@@ -12,6 +12,7 @@ import { convertToKg, convertWeight, type WeightUnit } from '../utils/weightUnit
 import { getExerciseNotes } from '../data/exerciseSubstitutions';
 import { getAllDefinitionNames } from '../utils/exerciseLibrary';
 import { playTimerNotification, initAudioContext, playCountdownBeep } from '../utils/audio';
+import { showRestTimerComplete } from '../utils/notifications';
 import { WorkoutControlsSection } from './WorkoutRunner/WorkoutControlsSection';
 import { ExerciseDetailsSection } from './WorkoutRunner/ExerciseDetailsSection';
 import { ExerciseSubstitutionSection } from './WorkoutRunner/ExerciseSubstitutionSection';
@@ -243,6 +244,11 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
         if (settings?.restTimerSound !== false) {
           playTimerNotification(true);
         }
+
+        // Show push notification if enabled
+        if (settings?.notificationsEnabled === true && settings?.restTimerNotifications === true) {
+          showRestTimerComplete();
+        }
       } else {
         // Update secondsLeft based on actual elapsed time
         if (restTimer.secondsLeft !== remainingSeconds) {
@@ -272,6 +278,10 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
         setRestTimer({ isActive: false, secondsLeft: 0, isCompleted: true, startTimestamp: null });
         if (settings?.restTimerSound !== false) {
           playTimerNotification(true);
+        }
+        // Show push notification if enabled
+        if (settings?.notificationsEnabled === true && settings?.restTimerNotifications === true) {
+          showRestTimerComplete();
         }
       } else if (restTimer.secondsLeft !== remainingSeconds) {
         // Update to correct remaining time

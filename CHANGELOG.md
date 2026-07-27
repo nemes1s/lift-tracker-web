@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.0] - 2026-07-27
+
+### Features
+- **Push notifications for workout reminders**. Users can now enable push notifications in Settings to receive daily workout reminders. Configure a specific time (default 9:00 AM) and select which days of the week to receive reminders (Monday-Friday by default). Notifications include the recommended workout name and first three exercises from your current program.
+- **Rest timer push notifications**. When the rest timer completes during a workout, a system notification can now appear (in addition to the existing sound/vibration), even when the app is in the background. This ensures you never miss when it's time for your next set.
+- **Streak reminder notifications**. Get gentle reminders to maintain consistency if you haven't worked out in 2+ days. These notifications encourage you to keep your training streak alive without being intrusive.
+- **Smart notification scheduling**. Notifications only appear once per day and respect your preferences. If you've already worked out today, no reminder is sent. All notification settings are independently toggleable.
+- **Test notification button**. Try out notifications before committing - the Settings page includes a "Test Notification" button to preview what workout reminders look like.
+
+### Technical
+- **Custom service worker implementation**. Switched from auto-generated Workbox service worker to custom `injectManifest` strategy, enabling full control over notification handling and click behavior.
+- **Notification click handling**. Clicking on any notification opens or focuses the app and navigates to the appropriate view.
+- **Browser compatibility**. Full support for Chrome, Edge, and Firefox. Safari iOS has limited notification support (requires app to be open/installed).
+
+### Improvements
+- **Comprehensive permission management**. Clean UI for requesting notification permissions with clear status indicators (enabled/blocked). Permission state is checked before attempting to show any notifications.
+- **Database optimization**. Added notification preferences to SettingsModel (version 10) including reminder time, selected days, and tracking of last shown notifications to prevent spam.
+
 ## [0.22.0] - 2026-07-26
 
 ### Features

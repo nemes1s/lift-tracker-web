@@ -66,6 +66,9 @@ export class LiftTrackerDatabase extends Dexie {
     this.version(9).stores({
       programCompletions: 'id, programId, completionDate',
     });
+
+    // Version 10: Add notification settings to SettingsModel (no schema change needed, Dexie handles new fields automatically)
+    this.version(10).stores({});
   }
 }
 

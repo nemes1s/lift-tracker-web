@@ -1,7 +1,7 @@
 {
   "name": "lifttrackerweb",
   "private": true,
-  "version": "0.22.0",
+  "version": "0.23.0",
   "type": "module",
   "packageManager": "pnpm@11.17.0",
   "engines": {
@@ -62,6 +62,12 @@
     "vite": "^7.1.7",
     "vite-plugin-pwa": "^1.1.0",
     "vitest": "^4.0.16",
+    "workbox-cacheable-response": "^7.4.0",
+    "workbox-core": "^7.4.0",
+    "workbox-expiration": "^7.4.0",
+    "workbox-precaching": "^7.4.0",
+    "workbox-routing": "^7.4.0",
+    "workbox-strategies": "^7.4.0",
     "workbox-window": "^7.3.0"
   }
 }
