@@ -52,29 +52,27 @@ export function DayPreviewSection({ template }: DayPreviewSectionProps) {
         <Dumbbell className="w-4 h-4" />
         Workout Preview
       </h3>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {exercises.map((exercise, index) => (
           <div
             key={exercise.id}
-            className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4 border border-gray-200 dark:border-slate-600"
+            className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-3 border border-gray-200 dark:border-slate-600"
           >
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-800 rounded-full border border-gray-300 dark:border-slate-600">
+                {index + 1}
+              </span>
               <div className="flex-1 min-w-0">
-                <div className="flex items-start gap-2 mb-1">
-                  <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-800 rounded-full border border-gray-300 dark:border-slate-600">
-                    {index + 1}
-                  </span>
-                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-                    {exercise.name}
-                  </h4>
-                </div>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                  {exercise.name}
+                </h4>
                 {exercise.notes && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-8">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     {exercise.notes}
                   </p>
                 )}
                 {(exercise.isMyoreps || exercise.isLengthenedPartials) && (
-                  <div className="flex gap-2 mt-2 ml-8">
+                  <div className="flex gap-2 mt-2">
                     {exercise.isMyoreps && (
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
                         Myoreps
