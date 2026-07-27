@@ -246,7 +246,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
         }
 
         // Show push notification if enabled
-        if (settings?.restTimerNotifications !== false) {
+        if (settings?.notificationsEnabled === true && settings?.restTimerNotifications === true) {
           showRestTimerComplete();
         }
       } else {
@@ -280,7 +280,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
           playTimerNotification(true);
         }
         // Show push notification if enabled
-        if (settings?.restTimerNotifications !== false) {
+        if (settings?.notificationsEnabled === true && settings?.restTimerNotifications === true) {
           showRestTimerComplete();
         }
       } else if (restTimer.secondsLeft !== remainingSeconds) {

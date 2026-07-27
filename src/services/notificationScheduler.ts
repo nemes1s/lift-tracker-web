@@ -19,7 +19,7 @@ export async function checkAndShowWorkoutReminders(): Promise<void> {
   const settings = await db.settings.toCollection().first();
   if (!settings) return;
 
-  // Check if notifications are enabled
+  // Check if master notifications switch is enabled
   if (!settings.notificationsEnabled) return;
 
   // Check permission
@@ -27,22 +27,24 @@ export async function checkAndShowWorkoutReminders(): Promise<void> {
   if (permission !== 'granted') return;
 
   // Check if we should show a workout reminder
-  const shouldShowReminder = shouldShowWorkoutReminder(
-    settings.lastWorkoutReminderShown,
-    settings.workoutReminderTime ?? '09:00',
-    settings.workoutReminderDays ?? [1, 2, 3, 4, 5]
-  );
+  if (settings.workoutRemindersEnabled === true) {
+    const shouldShowReminder = shouldShowWorkoutReminder(
+      settings.lastWorkoutReminderShown,
+      settings.workoutReminderTime ?? '09:00',
+      settings.workoutReminderDays ?? [1, 2, 3, 4, 5]
+    );
 
-  if (shouldShowReminder) {
-    await showWorkoutReminderNotification(settings.activeProgramId);
-    // Update last shown timestamp
-    await db.settings.update(settings.id, {
-      lastWorkoutReminderShown: new Date(),
-    });
+    if (shouldShowReminder) {
+      await showWorkoutReminderNotification(settings.activeProgramId);
+      // Update last shown timestamp
+      await db.settings.update(settings.id, {
+        lastWorkoutReminderShown: new Date(),
+      });
+    }
   }
 
   // Check if we should show a streak reminder
-  if (settings.streakRemindersEnabled !== false) {
+  if (settings.streakRemindersEnabled === true) {
     await checkAndShowStreakReminder();
   }
 }

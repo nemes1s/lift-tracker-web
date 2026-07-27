@@ -92,13 +92,13 @@ export function NotificationSettingsSection({
           </div>
         )}
 
-        {/* Enable Workout Reminders */}
+        {/* Master Enable All Notifications Toggle */}
         {permissionStatus === 'granted' && (
           <>
-            <label className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600 transition-all cursor-pointer">
+            <label className="flex items-center justify-between p-4 bg-primary-50 dark:bg-primary-900/30 rounded-xl border-2 border-primary-200 dark:border-primary-800 hover:border-primary-300 dark:hover:border-primary-600 transition-all cursor-pointer">
               <div>
-                <span className="font-bold text-gray-900 dark:text-gray-100 block">Workout Reminders</span>
-                <span className="text-sm text-gray-600 dark:text-gray-400">Daily reminder to work out</span>
+                <span className="font-bold text-gray-900 dark:text-gray-100 block">Enable All Notifications</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Master switch for all notification types</span>
               </div>
               <div className="relative">
                 <input
@@ -111,8 +111,26 @@ export function NotificationSettingsSection({
               </div>
             </label>
 
+            {/* Workout Reminders */}
+            <label className={`flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 transition-all ${settings?.notificationsEnabled ? 'hover:border-primary-300 dark:hover:border-primary-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
+              <div>
+                <span className="font-bold text-gray-900 dark:text-gray-100 block">Workout Reminders</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Daily reminder to work out</span>
+              </div>
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={settings?.workoutRemindersEnabled === true}
+                  onChange={(e) => onToggle('workoutRemindersEnabled', e.target.checked)}
+                  disabled={!settings?.notificationsEnabled}
+                  className="sr-only peer disabled:cursor-not-allowed"
+                />
+                <div className="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600 peer-disabled:opacity-50"></div>
+              </div>
+            </label>
+
             {/* Reminder Time */}
-            {settings?.notificationsEnabled && (
+            {settings?.notificationsEnabled && settings?.workoutRemindersEnabled && (
               <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700">
                 <label className="block mb-3">
                   <span className="font-bold text-gray-900 dark:text-gray-100 block mb-1">Reminder Time</span>
@@ -128,7 +146,7 @@ export function NotificationSettingsSection({
             )}
 
             {/* Reminder Days */}
-            {settings?.notificationsEnabled && (
+            {settings?.notificationsEnabled && settings?.workoutRemindersEnabled && (
               <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700">
                 <label className="block mb-3">
                   <span className="font-bold text-gray-900 dark:text-gray-100 block mb-1">Reminder Days</span>
@@ -153,7 +171,7 @@ export function NotificationSettingsSection({
             )}
 
             {/* Rest Timer Notifications */}
-            <label className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600 transition-all cursor-pointer">
+            <label className={`flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 transition-all ${settings?.notificationsEnabled ? 'hover:border-primary-300 dark:hover:border-primary-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
               <div>
                 <span className="font-bold text-gray-900 dark:text-gray-100 block">Rest Timer Alerts</span>
                 <span className="text-sm text-gray-600 dark:text-gray-400">Push notification when timer completes</span>
@@ -161,16 +179,17 @@ export function NotificationSettingsSection({
               <div className="relative">
                 <input
                   type="checkbox"
-                  checked={settings?.restTimerNotifications !== false}
+                  checked={settings?.restTimerNotifications === true}
                   onChange={(e) => onToggle('restTimerNotifications', e.target.checked)}
-                  className="sr-only peer"
+                  disabled={!settings?.notificationsEnabled}
+                  className="sr-only peer disabled:cursor-not-allowed"
                 />
-                <div className="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+                <div className="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600 peer-disabled:opacity-50"></div>
               </div>
             </label>
 
             {/* Streak Reminders */}
-            <label className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600 transition-all cursor-pointer">
+            <label className={`flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 transition-all ${settings?.notificationsEnabled ? 'hover:border-primary-300 dark:hover:border-primary-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
               <div>
                 <span className="font-bold text-gray-900 dark:text-gray-100 block">Streak Reminders</span>
                 <span className="text-sm text-gray-600 dark:text-gray-400">Remind me if I miss 2+ days</span>
@@ -178,11 +197,12 @@ export function NotificationSettingsSection({
               <div className="relative">
                 <input
                   type="checkbox"
-                  checked={settings?.streakRemindersEnabled !== false}
+                  checked={settings?.streakRemindersEnabled === true}
                   onChange={(e) => onToggle('streakRemindersEnabled', e.target.checked)}
-                  className="sr-only peer"
+                  disabled={!settings?.notificationsEnabled}
+                  className="sr-only peer disabled:cursor-not-allowed"
                 />
-                <div className="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
+                <div className="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600 peer-disabled:opacity-50"></div>
               </div>
             </label>
 
