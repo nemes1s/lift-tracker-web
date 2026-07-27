@@ -1,6 +1,8 @@
 import { db } from '../db/database';
 import type { Program, WorkoutTemplate, Workout, ExerciseInstance, ExerciseTemplate } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
+import { getAllPossibleSubstitutions } from '../data/exerciseSubstitutions';
+import { normalizeExerciseName } from './exerciseMatching';
 
 // Calculate current week number based on program start date
 export function currentWeek(startDate: Date | undefined, totalWeeks: number): number {
@@ -82,6 +84,36 @@ export async function recommendedDay(program: Program): Promise<number> {
   return (template.dayIndex + 1) % (maxDayIndex + 1);
 }
 
+/**
+ * Check if two exercise names match using multiple strategies:
+ * 1. Exact match
+ * 2. Canonical database substitutions (e.g., "Barbell Bench Press" matches "DB Bench Press")
+ * 3. Fuzzy normalization (e.g., "45 Incline Bench Press" matches "Incline Bench Press")
+ */
+function exerciseNamesMatch(name1: string, name2: string): boolean {
+  // Strategy 1: Exact match
+  if (name1 === name2) {
+    return true;
+  }
+
+  // Strategy 2: Check canonical database substitutions
+  try {
+    const substitutions = getAllPossibleSubstitutions(name1);
+    if (substitutions.includes(name2)) {
+      return true;
+    }
+  } catch (error) {
+    // If canonical lookup fails, continue to fuzzy matching
+    console.debug('Canonical substitution lookup failed:', error);
+  }
+
+  // Strategy 3: Fuzzy normalization (e.g., "45 Incline Bench Press" → "incline bench press")
+  const normalized1 = normalizeExerciseName(name1);
+  const normalized2 = normalizeExerciseName(name2);
+
+  return normalized1 === normalized2;
+}
+
 // Create a new workout instance from a template
 export async function instantiateWorkout(
   template: WorkoutTemplate,
@@ -133,6 +165,7 @@ export async function instantiateWorkout(
 }
 
 // Get previous sets for an exercise
+// Now supports fuzzy matching via canonical database substitutions and normalization
 export async function previousSets(exerciseName: string): Promise<any[]> {
   const workouts = await db.workouts
     .orderBy('startedAt')
@@ -145,7 +178,7 @@ export async function previousSets(exerciseName: string): Promise<any[]> {
       .equals(workout.id)
       .toArray();
 
-    const exercise = exercises.find((e) => e.name === exerciseName);
+    const exercise = exercises.find((e) => exerciseNamesMatch(e.name, exerciseName));
     if (exercise) {
       const sets = await db.setRecords
         .where('exerciseId')
@@ -163,6 +196,7 @@ export async function previousSets(exerciseName: string): Promise<any[]> {
 }
 
 // Get previous workout instances for an exercise
+// Now supports fuzzy matching via canonical database substitutions and normalization
 export async function previousWorkoutInstances(
   exerciseName: string,
   limit: number = 3
@@ -183,7 +217,7 @@ export async function previousWorkoutInstances(
       .equals(workout.id)
       .toArray();
 
-    const exercise = exercises.find((e) => e.name === exerciseName);
+    const exercise = exercises.find((e) => exerciseNamesMatch(e.name, exerciseName));
     if (exercise) {
       const sets = await db.setRecords
         .where('exerciseId')
@@ -200,6 +234,7 @@ export async function previousWorkoutInstances(
 }
 
 // Get best weight for an exercise
+// Now supports fuzzy matching via canonical database substitutions and normalization
 export async function previousBestWeight(exerciseName: string): Promise<number | undefined> {
   const workouts = await db.workouts.toArray();
   let maxWeight = 0;
@@ -211,7 +246,7 @@ export async function previousBestWeight(exerciseName: string): Promise<number |
       .toArray();
 
     for (const exercise of exercises) {
-      if (exercise.name === exerciseName) {
+      if (exerciseNamesMatch(exercise.name, exerciseName)) {
         const sets = await db.setRecords
           .where('exerciseId')
           .equals(exercise.id)
