@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings } from 'lucide-react';
+import { Settings, SlidersHorizontal, Dumbbell, Bell, ClipboardList, Database, CircleHelp } from 'lucide-react';
 import { DisclaimerModal } from '../components/DisclaimerModal';
 import { CookieConsentModal } from '../components/CookieConsentModal';
 import { initializeGoogleAnalytics, disableGoogleAnalytics } from '../utils/analytics';
@@ -21,21 +21,14 @@ import type { Program, SettingsModel } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
 import { isPersisted, getStorageEstimate } from '../utils/persistence';
 import { APP_VERSION } from '../version';
-import { AppearanceSection } from '../components/SettingsView/AppearanceSection';
-import { PWAInstallSection, DisclaimerSection, CookieConsentSection, FormulaSection, TourSection, FeedbackSection, WhatsNewSection } from '../components/SettingsView/SimpleSection';
-import { StorageInfoSection } from '../components/SettingsView/StorageInfoSection';
-import { RestTimerSettingsSection } from '../components/SettingsView/RestTimerSettingsSection';
+import { PreferencesSection } from '../components/SettingsView/PreferencesSection';
+import { AboutSupportSection } from '../components/SettingsView/AboutSupportSection';
 import { WorkoutBehaviorSection } from '../components/SettingsView/WorkoutBehaviorSection';
 import { NotificationSettingsSection } from '../components/SettingsView/NotificationSettingsSection';
-import { WeeklyGoalSection } from '../components/SettingsView/WeeklyGoalSection';
-import { WeekStartDaySection } from '../components/SettingsView/WeekStartDaySection';
-import { WeightUnitSection } from '../components/SettingsView/WeightUnitSection';
-import { ActiveProgramSection } from '../components/SettingsView/ActiveProgramSection';
-import { ProgramsManagementSection } from '../components/SettingsView/ProgramsManagementSection';
-import { ProgramStatsExportSection } from '../components/SettingsView/ProgramStatsExportSection';
+import { ProgramsSection } from '../components/SettingsView/ProgramsSection';
 import { DeleteConfirmModals } from '../components/SettingsView/DeleteConfirmModals';
-import { ExerciseMigrationSection } from '../components/SettingsView/ExerciseMigrationSection';
-import { BackupSection } from '../components/SettingsView/BackupSection';
+import { DataToolsSection } from '../components/SettingsView/DataToolsSection';
+import { SettingsGroup } from '../components/SettingsView/SettingsGroup';
 
 export function SettingsView() {
   const navigate = useNavigate();
@@ -431,170 +424,114 @@ export function SettingsView() {
           </div>
         </div>
 
-        <AppearanceSection darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
+        <SettingsGroup
+          icon={SlidersHorizontal}
+          title="Appearance & Preferences"
+          description="Theme, week start, units, 1RM formula"
+          defaultOpen
+          merged
+        >
+          <PreferencesSection
+            darkMode={darkMode}
+            onToggleDarkMode={toggleDarkMode}
+            settings={settings}
+            onWeekStartDayChange={handleWeekStartDayChange}
+            onWeightUnitChange={handleWeightUnitChange}
+            onFormulaUpdate={handleFormulaUpdate}
+          />
+        </SettingsGroup>
 
-        <WeekStartDaySection
-          settings={settings}
-          onWeekStartDayChange={handleWeekStartDayChange}
-        />
+        <SettingsGroup
+          icon={Dumbbell}
+          title="Workout Behavior"
+          description="Rest timer, quick workouts, weekly goal"
+          merged
+        >
+          <WorkoutBehaviorSection
+            settings={settings}
+            onToggle={handleSettingToggle}
+            onDurationChange={handleRestTimerDuration}
+            onGoalChange={handleWeeklyGoalUpdate}
+          />
+        </SettingsGroup>
 
-        <WeightUnitSection
-          settings={settings}
-          onWeightUnitChange={handleWeightUnitChange}
-        />
+        <SettingsGroup
+          icon={Bell}
+          title="Notifications"
+          description="Workout reminders and rest timer alerts"
+          merged
+        >
+          <NotificationSettingsSection
+            settings={settings}
+            onToggle={handleNotificationToggle}
+            onTimeChange={handleNotificationTimeChange}
+            onDaysChange={handleNotificationDaysChange}
+          />
+        </SettingsGroup>
 
-        <PWAInstallSection />
+        <SettingsGroup
+          icon={ClipboardList}
+          title="Programs"
+          description="Active program, create, import, export"
+          merged
+        >
+          <ProgramsSection
+            programs={programs}
+            activeProgramId={settings?.activeProgramId}
+            onSetActive={handleSetActive}
+            editingProgramId={editingProgramId}
+            editingProgramName={editingProgramName}
+            exportingProgramId={exportingProgramId}
+            importMessage={importMessage}
+            isImporting={isImporting}
+            fileInputRef={fileInputRef}
+            onStartRename={handleStartRename}
+            onSaveRename={handleSaveRename}
+            onCancelRename={handleCancelRename}
+            onEditingNameChange={setEditingProgramName}
+            onDateChange={handleUpdateProgramDate}
+            onWeeksChange={handleUpdateProgramWeeks}
+            onView={handleViewProgram}
+            onExport={handleExportProgram}
+            onDelete={handleDeleteProgram}
+            onImportClick={handleImportClick}
+            onFileSelect={handleFileSelect}
+            onCreateProgram={handleCreateProgram}
+            onDeleteAll={() => setShowDeleteConfirm(true)}
+          />
+        </SettingsGroup>
 
-        <DisclaimerSection onShowDisclaimer={() => setShowDisclaimerModal(true)} />
+        <SettingsGroup
+          icon={Database}
+          title="Data Tools"
+          description="Export stats, backup, migration, duplicates"
+          merged
+        >
+          <DataToolsSection
+            programs={programs}
+            settings={settings}
+            onImportComplete={loadData}
+            onMigrationComplete={loadData}
+            onDeleteProgram={setDeletingProgramId}
+          />
+        </SettingsGroup>
 
-        <CookieConsentSection
-          consent={settings?.cookieConsent}
-          onShowCookieConsent={() => setShowCookieConsentModal(true)}
-        />
-
-        <TourSection onStartTour={startTour} />
-
-        <FeedbackSection />
-
-        <WhatsNewSection onShowWhatsNew={handleShowWhatsNew} />
-
-        <StorageInfoSection persisted={persisted} storageInfo={storageInfo} />
-
-        <FormulaSection useEpley={settings?.useEpley === true} onUpdate={handleFormulaUpdate} />
-
-        <RestTimerSettingsSection
-          settings={settings}
-          onToggle={handleSettingToggle}
-          onDurationChange={handleRestTimerDuration}
-        />
-
-        <WorkoutBehaviorSection
-          settings={settings}
-          onToggle={handleSettingToggle}
-        />
-
-        <NotificationSettingsSection
-          settings={settings}
-          onToggle={handleNotificationToggle}
-          onTimeChange={handleNotificationTimeChange}
-          onDaysChange={handleNotificationDaysChange}
-        />
-
-        <WeeklyGoalSection
-          settings={settings}
-          onGoalChange={handleWeeklyGoalUpdate}
-        />
-
-        <ActiveProgramSection
-          programs={programs}
-          settings={settings}
-          onSetActive={handleSetActive}
-        />
-
-        <ProgramsManagementSection
-          programs={programs}
-          editingProgramId={editingProgramId}
-          editingProgramName={editingProgramName}
-          exportingProgramId={exportingProgramId}
-          importMessage={importMessage}
-          isImporting={isImporting}
-          fileInputRef={fileInputRef}
-          onStartRename={handleStartRename}
-          onSaveRename={handleSaveRename}
-          onCancelRename={handleCancelRename}
-          onEditingNameChange={setEditingProgramName}
-          onDateChange={handleUpdateProgramDate}
-          onWeeksChange={handleUpdateProgramWeeks}
-          onView={handleViewProgram}
-          onExport={handleExportProgram}
-          onDelete={handleDeleteProgram}
-          onImportClick={handleImportClick}
-          onFileSelect={handleFileSelect}
-          onCreateProgram={handleCreateProgram}
-          onDeleteAll={() => setShowDeleteConfirm(true)}
-        />
-
-        <ProgramStatsExportSection programs={programs} />
-
-        <BackupSection onImportComplete={loadData} />
-
-        <ExerciseMigrationSection
-          settings={settings}
-          onMigrationComplete={loadData}
-        />
-
-        {/* Data Cleanup Section */}
-        {programs.length > 0 && (
-          <div className="card p-6 bg-white dark:bg-slate-800">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
-                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Data Management</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Identify and manage duplicate programs
-                </p>
-              </div>
-            </div>
-
-            {(() => {
-              // Find duplicate program names
-              const programsByName = new Map<string, typeof programs>();
-              programs.forEach(prog => {
-                const key = prog.name.toLowerCase();
-                if (!programsByName.has(key)) {
-                  programsByName.set(key, []);
-                }
-                programsByName.get(key)!.push(prog);
-              });
-
-              const duplicates = Array.from(programsByName.values()).filter(progs => progs.length > 1);
-
-              if (duplicates.length === 0) {
-                return (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    ✓ No duplicate programs found
-                  </p>
-                );
-              }
-
-              return (
-                <div className="space-y-4">
-                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-                    <p className="text-sm text-amber-800 dark:text-amber-300 font-medium mb-3">
-                      Found {duplicates.length} program{duplicates.length !== 1 ? 's' : ''} with duplicate names:
-                    </p>
-                    {duplicates.map((dupeGroup) => (
-                      <div key={dupeGroup[0].name} className="bg-white dark:bg-slate-700 rounded p-3 mb-2 last:mb-0">
-                        <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-2">
-                          {dupeGroup[0].name}
-                        </p>
-                        <div className="space-y-1">
-                          {dupeGroup.map((prog) => (
-                            <div key={prog.id} className="flex justify-between items-center text-xs">
-                              <span className="text-gray-600 dark:text-gray-400">
-                                Created: {new Date(prog.createdAt).toLocaleDateString()}
-                              </span>
-                              <button
-                                onClick={() => setDeletingProgramId(prog.id)}
-                                className="px-2 py-1 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 rounded transition-colors"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
-        )}
+        <SettingsGroup
+          icon={CircleHelp}
+          title="About & Support"
+          description="Install, tour, feedback, storage, legal"
+          merged
+        >
+          <AboutSupportSection
+            persisted={persisted}
+            storageInfo={storageInfo}
+            onStartTour={startTour}
+            onShowWhatsNew={handleShowWhatsNew}
+            onShowDisclaimer={() => setShowDisclaimerModal(true)}
+            cookieConsent={settings?.cookieConsent}
+            onShowCookieConsent={() => setShowCookieConsentModal(true)}
+          />
+        </SettingsGroup>
 
         <DeleteConfirmModals
           deletingProgramId={deletingProgramId}

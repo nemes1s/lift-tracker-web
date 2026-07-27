@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, FileText, Image, FileDown } from 'lucide-react';
+import { FileText, Image, FileDown } from 'lucide-react';
 import type { Program } from '../../types/models';
 import { aggregateProgramStats, countProgramWorkouts } from '../../utils/programStatsAggregator';
 import {
@@ -127,19 +127,7 @@ export function ProgramStatsExportSection({ programs }: ProgramStatsExportSectio
   };
 
   return (
-    <div className="card p-6 bg-white dark:bg-slate-800">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-          <BarChart3 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-        </div>
-        <div>
-          <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Export Training Stats</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Export comprehensive training statistics with progress tracking
-          </p>
-        </div>
-      </div>
-
+    <div>
       {programs.length === 0 ? (
         <p className="text-gray-600 dark:text-gray-400 text-sm italic">
           No programs available. Create a program to export stats.

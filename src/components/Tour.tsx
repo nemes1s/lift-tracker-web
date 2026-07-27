@@ -165,6 +165,14 @@ export function Tour() {
       const waitAndRestart = () => {
         const element = document.querySelector(`[data-tour="${tourKey}"]`);
         if (element) {
+          // If the element lives inside a collapsed SettingsGroup, expand it first
+          // so the tour highlights something actually visible on screen.
+          const collapsedAncestor = element.closest('[inert]');
+          const toggle = collapsedAncestor?.closest('section')?.querySelector('button[aria-expanded="false"]');
+          if (toggle instanceof HTMLElement) {
+            toggle.click();
+          }
+
           // Element found, give React a moment to finish rendering, then refresh
           setTimeout(() => {
             try {

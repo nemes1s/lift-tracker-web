@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { HardDrive, Download, Upload, AlertTriangle } from 'lucide-react';
+import { Download, Upload, AlertTriangle } from 'lucide-react';
 import { exportBackup, parseBackupFile, getBackupStats, importBackup } from '../../utils/backup';
 import type { BackupData, BackupStats } from '../../utils/backup';
 
@@ -61,30 +61,17 @@ export function BackupSection({ onImportComplete }: Props) {
 
   return (
     <>
-      <div className="card p-6 bg-white dark:bg-slate-800">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
-            <HardDrive className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-          </div>
-          <div>
-            <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Backup & Restore</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Export your full workout history or restore from a backup
-            </p>
-          </div>
+      <div className="py-4 first:pt-0 last:pb-0">
+        <div className="mb-3">
+          <span className="font-bold text-gray-900 dark:text-gray-100 block">Backup & Restore</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400">Export your full workout history or restore from a backup</span>
+          {error && <span className="block text-sm text-red-600 dark:text-red-400 mt-1">{error}</span>}
         </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-800 dark:text-red-300">
-            {error}
-          </div>
-        )}
-
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <button
             onClick={handleExport}
             disabled={exporting}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors"
           >
             <Download className="w-4 h-4" />
             {exporting ? 'Exporting…' : 'Export'}
@@ -92,7 +79,7 @@ export function BackupSection({ onImportComplete }: Props) {
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 font-semibold rounded-xl transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-lg transition-colors"
           >
             <Upload className="w-4 h-4" />
             Import

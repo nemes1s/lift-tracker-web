@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0] - 2026-07-27
+
+### Improvements
+- **Redesigned Settings page**. The ~20 flat, always-visible cards are now organized into 6 collapsible sections (Appearance & Preferences, Workout Behavior, Notifications, Programs, Data Tools, About & Support), each independently expandable so only what you're looking for takes up space.
+- **Consolidated related settings**. Active program selection now lives directly on each program card instead of a separate duplicate picker list. Backup & Restore, exercise library migration, stats export, and duplicate-program detection are combined into one Data Tools section; app install, guided tour, feedback, what's new, storage, and legal info are combined into one About & Support section.
+- **Segmented-control buttons**. Weight unit and 1RM formula now use a connected button group instead of separate pill buttons, matching the pattern used elsewhere in the app.
+
+### Fixes
+- **Guided tour highlighting collapsed settings**. The tour now auto-expands a Settings section before highlighting an element inside it, instead of pointing at content hidden behind a collapsed group.
+
 ## [0.23.0] - 2026-07-27
 
 ### Features

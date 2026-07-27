@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Database, CheckCircle, ChevronDown, ChevronRight, Search } from 'lucide-react';
+import { CheckCircle, ChevronDown, ChevronRight, Search } from 'lucide-react';
 import { getAllDefinitionNames } from '../../utils/exerciseLibrary';
 import type { SettingsModel } from '../../types/models';
 import type { MigrationMatch } from '../../utils/exerciseMigration';
@@ -95,38 +95,34 @@ export function ExerciseMigrationSection({ settings, onMigrationComplete }: Prop
 
   return (
     <>
-      <div className="card p-6 bg-white dark:bg-slate-800">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-            <Database className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+      <div className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-gray-900 dark:text-gray-100 block">Exercise Library</span>
+            {isDone && (
+              <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-full">
+                <CheckCircle className="w-3.5 h-3.5" />
+                Done
+              </span>
+            )}
           </div>
-          <div className="flex-1">
-            <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Exercise Library</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Map your exercises to 580+ canonical names for muscle-group tracking
-            </p>
-          </div>
-          {isDone && (
-            <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-full">
-              <CheckCircle className="w-3.5 h-3.5" />
-              Done
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            Map your exercises to 580+ canonical names for muscle-group tracking
+          </span>
+          {successCount !== null && (
+            <span className="block text-sm text-emerald-600 dark:text-emerald-400 mt-1">
+              {successCount === 0
+                ? 'No exercises renamed.'
+                : `${successCount} exercise name${successCount !== 1 ? 's' : ''} updated successfully.`}
             </span>
           )}
         </div>
 
-        {successCount !== null && (
-          <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg text-sm text-emerald-800 dark:text-emerald-300">
-            {successCount === 0
-              ? 'No exercises renamed.'
-              : `${successCount} exercise name${successCount !== 1 ? 's' : ''} updated successfully.`}
-          </div>
-        )}
-
         <button
           onClick={handleOpen}
-          className="w-full px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-colors"
+          className="shrink-0 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors"
         >
-          {isDone ? 'Re-run Migration' : 'Preview & Migrate'}
+          {isDone ? 'Re-run' : 'Preview & Migrate'}
         </button>
       </div>
 

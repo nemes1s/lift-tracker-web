@@ -1,12 +1,14 @@
-import { Pencil, Check, X, Eye, Download, Trash2 } from 'lucide-react';
+import { Pencil, Check, X, Eye, Download, Trash2, CheckCircle } from 'lucide-react';
 import type { Program } from '../../types/models';
 import { currentWeek } from '../../utils/programLogic';
 
 interface ProgramCardProps {
   program: Program;
+  isActive: boolean;
   isEditing: boolean;
   editingName: string;
   isExporting: boolean;
+  onSetActive: () => void;
   onStartRename: () => void;
   onSaveRename: () => void;
   onCancelRename: () => void;
@@ -20,9 +22,11 @@ interface ProgramCardProps {
 
 export function ProgramCard({
   program,
+  isActive,
   isEditing,
   editingName,
   isExporting,
+  onSetActive,
   onStartRename,
   onSaveRename,
   onCancelRename,
@@ -36,9 +40,13 @@ export function ProgramCard({
   const week = currentWeek(program.startDate, program.totalWeeks);
 
   return (
-    <div className="bg-white dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
+    <div
+      className={`bg-white dark:bg-slate-900 border-2 rounded-xl p-5 shadow-sm ${
+        isActive ? 'border-primary-300 dark:border-primary-700' : 'border-gray-200 dark:border-slate-700'
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2 mb-4">
+        <div className="flex-1 min-w-0">
           {isEditing ? (
             <div className="flex items-center gap-2">
               <input
@@ -83,6 +91,20 @@ export function ProgramCard({
             Week <span className="text-primary-600 dark:text-primary-400">{week}</span> of <span className="text-primary-600 dark:text-primary-400">{program.totalWeeks}</span>
           </p>
         </div>
+
+        {isActive ? (
+          <span className="flex items-center gap-1.5 text-xs font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 px-2.5 py-1 rounded-full shrink-0">
+            <CheckCircle className="w-3.5 h-3.5" />
+            Active
+          </span>
+        ) : (
+          <button
+            onClick={onSetActive}
+            className="text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 px-2.5 py-1 rounded-full shrink-0 transition-colors"
+          >
+            Set Active
+          </button>
+        )}
       </div>
 
       <div className="space-y-3">

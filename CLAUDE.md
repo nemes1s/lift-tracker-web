@@ -36,6 +36,8 @@ pnpm run test:coverage
 
 Pre-deployment: `pnpm run test:run && pnpm run build`
 
+**Never kill the dev server** (e.g. `pkill -f vite`) after starting one to verify a change. Vite has HMR — it picks up file edits automatically. If you start a throwaway instance to check something in a browser, prefer leaving it running rather than tearing it down; killing it risks stopping a server the user already had running for their own workflow.
+
 ## Architecture Overview
 
 ### Data Layer

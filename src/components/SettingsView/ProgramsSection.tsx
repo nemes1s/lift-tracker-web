@@ -2,8 +2,10 @@ import { Plus, Trash2, Upload } from 'lucide-react';
 import type { Program } from '../../types/models';
 import { ProgramCard } from './ProgramCard';
 
-interface ProgramsManagementSectionProps {
+interface ProgramsSectionProps {
   programs: Program[];
+  activeProgramId?: string;
+  onSetActive: (programId: string) => void;
   editingProgramId: string | null;
   editingProgramName: string;
   exportingProgramId: string | null;
@@ -25,8 +27,10 @@ interface ProgramsManagementSectionProps {
   onDeleteAll: () => void;
 }
 
-export function ProgramsManagementSection({
+export function ProgramsSection({
   programs,
+  activeProgramId,
+  onSetActive,
   editingProgramId,
   editingProgramName,
   exportingProgramId,
@@ -45,23 +49,23 @@ export function ProgramsManagementSection({
   onImportClick,
   onFileSelect,
   onCreateProgram,
-  onDeleteAll
-}: ProgramsManagementSectionProps) {
+  onDeleteAll,
+}: ProgramsSectionProps) {
   return (
-    <div className="card p-6 bg-white dark:bg-slate-800" data-tour="program-preview">
-      <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg mb-4">Programs</h2>
-
+    <div>
       {programs.length === 0 ? (
         <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 italic">No programs yet - create one below</p>
       ) : (
-        <div className="space-y-4 mb-6">
+        <div className="space-y-4 mb-6" data-tour="settings-programs">
           {programs.map((program) => (
             <ProgramCard
               key={program.id}
               program={program}
+              isActive={activeProgramId === program.id}
               isEditing={editingProgramId === program.id}
               editingName={editingProgramName}
               isExporting={exportingProgramId === program.id}
+              onSetActive={() => onSetActive(program.id)}
               onStartRename={() => onStartRename(program.id, program.name)}
               onSaveRename={onSaveRename}
               onCancelRename={onCancelRename}
@@ -77,7 +81,7 @@ export function ProgramsManagementSection({
       )}
 
       {/* Create New Programs */}
-      <div className="space-y-3">
+      <div className="space-y-3" data-tour="program-preview">
         <p className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3">Create New Program</p>
 
         {/* Import status message */}

@@ -7,6 +7,8 @@ import {
   isNotificationSupported,
   showWorkoutReminder,
 } from '../../utils/notifications';
+import { SettingsRows } from './SettingsRows';
+import { SettingsToggle } from './SettingsToggle';
 
 interface NotificationSettingsSectionProps {
   settings: SettingsModel | null;
@@ -48,175 +50,120 @@ export function NotificationSettingsSection({
   };
 
   return (
-    <div className="card p-6 bg-white dark:bg-slate-800">
-      <div className="flex items-center gap-2 mb-4">
-        <Bell className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-        <h2 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Push Notifications</h2>
-      </div>
-
+    <SettingsRows>
       {!isSupported && (
-        <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/30 border-2 border-yellow-200 dark:border-yellow-800 rounded-xl">
-          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+        <div className="py-4 first:pt-0 last:pb-0">
+          <p className="text-sm text-yellow-800 dark:text-yellow-200 bg-yellow-50 dark:bg-yellow-900/30 rounded-xl p-4">
             Push notifications are not supported on this browser or device.
           </p>
         </div>
       )}
 
       {isSupported && permissionStatus === 'denied' && (
-        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-800 rounded-xl">
-          <p className="text-sm text-red-800 dark:text-red-200">
+        <div className="py-4 first:pt-0 last:pb-0">
+          <p className="text-sm text-red-800 dark:text-red-200 bg-red-50 dark:bg-red-900/30 rounded-xl p-4">
             Notifications are blocked. Please enable them in your browser settings.
           </p>
         </div>
       )}
 
-      <div className="space-y-4">
-        {/* Permission Request */}
-        {isSupported && permissionStatus !== 'granted' && (
+      {isSupported && permissionStatus !== 'granted' && (
+        <div className="py-4 first:pt-0 last:pb-0">
           <button
             onClick={handleRequestPermission}
-            className="w-full flex items-center justify-center gap-2 px-5 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition-all font-bold shadow-sm hover:shadow-md"
+            className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition-all font-bold shadow-sm hover:shadow-md"
           >
             <Bell className="w-5 h-5" />
             <span>Enable Notifications</span>
           </button>
-        )}
+        </div>
+      )}
 
-        {/* Permission Status */}
-        {isSupported && permissionStatus === 'granted' && (
-          <div className="p-4 bg-green-50 dark:bg-green-900/30 border-2 border-green-200 dark:border-green-800 rounded-xl">
-            <p className="text-sm text-green-800 dark:text-green-200 flex items-center gap-2">
-              <Bell className="w-4 h-4" />
-              Notifications enabled
-            </p>
-          </div>
-        )}
+      {isSupported && permissionStatus === 'granted' && (
+        <div className="py-4 first:pt-0 last:pb-0">
+          <p className="text-sm text-green-800 dark:text-green-200 flex items-center gap-2">
+            <Bell className="w-4 h-4" />
+            Notifications enabled
+          </p>
+        </div>
+      )}
 
-        {/* Master Enable All Notifications Toggle */}
-        {permissionStatus === 'granted' && (
-          <>
-            <label className="flex items-center justify-between p-4 bg-primary-50 dark:bg-primary-900/30 rounded-xl border-2 border-primary-200 dark:border-primary-800 hover:border-primary-300 dark:hover:border-primary-600 transition-all cursor-pointer">
-              <div>
-                <span className="font-bold text-gray-900 dark:text-gray-100 block">Enable All Notifications</span>
-                <span className="text-sm text-gray-600 dark:text-gray-400">Master switch for all notification types</span>
-              </div>
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={settings?.notificationsEnabled === true}
-                  onChange={(e) => onToggle('notificationsEnabled', e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600"></div>
-              </div>
-            </label>
+      {permissionStatus === 'granted' && (
+        <>
+          <SettingsToggle
+            label="Enable All Notifications"
+            description="Master switch for all notification types"
+            checked={settings?.notificationsEnabled === true}
+            onChange={(checked) => onToggle('notificationsEnabled', checked)}
+          />
 
-            {/* Workout Reminders */}
-            <label className={`flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 transition-all ${settings?.notificationsEnabled ? 'hover:border-primary-300 dark:hover:border-primary-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
-              <div>
-                <span className="font-bold text-gray-900 dark:text-gray-100 block">Workout Reminders</span>
-                <span className="text-sm text-gray-600 dark:text-gray-400">Daily reminder to work out</span>
-              </div>
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={settings?.workoutRemindersEnabled === true}
-                  onChange={(e) => onToggle('workoutRemindersEnabled', e.target.checked)}
-                  disabled={!settings?.notificationsEnabled}
-                  className="sr-only peer disabled:cursor-not-allowed"
-                />
-                <div className="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600 peer-disabled:opacity-50"></div>
-              </div>
-            </label>
+          <SettingsToggle
+            label="Workout Reminders"
+            description="Daily reminder to work out"
+            checked={settings?.workoutRemindersEnabled === true}
+            onChange={(checked) => onToggle('workoutRemindersEnabled', checked)}
+            disabled={!settings?.notificationsEnabled}
+          />
 
-            {/* Reminder Time */}
-            {settings?.notificationsEnabled && settings?.workoutRemindersEnabled && (
-              <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700">
-                <label className="block mb-3">
-                  <span className="font-bold text-gray-900 dark:text-gray-100 block mb-1">Reminder Time</span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">What time should we remind you?</span>
-                </label>
-                <input
-                  type="time"
-                  value={settings?.workoutReminderTime ?? '09:00'}
-                  onChange={(e) => onTimeChange(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-100 rounded-lg font-bold text-gray-900 text-lg"
-                />
-              </div>
-            )}
+          {settings?.notificationsEnabled && settings?.workoutRemindersEnabled && (
+            <div className="py-4">
+              <span className="font-bold text-gray-900 dark:text-gray-100 block mb-2">Reminder Time</span>
+              <input
+                type="time"
+                value={settings?.workoutReminderTime ?? '09:00'}
+                onChange={(e) => onTimeChange(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-100 rounded-lg font-bold text-gray-900 text-lg"
+              />
+            </div>
+          )}
 
-            {/* Reminder Days */}
-            {settings?.notificationsEnabled && settings?.workoutRemindersEnabled && (
-              <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700">
-                <label className="block mb-3">
-                  <span className="font-bold text-gray-900 dark:text-gray-100 block mb-1">Reminder Days</span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Which days should we remind you?</span>
-                </label>
-                <div className="grid grid-cols-7 gap-2">
-                  {DAYS.map((day, index) => (
-                    <button
-                      key={day}
-                      onClick={() => toggleDay(index)}
-                      className={`py-3 rounded-lg font-bold text-sm transition-all border-2 ${
-                        selectedDays.includes(index)
-                          ? 'bg-primary-600 text-white border-primary-600'
-                          : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600'
-                      }`}
-                    >
-                      {day}
-                    </button>
-                  ))}
-                </div>
+          {settings?.notificationsEnabled && settings?.workoutRemindersEnabled && (
+            <div className="py-4">
+              <span className="font-bold text-gray-900 dark:text-gray-100 block mb-2">Reminder Days</span>
+              <div className="grid grid-cols-7 gap-2">
+                {DAYS.map((day, index) => (
+                  <button
+                    key={day}
+                    onClick={() => toggleDay(index)}
+                    className={`py-3 rounded-lg font-bold text-sm transition-all border-2 ${
+                      selectedDays.includes(index)
+                        ? 'bg-primary-600 text-white border-primary-600'
+                        : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-600'
+                    }`}
+                  >
+                    {day}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Rest Timer Notifications */}
-            <label className={`flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 transition-all ${settings?.notificationsEnabled ? 'hover:border-primary-300 dark:hover:border-primary-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
-              <div>
-                <span className="font-bold text-gray-900 dark:text-gray-100 block">Rest Timer Alerts</span>
-                <span className="text-sm text-gray-600 dark:text-gray-400">Push notification when timer completes</span>
-              </div>
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={settings?.restTimerNotifications === true}
-                  onChange={(e) => onToggle('restTimerNotifications', e.target.checked)}
-                  disabled={!settings?.notificationsEnabled}
-                  className="sr-only peer disabled:cursor-not-allowed"
-                />
-                <div className="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600 peer-disabled:opacity-50"></div>
-              </div>
-            </label>
+          <SettingsToggle
+            label="Rest Timer Alerts"
+            description="Push notification when timer completes"
+            checked={settings?.restTimerNotifications === true}
+            onChange={(checked) => onToggle('restTimerNotifications', checked)}
+            disabled={!settings?.notificationsEnabled}
+          />
 
-            {/* Streak Reminders */}
-            <label className={`flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-200 dark:border-slate-700 transition-all ${settings?.notificationsEnabled ? 'hover:border-primary-300 dark:hover:border-primary-600 cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}>
-              <div>
-                <span className="font-bold text-gray-900 dark:text-gray-100 block">Streak Reminders</span>
-                <span className="text-sm text-gray-600 dark:text-gray-400">Remind me if I miss 2+ days</span>
-              </div>
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={settings?.streakRemindersEnabled === true}
-                  onChange={(e) => onToggle('streakRemindersEnabled', e.target.checked)}
-                  disabled={!settings?.notificationsEnabled}
-                  className="sr-only peer disabled:cursor-not-allowed"
-                />
-                <div className="w-14 h-7 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-600 peer-disabled:opacity-50"></div>
-              </div>
-            </label>
+          <SettingsToggle
+            label="Streak Reminders"
+            description="Remind me if I miss 2+ days"
+            checked={settings?.streakRemindersEnabled === true}
+            onChange={(checked) => onToggle('streakRemindersEnabled', checked)}
+            disabled={!settings?.notificationsEnabled}
+          />
 
-            {/* Test Notification Button */}
+          <div className="py-4 first:pt-0 last:pb-0">
             <button
               onClick={handleTestNotification}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md border-2 border-blue-200 dark:border-blue-800"
+              className="text-sm font-bold text-primary-600 dark:text-primary-400 hover:underline"
             >
-              <Bell className="w-5 h-5" />
-              <span>Test Notification</span>
+              Test Notification
             </button>
-          </>
-        )}
-      </div>
-    </div>
+          </div>
+        </>
+      )}
+    </SettingsRows>
   );
 }
