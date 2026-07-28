@@ -1,6 +1,7 @@
 import { db } from '../db/database';
 import type { Program, WorkoutTemplate, ExerciseTemplate } from '../types/models';
 import type { CSVProgramData } from '../types/csv';
+import type { ProgramDefinition } from '../data/builtInPrograms';
 import { v4 as uuidv4 } from 'uuid';
 
 // Type for program preview data (includes all related templates and exercises)
@@ -843,6 +844,9 @@ export async function createProgramFromCSV(csvData: CSVProgramData): Promise<Pro
         notes: exercise.notes,
         orderIndex: exercise.orderIndex,
         workoutTemplateId: templateId,
+        isMyoreps: exercise.isMyoreps,
+        isLengthenedPartials: exercise.isLengthenedPartials,
+        supersetGroup: exercise.supersetGroup,
       });
     }
   }
@@ -1643,12 +1647,62 @@ export function generateProgramFromCSVData(
       notes: exercise.notes,
       orderIndex: exercise.orderIndex,
       workoutTemplateId: templateId,
+      isMyoreps: exercise.isMyoreps,
+      isLengthenedPartials: exercise.isLengthenedPartials,
+      supersetGroup: exercise.supersetGroup,
     }));
 
     return { template, exercises };
   });
 
   return { program, workouts };
+}
+
+// Build preview data from a declarative program definition.
+// orderIndex comes from the position of each exercise in its day.
+export function generateDefinitionProgramData(definition: ProgramDefinition): ProgramPreviewData {
+  const programId = uuidv4();
+  const program: Program = {
+    id: programId,
+    name: definition.name,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    startDate: new Date(),
+    totalWeeks: definition.totalWeeks,
+  };
+
+  const workouts = definition.days.map((day) => {
+    const templateId = uuidv4();
+    const template: WorkoutTemplate = {
+      id: templateId,
+      name: day.name,
+      dayIndex: day.dayIndex,
+      weekNumber: day.weekNumber,
+      programId,
+    };
+
+    const exercises: ExerciseTemplate[] = day.exercises.map((ex, index) => ({
+      id: uuidv4(),
+      name: ex.name,
+      targetSets: ex.targetSets,
+      targetReps: ex.targetReps,
+      notes: ex.notes,
+      orderIndex: index,
+      workoutTemplateId: templateId,
+      isMyoreps: ex.isMyoreps,
+      isLengthenedPartials: ex.isLengthenedPartials,
+      supersetGroup: ex.supersetGroup,
+    }));
+
+    return { template, exercises };
+  });
+
+  return { program, workouts };
+}
+
+// Create and persist a program from a declarative definition
+export async function createProgramFromDefinition(definition: ProgramDefinition): Promise<Program> {
+  return await saveProgramPreviewData(generateDefinitionProgramData(definition));
 }
 
 // Save program preview data to database

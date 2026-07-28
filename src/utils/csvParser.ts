@@ -7,18 +7,23 @@ import type { CSVDayData, CSVExerciseData, CSVParseResult } from '../types/csv';
  * Format 1 (Simple - comma delimited):
  * Program Name,<name>
  * Total Weeks,<number>
- * Day Index,Day Name,Exercise Name,Sets,Reps,Notes,Is Myoreps,Is Lengthened Partials
- * 0,Day 1 - Upper,Barbell Bench Press,3,5-8,,,
- * 0,Day 1 - Upper,Lateral Raise,3,12-15,,true,
- * 0,Day 1 - Upper,Dumbbell Curl,3,10-12,,true,true
+ * Day Index,Day Name,Exercise Name,Sets,Reps,Notes,Is Myoreps,Is Lengthened Partials,Superset Group
+ * 0,Day 1 - Upper,Barbell Bench Press,3,5-8,,,,1
+ * 0,Day 1 - Upper,Bent Over Barbell Row,3,5-8,,,,1
+ * 0,Day 1 - Upper,Lateral Raise,3,12-15,,true,,
+ * 0,Day 1 - Upper,Dumbbell Curl,3,10-12,,true,true,
  * ...
  *
  * Format 2 (Advanced - semicolon delimited, week-specific):
- * week;day_index;workout_name;exercise_name;target_sets;target_reps;notes;is_myoreps;is_lengthened_partials
- * 1;0;Upper (Strength Focus);Bench Press;3;5-8;Focus on form;;
- * 1;0;Upper (Strength Focus);Lateral Raise;3;12-15;;true;
- * 1;0;Upper (Strength Focus);Dumbbell Curl;3;10-12;;true;true
+ * week;day_index;workout_name;exercise_name;target_sets;target_reps;notes;is_myoreps;is_lengthened_partials;superset_group
+ * 1;0;Upper (Strength Focus);Bench Press;3;5-8;Focus on form;;;1
+ * 1;0;Upper (Strength Focus);Bent Over Barbell Row;3;5-8;;;;1
+ * 1;0;Upper (Strength Focus);Lateral Raise;3;12-15;;true;;
+ * 1;0;Upper (Strength Focus);Dumbbell Curl;3;10-12;;true;true;
  * ...
+ *
+ * Exercises sharing a superset_group number within a day are performed back-to-back
+ * as a superset. The column is optional in both formats.
  */
 export function parseCSV(fileContent: string): CSVParseResult {
   try {
@@ -49,6 +54,16 @@ export function parseCSV(fileContent: string): CSVParseResult {
       error: `Failed to parse CSV: ${error instanceof Error ? error.message : 'Unknown error'}`,
     };
   }
+}
+
+/**
+ * Parse a superset group cell. Exercises sharing a positive group number within a day
+ * are performed as a superset. Blank, zero, and non-numeric values mean "not supersetted".
+ */
+function parseSupersetGroup(raw: string | undefined): number | undefined {
+  if (!raw) return undefined;
+  const value = parseInt(raw, 10);
+  return Number.isNaN(value) || value < 1 ? undefined : value;
 }
 
 /**
@@ -129,6 +144,7 @@ function parseSimpleCSV(lines: string[], delimiter: string): CSVParseResult {
     const notes = parts[5] || undefined;
     const isMyoreps = parts[6]?.toLowerCase() === 'true' || parts[6] === '1' ? true : undefined;
     const isLengthenedPartials = parts[7]?.toLowerCase() === 'true' || parts[7] === '1' ? true : undefined;
+    const supersetGroup = parseSupersetGroup(parts[8]);
 
     // Validate
     if (isNaN(dayIndex) || dayIndex < 0 || dayIndex > 6) {
@@ -172,6 +188,7 @@ function parseSimpleCSV(lines: string[], delimiter: string): CSVParseResult {
       orderIndex: day.exercises.length,
       isMyoreps,
       isLengthenedPartials,
+      supersetGroup,
     });
   }
 
@@ -218,6 +235,7 @@ function parseWeekBasedCSV(lines: string[], delimiter: string): CSVParseResult {
   const notesIdx = header.indexOf('notes');
   const myorepsIdx = header.indexOf('is_myoreps');
   const lengthenedIdx = header.indexOf('is_lengthened_partials');
+  const supersetIdx = header.indexOf('superset_group');
 
   if (weekIdx === -1 || dayIdx === -1 || workoutIdx === -1 || exerciseIdx === -1 || setsIdx === -1 || repsIdx === -1) {
     return {
@@ -244,6 +262,7 @@ function parseWeekBasedCSV(lines: string[], delimiter: string): CSVParseResult {
     const notes = notesIdx >= 0 && parts[notesIdx] ? parts[notesIdx] : undefined;
     const isMyoreps = myorepsIdx >= 0 && (parts[myorepsIdx]?.toLowerCase() === 'true' || parts[myorepsIdx] === '1') ? true : undefined;
     const isLengthenedPartials = lengthenedIdx >= 0 && (parts[lengthenedIdx]?.toLowerCase() === 'true' || parts[lengthenedIdx] === '1') ? true : undefined;
+    const supersetGroup = parseSupersetGroup(supersetIdx >= 0 ? parts[supersetIdx] : undefined);
 
     // Validation
     if (isNaN(week) || week < 1) continue;
@@ -275,6 +294,7 @@ function parseWeekBasedCSV(lines: string[], delimiter: string): CSVParseResult {
       orderIndex: day.exercises.length,
       isMyoreps,
       isLengthenedPartials,
+      supersetGroup,
     });
   }
 

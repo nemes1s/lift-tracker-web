@@ -52,7 +52,7 @@ The app uses a **template-based workout system** with week-based progression:
 
 ### Database Schema (Dexie.js) — `src/db/database.ts`
 
-Currently at **version 9**. Tables:
+Currently at **version 11**. Tables:
 
 | Table | Key fields |
 |---|---|
@@ -113,7 +113,25 @@ Programs support 3-phase periodization by having 3 template entries per day:
 - **Week 5** — variation phase (higher volume, different exercises)
 - **Week 9** — strength phase (heavy compounds, lower reps)
 
-Built-in programs are defined in `src/utils/programTemplates.ts`. When creating new programs, always include all three `weekNumber` entries per day.
+Built-in programs come in two styles:
+
+- **Legacy** — hand-written `createX()` + `generateXData()` pairs in `src/utils/programTemplates.ts` (5-Day Split, 3-Day Split, Minimal Effort 4-Day, Upper/Lower 4-Day). The two functions duplicate the same day arrays.
+- **Declarative** — plain data in `src/data/builtInPrograms.ts` (Beginner Foundation, PPL 6-Day, Bodyweight Only, Cardio Pulse, Superset Express), turned into records by the shared `generateDefinitionProgramData()` / `createProgramFromDefinition()` builders. **Prefer this for new programs** — define the days once and both the preview and the DB write come for free.
+
+Either way, always include all three `weekNumber` entries per day. Exercise names must match entries in `src/data/exerciseLibrary.json` or substitutions and muscle-group stats silently stop resolving; `src/data/builtInPrograms.test.ts` enforces this.
+
+Note the library is **strength-only** — it has no cardio-category entries (no treadmill, rower, jump rope, burpees), so conditioning programs are built from strength movements run circuit-style.
+
+### Supersets — `src/utils/supersets.ts`
+
+Exercises sharing a `supersetGroup` number within a workout are performed back-to-back. A group needs **at least two** members to count; a lone exercise carrying a group number behaves as standalone.
+
+`getSupersetAdvance(exercises, currentIndex, setCounts)` decides where `WorkoutRunner` goes after a set is logged:
+- next unfinished member later in the round → short rest (`supersetRestDuration`, default 10s)
+- no member left ahead, but some still owe sets → wrap to the top of the group, **full** rest (a round finished)
+- every member done → fall out to the first exercise after the group
+
+`WorkoutRunner` keeps per-exercise input drafts (`draftsRef`), so moving between exercises restores that exercise's own weight/reps rather than carrying the previous one's numbers over. A newly-visited exercise prefills from its last set in the current workout.
 
 ### CSV Import — `src/utils/csvParser.ts`
 
@@ -133,6 +151,8 @@ week;day_index;workout_name;exercise_name;target_sets;target_reps;notes
 1;0;Upper A;Bench Press;4;6-8;Focus on form
 5;0;Upper A;Dumbbell Press;4;8-10;
 ```
+
+Both formats accept optional trailing `is_myoreps`, `is_lengthened_partials` and `superset_group` columns (Format 1 positional, Format 2 by header name). Exercises sharing a `superset_group` number within a day are supersetted; blank, `0` and non-numeric values mean "not supersetted".
 
 ### Exercise Substitutions — `src/data/exerciseSubstitutions.ts`
 

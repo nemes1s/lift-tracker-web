@@ -1,6 +1,7 @@
 import { Activity, Flame, Zap, Clock, Check, ArrowRight } from 'lucide-react';
 import { formatVolume, formatRPE, formatDuration } from '../../utils/workoutStats';
 import type { ExerciseInstance, SetRecord } from '../../types/models';
+import { getSupersetLabel } from '../../utils/supersets';
 
 interface WorkoutStats {
   totalVolume: number;
@@ -33,6 +34,7 @@ export function WorkoutOverviewSection({
           const setsLogged = exercisesWithSets[idx]?.sets.length ?? 0;
           const isCurrent = idx === currentIndex;
           const isComplete = exercise.targetSets > 0 && setsLogged >= exercise.targetSets;
+          const supersetLabel = getSupersetLabel(exercises, idx);
 
           return (
             <button
@@ -53,6 +55,11 @@ export function WorkoutOverviewSection({
                   <span className="text-xs font-bold text-gray-400 dark:text-gray-500">{idx + 1}</span>
                 )}
               </span>
+              {supersetLabel && (
+                <span className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
+                  {supersetLabel}
+                </span>
+              )}
               <span
                 className={`flex-1 min-w-0 truncate text-sm ${
                   isCurrent

@@ -265,6 +265,64 @@ invalid line
     });
   });
 
+  describe('parseCSV - superset groups', () => {
+    it('should parse superset_group in format 2', () => {
+      const csv = `week;day_index;workout_name;exercise_name;target_sets;target_reps;notes;is_myoreps;is_lengthened_partials;superset_group
+1;0;Express Upper;Bench Press;3;8-10;;;;1
+1;0;Express Upper;Barbell Row;3;8-10;;;;1
+1;0;Express Upper;Lateral Raise;3;12-15;;;;`;
+
+      const result = parseCSV(csv);
+
+      expect(result.success).toBe(true);
+      const exercises = result.data!.days[0].exercises;
+      expect(exercises[0].supersetGroup).toBe(1);
+      expect(exercises[1].supersetGroup).toBe(1);
+      expect(exercises[2].supersetGroup).toBeUndefined();
+    });
+
+    it('should parse Superset Group in format 1', () => {
+      const csv = `Program Name,Test
+Total Weeks,12
+Day Index,Day Name,Exercise Name,Sets,Reps,Notes,Is Myoreps,Is Lengthened Partials,Superset Group
+0,Upper,Bench Press,3,8-10,,,,2
+0,Upper,Barbell Row,3,8-10,,,,2
+0,Upper,Lateral Raise,3,12-15,,,,`;
+
+      const result = parseCSV(csv);
+
+      expect(result.success).toBe(true);
+      const exercises = result.data!.days[0].exercises;
+      expect(exercises[0].supersetGroup).toBe(2);
+      expect(exercises[1].supersetGroup).toBe(2);
+      expect(exercises[2].supersetGroup).toBeUndefined();
+    });
+
+    it('should treat blank, zero and non-numeric groups as no superset', () => {
+      const csv = `week;day_index;workout_name;exercise_name;target_sets;target_reps;notes;superset_group
+1;0;Day;Bench Press;3;8-10;;
+1;0;Day;Barbell Row;3;8-10;;0
+1;0;Day;Lateral Raise;3;12-15;;abc`;
+
+      const result = parseCSV(csv);
+
+      expect(result.success).toBe(true);
+      for (const exercise of result.data!.days[0].exercises) {
+        expect(exercise.supersetGroup).toBeUndefined();
+      }
+    });
+
+    it('should stay backwards compatible when the column is absent', () => {
+      const csv = `week;day_index;workout_name;exercise_name;target_sets;target_reps;notes
+1;0;Upper A;Bench Press;4;6-8;`;
+
+      const result = parseCSV(csv);
+
+      expect(result.success).toBe(true);
+      expect(result.data!.days[0].exercises[0].supersetGroup).toBeUndefined();
+    });
+  });
+
   describe('parseCSV - Format detection', () => {
     it('should detect format 1 by comma delimiter', () => {
       const csv = `Program Name,Test

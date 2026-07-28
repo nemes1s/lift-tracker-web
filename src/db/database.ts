@@ -69,6 +69,10 @@ export class LiftTrackerDatabase extends Dexie {
 
     // Version 10: Add notification settings to SettingsModel (no schema change needed, Dexie handles new fields automatically)
     this.version(10).stores({});
+
+    // Version 11: Add supersetGroup to exerciseTemplates/exerciseInstances and supersetRestDuration to settings
+    // (no schema change needed, Dexie handles new fields automatically)
+    this.version(11).stores({});
   }
 }
 

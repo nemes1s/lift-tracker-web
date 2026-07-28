@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../db/database';
 import { previousWorkoutInstances, getProgressiveOverloadSuggestion } from '../utils/programLogic';
@@ -8,6 +8,14 @@ import { useAppStore } from '../store/appStore';
 import type { Workout, ExerciseInstance, SetRecord, SettingsModel } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
 import { calculateWorkoutStats } from '../utils/workoutStats';
+import {
+  getSupersetAdvance,
+  getSupersetLabel,
+  getSupersetMemberIndices,
+  isInSuperset,
+  resolveRestDuration,
+  DEFAULT_SUPERSET_REST,
+} from '../utils/supersets';
 import { convertToKg, convertWeight, type WeightUnit } from '../utils/weightUnit';
 import { getExerciseNotes } from '../data/exerciseSubstitutions';
 import { getAllDefinitionNames } from '../utils/exerciseLibrary';
@@ -52,6 +60,14 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
   // Track previous exercise for form clearing logic
   const [previousExerciseId, setPreviousExerciseId] = useState<string | null>(null);
+
+  // Per-exercise input drafts, so moving between exercises (especially inside a superset)
+  // always shows the numbers belonging to the exercise the next set will be logged against.
+  const draftsRef = useRef<Record<string, { weight: string; reps: string; rpe: string }>>({});
+
+  // Mirror of the live inputs, so effects can read them without re-running on every keystroke
+  const liveInputsRef = useRef({ weight: '', reps: '', rpe: '' });
+  liveInputsRef.current = { weight: weightText, reps: repsText, rpe: rpeText };
 
   // Exercise substitution state
   const [showSubstitutions, setShowSubstitutions] = useState(false);
@@ -175,30 +191,32 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       // Reload all sets for stats
       await loadAllSets();
 
-      // Clear form only if exercise actually changed AND target reps were achieved
+      // On a real exercise change, swap the inputs over to the incoming exercise so the
+      // next logged set carries that exercise's own numbers. Prefer an explicit draft,
+      // then the last set already logged for it in this workout (the common case on the
+      // second round of a superset), otherwise start empty.
       if (previousExerciseId !== null && previousExerciseId !== currentExercise.id) {
-        // Get the sets from the previous exercise
-        const previousExerciseData = exercises.find(ex => ex.id === previousExerciseId);
-        if (previousExerciseData) {
-          const previousSets = await db.setRecords
-            .where('exerciseId')
-            .equals(previousExerciseId)
-            .toArray();
+        draftsRef.current[previousExerciseId] = { ...liveInputsRef.current };
 
-          // Check if target reps were achieved in any of the previous exercise's sets
-          const targetRepsRange = previousExerciseData.targetReps;
-          const targetRepsMatch = targetRepsRange?.match(/^(\d+)-(\d+)$/);
-          const minReps = targetRepsMatch ? parseInt(targetRepsMatch[1]) : 0;
-          const maxReps = targetRepsMatch ? parseInt(targetRepsMatch[2]) : 100;
-
-          const targetAchieved = previousSets.some(set => set.reps >= minReps && set.reps <= maxReps);
-
-          // Only clear form if target was achieved
-          if (targetAchieved) {
-            setWeightText('');
-            setRepsText('');
-            setRpeText('');
-          }
+        const draft = draftsRef.current[currentExercise.id];
+        if (draft) {
+          setWeightText(draft.weight);
+          setRepsText(draft.reps);
+          setRpeText(draft.rpe);
+        } else if (s.length > 0) {
+          const lastSet = s[s.length - 1];
+          const weightUnit: WeightUnit = settings?.weightUnit || 'kg';
+          const displayWeight = convertWeight(lastSet.weight, weightUnit);
+          const rounded = weightUnit === 'lbs'
+            ? Math.round(displayWeight)
+            : Math.round(displayWeight * 2) / 2;
+          setWeightText(rounded.toString());
+          setRepsText(lastSet.reps.toString());
+          setRpeText(lastSet.rpe ? Math.round(lastSet.rpe).toString() : '');
+        } else {
+          setWeightText('');
+          setRepsText('');
+          setRpeText('');
         }
       }
 
@@ -208,7 +226,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
     loadSets();
     // Keep rest timer running when changing exercise
-  }, [currentExercise, previousExerciseId, exercises]);
+  }, [currentExercise, previousExerciseId, exercises, settings]);
 
   // Initial load of all sets
   useEffect(() => {
@@ -418,9 +436,45 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     // Don't clear inputs - form persists for same exercise
     // The form will be cleared only when exercise changes (see useEffect for currentExercise)
 
+    // Supersets drive their own navigation: move straight to the next exercise in the
+    // group so the following set lands on the right exercise, and use the short
+    // intra-group rest until the round wraps.
+    const inSuperset = isInSuperset(exercises, currentExerciseIndex);
+    let supersetAdvance = null;
+
+    if (inSuperset) {
+      const setCounts: Record<string, number> = {};
+      await Promise.all(
+        exercises.map(async (ex) => {
+          setCounts[ex.id] = await db.setRecords
+            .where('exerciseId')
+            .equals(ex.id)
+            .count();
+        })
+      );
+
+      supersetAdvance = getSupersetAdvance(exercises, currentExerciseIndex, setCounts);
+    }
+
     // Start rest timer if enabled and auto-start is on
     if (settings?.restTimerEnabled !== false && settings?.restTimerAutoStart !== false) {
-      startRestTimer();
+      const fullRest = settings?.restTimerDuration || 90;
+      const duration = supersetAdvance
+        ? resolveRestDuration(
+            supersetAdvance,
+            fullRest,
+            settings?.supersetRestDuration ?? DEFAULT_SUPERSET_REST
+          )
+        : fullRest;
+      startRestTimer(duration);
+    }
+
+    if (supersetAdvance && supersetAdvance.nextIndex !== null) {
+      const target = supersetAdvance.nextIndex;
+      setTimeout(() => {
+        setCurrentExerciseIndex(target);
+      }, 300);
+      return;
     }
 
     // Auto-advance to next exercise once target sets are hit, if enabled
@@ -684,6 +738,8 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
           targetSets={currentExercise.targetSets}
           onShowSubstitutions={() => setShowSubstitutions(!showSubstitutions)}
           isSubstituting={isSubstituting}
+          supersetLabel={getSupersetLabel(exercises, currentExerciseIndex)}
+          supersetSize={getSupersetMemberIndices(exercises, currentExerciseIndex).length || undefined}
         />
 
         <StickyRestTimerHeader

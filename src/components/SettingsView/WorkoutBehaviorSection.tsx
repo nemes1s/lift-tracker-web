@@ -2,12 +2,14 @@ import type { SettingsModel } from '../../types/models';
 import { initAudioContext, playTimerNotification } from '../../utils/audio';
 import { SettingsRows } from './SettingsRows';
 import { SettingsToggle } from './SettingsToggle';
+import { DEFAULT_SUPERSET_REST } from '../../utils/supersets';
 
 interface WorkoutBehaviorSectionProps {
   settings: SettingsModel | null;
   onToggle: (field: keyof SettingsModel, value: boolean) => void;
   onDurationChange: (duration: number) => void;
   onGoalChange: (goal: number) => void;
+  onSupersetRestChange: (duration: number) => void;
 }
 
 export function WorkoutBehaviorSection({
@@ -15,6 +17,7 @@ export function WorkoutBehaviorSection({
   onToggle,
   onDurationChange,
   onGoalChange,
+  onSupersetRestChange,
 }: WorkoutBehaviorSectionProps) {
   const currentGoal = settings?.targetWorkoutsPerWeek ?? 3;
 
@@ -96,6 +99,46 @@ export function WorkoutBehaviorSection({
         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
           <span>30s</span>
           <span>5 min</span>
+        </div>
+      </div>
+
+      <div className="py-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <span className="font-bold text-gray-900 dark:text-gray-100 block">Superset Rest</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Rest between exercises inside a superset (5-60)
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min="5"
+              max="60"
+              value={settings?.supersetRestDuration ?? DEFAULT_SUPERSET_REST}
+              onChange={(e) => {
+                const val = parseInt(e.target.value);
+                if (val >= 5 && val <= 60) {
+                  onSupersetRestChange(val);
+                }
+              }}
+              className="w-20 px-3 py-2 border-2 border-gray-200 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-100 rounded-lg font-bold text-gray-900 text-center"
+            />
+            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">sec</span>
+          </div>
+        </div>
+        <input
+          type="range"
+          min="5"
+          max="60"
+          step="5"
+          value={settings?.supersetRestDuration ?? DEFAULT_SUPERSET_REST}
+          onChange={(e) => onSupersetRestChange(parseInt(e.target.value))}
+          className="w-full h-2 bg-gray-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
+        />
+        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+          <span>5s</span>
+          <span>60s</span>
         </div>
       </div>
 

@@ -27,6 +27,7 @@ export interface ExerciseTemplate {
   workoutTemplateId: string;
   isMyoreps?: boolean; // Whether this exercise uses myoreps (rest-pause) technique
   isLengthenedPartials?: boolean; // Whether this exercise uses lengthened partials technique
+  supersetGroup?: number; // Exercises sharing a group number are performed as a superset
 }
 
 export interface Workout {
@@ -51,6 +52,7 @@ export interface ExerciseInstance {
   isCustom?: boolean; // Whether this exercise was added manually during the workout
   isMyoreps?: boolean; // Whether this exercise uses myoreps (rest-pause) technique
   isLengthenedPartials?: boolean; // Whether this exercise uses lengthened partials technique
+  supersetGroup?: number; // Exercises sharing a group number are performed as a superset
 }
 
 export interface SetRecord {
@@ -86,6 +88,7 @@ export interface SettingsModel {
   restTimerAutoStart?: boolean; // Auto-start timer after logging set (default: true)
   restTimerDuration?: number; // Default rest duration in seconds (default: 90)
   restTimerSound?: boolean; // Play sound when timer completes (default: true)
+  supersetRestDuration?: number; // Rest between exercises inside a superset in seconds (default: 10)
   // Weekly streak settings
   targetWorkoutsPerWeek?: number; // Target number of workouts per week for streak calculation (default: 3)
   // Calendar settings
@@ -159,6 +162,7 @@ export interface ProgramTemplateExercise {
   targetSets: number;
   targetReps: string;
   orderIndex: number;
+  supersetGroup?: number;
 }
 
 export interface ProgramTemplateDay {

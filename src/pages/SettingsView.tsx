@@ -12,7 +12,9 @@ import {
   generateMinimalEffort4DayData,
   generateUpperLower4DayData,
   generateProgramFromCSVData,
+  generateDefinitionProgramData,
 } from '../utils/programTemplates';
+import { getProgramDefinition } from '../data/builtInPrograms';
 import { parseCSV, readCSVFile } from '../utils/csvParser';
 import { exportProgramWithProgress, downloadCSV } from '../utils/csvExporter';
 import { useAppStore } from '../store/appStore';
@@ -84,6 +86,8 @@ export function SettingsView() {
       sett = {
         id: uuidv4(),
         useEpley: true,
+        restTimerDuration: 90,
+        supersetRestDuration: 10,
       };
       await db.settings.add(sett);
     }
@@ -106,6 +110,12 @@ export function SettingsView() {
       case 'upperlower':
         programData = generateUpperLower4DayData();
         break;
+      case 'superset-express': {
+        const definition = getProgramDefinition('superset-express');
+        if (!definition) return;
+        programData = generateDefinitionProgramData(definition);
+        break;
+      }
       default:
         return;
     }
@@ -356,6 +366,12 @@ export function SettingsView() {
     await loadData();
   };
 
+  const handleSupersetRestDuration = async (duration: number) => {
+    if (!settings) return;
+    await db.settings.update(settings.id, { supersetRestDuration: duration });
+    await loadData();
+  };
+
   const handleFormulaUpdate = async (useEpley: boolean) => {
     if (!settings) return;
     await db.settings.update(settings.id, { useEpley });
@@ -452,6 +468,7 @@ export function SettingsView() {
             onToggle={handleSettingToggle}
             onDurationChange={handleRestTimerDuration}
             onGoalChange={handleWeeklyGoalUpdate}
+            onSupersetRestChange={handleSupersetRestDuration}
           />
         </SettingsGroup>
 
