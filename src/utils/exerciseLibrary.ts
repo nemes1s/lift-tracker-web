@@ -36,4 +36,26 @@ export function getMusclesForExercises(names: string[]): { primary: string[]; se
   return { primary: [...primary], secondary: [...secondary] };
 }
 
+// Classic antagonist muscle-group pairs, used to suggest supersets (e.g. biceps + triceps).
+const ANTAGONIST_MUSCLE_PAIRS: [string, string][] = [
+  ['biceps', 'triceps'],
+  ['chest', 'lats'],
+  ['chest', 'middle back'],
+  ['quadriceps', 'hamstrings'],
+  ['abdominals', 'lower back'],
+  ['abductors', 'adductors'],
+];
+
+// Whether two exercises train opposing muscle groups (e.g. Bicep Curl + Triceps Pushdown).
+// Exercises not in the library (custom names) have no known muscles and never match.
+export function areAntagonistExercises(nameA: string, nameB: string): boolean {
+  const musclesA = getPrimaryMuscles(nameA);
+  const musclesB = getPrimaryMuscles(nameB);
+  return ANTAGONIST_MUSCLE_PAIRS.some(
+    ([a, b]) =>
+      (musclesA.includes(a) && musclesB.includes(b)) ||
+      (musclesA.includes(b) && musclesB.includes(a))
+  );
+}
+
 export { definitions as exerciseDefinitions };

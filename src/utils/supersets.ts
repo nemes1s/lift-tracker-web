@@ -4,6 +4,8 @@
 // back-to-back as a superset: one set of each exercise in order, a short rest between
 // them, then a full rest once the round is finished.
 
+import { areAntagonistExercises } from './exerciseLibrary';
+
 export const DEFAULT_SUPERSET_REST = 10; // seconds between exercises inside a superset
 
 // Minimal shape needed for grouping — works for both ExerciseInstance and ExerciseTemplate
@@ -141,4 +143,83 @@ export function resolveRestDuration(
   supersetRestSeconds: number = DEFAULT_SUPERSET_REST
 ): number {
   return advance.useSupersetRest ? supersetRestSeconds : fullRestSeconds;
+}
+
+// Lowest unused group number, for pairing a newly added exercise with an existing one.
+export function getNextSupersetGroup<T extends SupersetMember>(exercises: T[]): number {
+  const used = exercises.map((e) => e.supersetGroup ?? 0);
+  return Math.max(0, ...used) + 1;
+}
+
+// Moves `movingId` to sit right after `partnerId`'s group and returns the group number to
+// assign both. Superset navigation only runs back-to-back on adjacent exercises, so an
+// exercise added elsewhere in the workout (e.g. appended to the end) needs to be relocated
+// next to its partner, not just tagged with the same group number in place.
+export function reorderForSuperset<T extends SupersetMember>(
+  exercises: T[],
+  movingId: string,
+  partnerId: string
+): { order: T[]; group: number } {
+  const partner = exercises.find((ex) => ex.id === partnerId);
+  const moving = exercises.find((ex) => ex.id === movingId);
+  if (!partner || !moving) {
+    return { order: exercises, group: getNextSupersetGroup(exercises) };
+  }
+
+  const group = partner.supersetGroup ?? getNextSupersetGroup(exercises);
+
+  const withoutMoving = exercises.filter((ex) => ex.id !== movingId);
+  const existingGroupIndices = partner.supersetGroup !== undefined
+    ? withoutMoving
+        .map((ex, i) => (ex.supersetGroup === partner.supersetGroup ? i : -1))
+        .filter((i) => i !== -1)
+    : [withoutMoving.findIndex((ex) => ex.id === partnerId)];
+  const insertAt = Math.max(...existingGroupIndices) + 1;
+
+  const order = [
+    ...withoutMoving.slice(0, insertAt),
+    moving,
+    ...withoutMoving.slice(insertAt),
+  ];
+
+  return { order, group };
+}
+
+// Minimal shape needed to detect antagonist pairs among exercises already in a workout.
+export interface AntagonistCandidate extends SupersetMember {
+  name: string;
+}
+
+// Finds unpaired exercises whose muscle groups oppose one another (e.g. Bench Press +
+// Row), for surfacing as inline "pairs with X" hints. Matches greedily from top to
+// bottom so each exercise gets at most one suggested partner — an exercise that could
+// pair with either of two candidates is matched to whichever comes first in the list,
+// and that candidate is then no longer available for anyone else. Exercises already in
+// a superset group are skipped. Returns a map of exerciseId -> suggested partnerId,
+// keyed by whichever of the pair sits later in the array (reorderForSuperset moves that
+// one to sit next to the earlier partner).
+export function findSupersetHints<T extends AntagonistCandidate>(
+  exercises: T[]
+): Map<string, string> {
+  const hints = new Map<string, string>();
+  const matched = new Set<string>();
+
+  for (let i = 0; i < exercises.length; i++) {
+    const a = exercises[i];
+    if (a.supersetGroup !== undefined || matched.has(a.id)) continue;
+
+    for (let j = i + 1; j < exercises.length; j++) {
+      const b = exercises[j];
+      if (b.supersetGroup !== undefined || matched.has(b.id)) continue;
+
+      if (areAntagonistExercises(a.name, b.name)) {
+        hints.set(b.id, a.id);
+        matched.add(a.id);
+        matched.add(b.id);
+        break;
+      }
+    }
+  }
+
+  return hints;
 }

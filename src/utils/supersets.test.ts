@@ -5,12 +5,20 @@ import {
   getSupersetLabel,
   getSupersetAdvance,
   resolveRestDuration,
+  getNextSupersetGroup,
+  reorderForSuperset,
+  findSupersetHints,
   DEFAULT_SUPERSET_REST,
   type SupersetMember,
+  type AntagonistCandidate,
 } from './supersets';
 
 function ex(id: string, targetSets: number, supersetGroup?: number): SupersetMember {
   return { id, targetSets, supersetGroup };
+}
+
+function namedEx(id: string, name: string, supersetGroup?: number): AntagonistCandidate {
+  return { id, name, targetSets: 3, supersetGroup };
 }
 
 // A1/A2 pair, then a standalone, then a B1/B2/B3 triple
@@ -128,5 +136,98 @@ describe('resolveRestDuration', () => {
   it('uses the full rest when the round wraps', () => {
     const advance = getSupersetAdvance(workout, 1, { a1: 1, a2: 1 });
     expect(resolveRestDuration(advance, 90)).toBe(90);
+  });
+});
+
+describe('getNextSupersetGroup', () => {
+  it('returns 1 when no exercise has a group yet', () => {
+    expect(getNextSupersetGroup([ex('a', 3), ex('b', 3)])).toBe(1);
+  });
+
+  it('returns one past the highest existing group', () => {
+    expect(getNextSupersetGroup(workout)).toBe(3);
+  });
+});
+
+describe('reorderForSuperset', () => {
+  it('moves a newly appended exercise to sit right after a standalone partner', () => {
+    const withNew = [...workout, ex('z', 3)];
+    const { order, group } = reorderForSuperset(withNew, 'z', 'solo');
+
+    expect(group).toBe(3);
+    expect(order.map((e) => e.id)).toEqual(['a1', 'a2', 'solo', 'z', 'b1', 'b2', 'b3']);
+  });
+
+  it('inserts after the last member of an existing group, joining it as a circuit', () => {
+    const withNew = [...workout, ex('z', 3)];
+    // b2 is the middle member of the b-group — z should land after b3, not right after b2
+    const { order, group } = reorderForSuperset(withNew, 'z', 'b2');
+
+    expect(group).toBe(2);
+    expect(order.map((e) => e.id)).toEqual(['a1', 'a2', 'solo', 'b1', 'b2', 'b3', 'z']);
+  });
+
+  it('leaves exercises unrelated to the pairing in their original relative order', () => {
+    const withNew = [...workout, ex('z', 3)];
+    const { order } = reorderForSuperset(withNew, 'z', 'a1');
+
+    const untouched = order.filter((e) => e.id !== 'z' && e.id !== 'a1');
+    expect(untouched.map((e) => e.id)).toEqual(['a2', 'solo', 'b1', 'b2', 'b3']);
+  });
+});
+
+describe('findSupersetHints', () => {
+  it('suggests the later exercise pairs with the earlier one', () => {
+    const list = [
+      namedEx('1', 'Dumbbell Bicep Curl'),
+      namedEx('2', 'Triceps Pushdown'),
+    ];
+    expect(findSupersetHints(list)).toEqual(new Map([['2', '1']]));
+  });
+
+  it('finds no hint when nothing opposes', () => {
+    const list = [
+      namedEx('1', 'Dumbbell Bicep Curl'),
+      namedEx('2', 'Standing Calf Raises'),
+    ];
+    expect(findSupersetHints(list).size).toBe(0);
+  });
+
+  it('skips exercises already in a superset group', () => {
+    const list = [
+      namedEx('1', 'Dumbbell Bicep Curl', 1),
+      namedEx('2', 'Triceps Pushdown', 1),
+      namedEx('3', 'Barbell Curl'),
+    ];
+    // 1 and 2 are already grouped; 3 (also biceps) has no unpaired antagonist left
+    expect(findSupersetHints(list).size).toBe(0);
+  });
+
+  it('matches greedily, leaving at most one hint per exercise', () => {
+    // Curl could pair with either Pushdown or Overhead Extension — only the first free
+    // candidate is matched, and both curl and that candidate are then unavailable
+    const list = [
+      namedEx('curl', 'Dumbbell Bicep Curl'),
+      namedEx('squat', 'Barbell Squat'),
+      namedEx('pushdown', 'Triceps Pushdown'),
+      namedEx('legcurl', 'Seated Leg Curl'),
+    ];
+    const hints = findSupersetHints(list);
+    expect(hints).toEqual(
+      new Map([
+        ['pushdown', 'curl'],
+        ['legcurl', 'squat'],
+      ])
+    );
+  });
+
+  it('does not suggest a partner for an exercise already used in another hint', () => {
+    const list = [
+      namedEx('curl1', 'Dumbbell Bicep Curl'),
+      namedEx('curl2', 'Barbell Curl'),
+      namedEx('pushdown', 'Triceps Pushdown'),
+    ];
+    // Both curls oppose the one pushdown — only the first curl should claim it
+    expect(findSupersetHints(list)).toEqual(new Map([['pushdown', 'curl1']]));
   });
 });
