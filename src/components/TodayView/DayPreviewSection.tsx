@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Dumbbell } from 'lucide-react';
 import { db } from '../../db/database';
 import type { ExerciseTemplate, WorkoutTemplate } from '../../types/models';
+import { getSupersetLabel } from '../../utils/supersets';
 
 interface DayPreviewSectionProps {
   template: WorkoutTemplate;
@@ -53,7 +54,9 @@ export function DayPreviewSection({ template }: DayPreviewSectionProps) {
         Workout Preview
       </h3>
       <div className="space-y-3">
-        {exercises.map((exercise, index) => (
+        {exercises.map((exercise, index) => {
+          const supersetLabel = getSupersetLabel(exercises, index);
+          return (
           <div
             key={exercise.id}
             className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-3 border border-gray-200 dark:border-slate-600"
@@ -71,8 +74,13 @@ export function DayPreviewSection({ template }: DayPreviewSectionProps) {
                     {exercise.notes}
                   </p>
                 )}
-                {(exercise.isMyoreps || exercise.isLengthenedPartials) && (
+                {(supersetLabel || exercise.isMyoreps || exercise.isLengthenedPartials) && (
                   <div className="flex gap-2 mt-2">
+                    {supersetLabel && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300">
+                        Superset {supersetLabel}
+                      </span>
+                    )}
                     {exercise.isMyoreps && (
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
                         Myoreps
@@ -96,7 +104,8 @@ export function DayPreviewSection({ template }: DayPreviewSectionProps) {
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
       <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 text-center">
         {exercises.length} exercise{exercises.length !== 1 ? 's' : ''} • {exercises.reduce((sum, ex) => sum + ex.targetSets, 0)} total sets

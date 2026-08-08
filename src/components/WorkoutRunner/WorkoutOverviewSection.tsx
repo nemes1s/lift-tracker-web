@@ -1,6 +1,7 @@
-import { Activity, Flame, Zap, Clock, Check, ArrowRight } from 'lucide-react';
+import { Activity, Flame, Zap, Clock, Check, ArrowRight, Link2 } from 'lucide-react';
 import { formatVolume, formatRPE, formatDuration } from '../../utils/workoutStats';
 import type { ExerciseInstance, SetRecord } from '../../types/models';
+import { getSupersetLabel, findSupersetHints } from '../../utils/supersets';
 
 interface WorkoutStats {
   totalVolume: number;
@@ -15,6 +16,7 @@ interface WorkoutOverviewSectionProps {
   exercisesWithSets: Array<{ sets: SetRecord[] }>;
   currentIndex: number;
   onSelectExercise: (index: number) => void;
+  onPairSuperset: (exerciseId: string, partnerId: string) => void;
 }
 
 export function WorkoutOverviewSection({
@@ -23,7 +25,10 @@ export function WorkoutOverviewSection({
   exercisesWithSets,
   currentIndex,
   onSelectExercise,
+  onPairSuperset,
 }: WorkoutOverviewSectionProps) {
+  const supersetHints = findSupersetHints(exercises);
+
   return (
     <div className="space-y-4">
       <h4 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Workout Overview</h4>
@@ -33,39 +38,62 @@ export function WorkoutOverviewSection({
           const setsLogged = exercisesWithSets[idx]?.sets.length ?? 0;
           const isCurrent = idx === currentIndex;
           const isComplete = exercise.targetSets > 0 && setsLogged >= exercise.targetSets;
+          const supersetLabel = getSupersetLabel(exercises, idx);
+          const hintPartnerId = supersetHints.get(exercise.id);
+          const hintPartnerName = hintPartnerId
+            ? exercises.find((ex) => ex.id === hintPartnerId)?.name
+            : undefined;
 
           return (
-            <button
-              key={exercise.id}
-              onClick={() => onSelectExercise(idx)}
-              className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${
-                isCurrent
-                  ? 'bg-primary-50 dark:bg-primary-900/30 border-2 border-primary-300 dark:border-primary-600'
-                  : 'bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-700 hover:border-gray-200 dark:hover:border-slate-600'
-              }`}
-            >
-              <span className="w-5 shrink-0 flex items-center justify-center">
-                {isCurrent ? (
-                  <ArrowRight className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                ) : isComplete ? (
-                  <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                ) : (
-                  <span className="text-xs font-bold text-gray-400 dark:text-gray-500">{idx + 1}</span>
-                )}
-              </span>
-              <span
-                className={`flex-1 min-w-0 truncate text-sm ${
+            <div key={exercise.id} className="space-y-1">
+              <button
+                onClick={() => onSelectExercise(idx)}
+                className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${
                   isCurrent
-                    ? 'font-bold text-gray-900 dark:text-gray-100'
-                    : 'font-medium text-gray-700 dark:text-gray-300'
+                    ? 'bg-primary-50 dark:bg-primary-900/30 border-2 border-primary-300 dark:border-primary-600'
+                    : 'bg-white dark:bg-slate-900 border-2 border-gray-100 dark:border-slate-700 hover:border-gray-200 dark:hover:border-slate-600'
                 }`}
               >
-                {exercise.name}
-              </span>
-              <span className="shrink-0 text-xs font-semibold text-gray-400 dark:text-gray-500">
-                {setsLogged}/{exercise.targetSets}
-              </span>
-            </button>
+                <span className="w-5 shrink-0 flex items-center justify-center">
+                  {isCurrent ? (
+                    <ArrowRight className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  ) : isComplete ? (
+                    <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  ) : (
+                    <span className="text-xs font-bold text-gray-400 dark:text-gray-500">{idx + 1}</span>
+                  )}
+                </span>
+                {supersetLabel && (
+                  <span className="shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
+                    {supersetLabel}
+                  </span>
+                )}
+                <span
+                  className={`flex-1 min-w-0 truncate text-sm ${
+                    isCurrent
+                      ? 'font-bold text-gray-900 dark:text-gray-100'
+                      : 'font-medium text-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  {exercise.name}
+                </span>
+                <span className="shrink-0 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                  {setsLogged}/{exercise.targetSets}
+                </span>
+              </button>
+              {hintPartnerId && hintPartnerName && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPairSuperset(exercise.id, hintPartnerId);
+                  }}
+                  className="ml-8 flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300"
+                >
+                  <Link2 className="w-3.5 h-3.5" />
+                  Pairs with {hintPartnerName} — tap to superset
+                </button>
+              )}
+            </div>
           );
         })}
       </div>

@@ -11,7 +11,11 @@ import {
   generate3DaySplitData,
   generateMinimalEffort4DayData,
   generateUpperLower4DayData,
+  createProgramFromDefinition,
+  generateDefinitionProgramData,
 } from '../utils/programTemplates';
+import { BUILT_IN_PROGRAM_DEFINITIONS } from '../data/builtInPrograms';
+import { getSupersetLabel } from '../utils/supersets';
 import { parseCSV, readCSVFile } from '../utils/csvParser';
 import { db } from '../db/database';
 import { useAppStore } from '../store/appStore';
@@ -45,6 +49,14 @@ const BUILT_IN_PROGRAMS = [
     creator: createUpperLower4Day,
     generator: generateUpperLower4DayData,
   },
+  // Declarative definitions share one pair of builders
+  ...BUILT_IN_PROGRAM_DEFINITIONS.map((definition) => ({
+    id: definition.id,
+    name: definition.name,
+    description: definition.description,
+    creator: () => createProgramFromDefinition(definition),
+    generator: () => generateDefinitionProgramData(definition),
+  })),
 ];
 
 export function InitialProgramSelection({ onComplete }: InitialProgramSelectionProps) {
@@ -237,8 +249,13 @@ export function InitialProgramSelection({ onComplete }: InitialProgramSelectionP
                             {exercise.notes}
                           </p>
                         )}
-                        {(exercise.isMyoreps || exercise.isLengthenedPartials) && (
+                        {(exercise.isMyoreps || exercise.isLengthenedPartials || exercise.supersetGroup) && (
                           <div className="flex gap-2 mt-2 ml-8">
+                            {exercise.supersetGroup && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300">
+                                Superset {getSupersetLabel(previewData.workouts[0].exercises, index) ?? ''}
+                              </span>
+                            )}
                             {exercise.isMyoreps && (
                               <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
                                 Myoreps

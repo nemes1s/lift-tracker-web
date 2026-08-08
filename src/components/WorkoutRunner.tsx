@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../db/database';
 import { previousWorkoutInstances, getProgressiveOverloadSuggestion } from '../utils/programLogic';
@@ -8,9 +8,18 @@ import { useAppStore } from '../store/appStore';
 import type { Workout, ExerciseInstance, SetRecord, SettingsModel } from '../types/models';
 import { v4 as uuidv4 } from 'uuid';
 import { calculateWorkoutStats } from '../utils/workoutStats';
+import {
+  getSupersetAdvance,
+  getSupersetLabel,
+  getSupersetMemberIndices,
+  reorderForSuperset,
+  isInSuperset,
+  resolveRestDuration,
+  DEFAULT_SUPERSET_REST,
+} from '../utils/supersets';
 import { convertToKg, convertWeight, type WeightUnit } from '../utils/weightUnit';
 import { getExerciseNotes } from '../data/exerciseSubstitutions';
-import { getAllDefinitionNames } from '../utils/exerciseLibrary';
+import { getAllDefinitionNames, areAntagonistExercises } from '../utils/exerciseLibrary';
 import { playTimerNotification, initAudioContext, playCountdownBeep } from '../utils/audio';
 import { showRestTimerComplete } from '../utils/notifications';
 import { WorkoutControlsSection } from './WorkoutRunner/WorkoutControlsSection';
@@ -27,6 +36,7 @@ import { WorkoutOverviewSection } from './WorkoutRunner/WorkoutOverviewSection';
 import { ExerciseNavigationSection } from './WorkoutRunner/ExerciseNavigationSection';
 import { FinishWorkoutButton } from './WorkoutRunner/FinishWorkoutButton';
 import { AddCustomExerciseModal } from './shared/AddCustomExerciseModal';
+import { SupersetSuggestionModal } from './shared/SupersetSuggestionModal';
 import { WorkoutExportMenu } from './shared/WorkoutExportMenu';
 
 interface WorkoutRunnerProps {
@@ -53,6 +63,14 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   // Track previous exercise for form clearing logic
   const [previousExerciseId, setPreviousExerciseId] = useState<string | null>(null);
 
+  // Per-exercise input drafts, so moving between exercises (especially inside a superset)
+  // always shows the numbers belonging to the exercise the next set will be logged against.
+  const draftsRef = useRef<Record<string, { weight: string; reps: string; rpe: string }>>({});
+
+  // Mirror of the live inputs, so effects can read them without re-running on every keystroke
+  const liveInputsRef = useRef({ weight: '', reps: '', rpe: '' });
+  liveInputsRef.current = { weight: weightText, reps: repsText, rpe: rpeText };
+
   // Exercise substitution state
   const [showSubstitutions, setShowSubstitutions] = useState(false);
   const [isSubstituting, setIsSubstituting] = useState(false);
@@ -60,6 +78,12 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
   // Custom exercise state
   const [showAddCustomExercise, setShowAddCustomExercise] = useState(false);
   const [exerciseSuggestions, setExerciseSuggestions] = useState<string[]>([]);
+  const [supersetSuggestion, setSupersetSuggestion] = useState<{
+    newExerciseId: string;
+    newExerciseName: string;
+    partnerId: string;
+    partnerName: string;
+  } | null>(null);
 
   // Rest timer state
   const [settings, setSettings] = useState<SettingsModel | null>(null);
@@ -175,30 +199,32 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       // Reload all sets for stats
       await loadAllSets();
 
-      // Clear form only if exercise actually changed AND target reps were achieved
+      // On a real exercise change, swap the inputs over to the incoming exercise so the
+      // next logged set carries that exercise's own numbers. Prefer an explicit draft,
+      // then the last set already logged for it in this workout (the common case on the
+      // second round of a superset), otherwise start empty.
       if (previousExerciseId !== null && previousExerciseId !== currentExercise.id) {
-        // Get the sets from the previous exercise
-        const previousExerciseData = exercises.find(ex => ex.id === previousExerciseId);
-        if (previousExerciseData) {
-          const previousSets = await db.setRecords
-            .where('exerciseId')
-            .equals(previousExerciseId)
-            .toArray();
+        draftsRef.current[previousExerciseId] = { ...liveInputsRef.current };
 
-          // Check if target reps were achieved in any of the previous exercise's sets
-          const targetRepsRange = previousExerciseData.targetReps;
-          const targetRepsMatch = targetRepsRange?.match(/^(\d+)-(\d+)$/);
-          const minReps = targetRepsMatch ? parseInt(targetRepsMatch[1]) : 0;
-          const maxReps = targetRepsMatch ? parseInt(targetRepsMatch[2]) : 100;
-
-          const targetAchieved = previousSets.some(set => set.reps >= minReps && set.reps <= maxReps);
-
-          // Only clear form if target was achieved
-          if (targetAchieved) {
-            setWeightText('');
-            setRepsText('');
-            setRpeText('');
-          }
+        const draft = draftsRef.current[currentExercise.id];
+        if (draft) {
+          setWeightText(draft.weight);
+          setRepsText(draft.reps);
+          setRpeText(draft.rpe);
+        } else if (s.length > 0) {
+          const lastSet = s[s.length - 1];
+          const weightUnit: WeightUnit = settings?.weightUnit || 'kg';
+          const displayWeight = convertWeight(lastSet.weight, weightUnit);
+          const rounded = weightUnit === 'lbs'
+            ? Math.round(displayWeight)
+            : Math.round(displayWeight * 2) / 2;
+          setWeightText(rounded.toString());
+          setRepsText(lastSet.reps.toString());
+          setRpeText(lastSet.rpe ? Math.round(lastSet.rpe).toString() : '');
+        } else {
+          setWeightText('');
+          setRepsText('');
+          setRpeText('');
         }
       }
 
@@ -208,7 +234,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
 
     loadSets();
     // Keep rest timer running when changing exercise
-  }, [currentExercise, previousExerciseId, exercises]);
+  }, [currentExercise, previousExerciseId, exercises, settings]);
 
   // Initial load of all sets
   useEffect(() => {
@@ -418,9 +444,45 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
     // Don't clear inputs - form persists for same exercise
     // The form will be cleared only when exercise changes (see useEffect for currentExercise)
 
+    // Supersets drive their own navigation: move straight to the next exercise in the
+    // group so the following set lands on the right exercise, and use the short
+    // intra-group rest until the round wraps.
+    const inSuperset = isInSuperset(exercises, currentExerciseIndex);
+    let supersetAdvance = null;
+
+    if (inSuperset) {
+      const setCounts: Record<string, number> = {};
+      await Promise.all(
+        exercises.map(async (ex) => {
+          setCounts[ex.id] = await db.setRecords
+            .where('exerciseId')
+            .equals(ex.id)
+            .count();
+        })
+      );
+
+      supersetAdvance = getSupersetAdvance(exercises, currentExerciseIndex, setCounts);
+    }
+
     // Start rest timer if enabled and auto-start is on
     if (settings?.restTimerEnabled !== false && settings?.restTimerAutoStart !== false) {
-      startRestTimer();
+      const fullRest = settings?.restTimerDuration || 90;
+      const duration = supersetAdvance
+        ? resolveRestDuration(
+            supersetAdvance,
+            fullRest,
+            settings?.supersetRestDuration ?? DEFAULT_SUPERSET_REST
+          )
+        : fullRest;
+      startRestTimer(duration);
+    }
+
+    if (supersetAdvance && supersetAdvance.nextIndex !== null) {
+      const target = supersetAdvance.nextIndex;
+      setTimeout(() => {
+        setCurrentExerciseIndex(target);
+      }, 300);
+      return;
     }
 
     // Auto-advance to next exercise once target sets are hit, if enabled
@@ -635,6 +697,14 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
         isCustom: true,
       };
 
+      // Suggest pairing with an antagonist-muscle exercise already in the workout.
+      // The exercise being viewed when "Add Custom Exercise" was clicked is the most
+      // likely partner (e.g. adding Triceps Pushdown while on Bicep Curl).
+      const candidates = currentExercise
+        ? [currentExercise, ...exercises.filter((ex) => ex.id !== currentExercise.id)]
+        : exercises;
+      const partner = candidates.find((ex) => areAntagonistExercises(exerciseName, ex.name));
+
       console.log('[WorkoutRunner] Adding custom exercise to database');
       await db.exerciseInstances.add(newExercise);
 
@@ -651,16 +721,75 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
       // Navigate to the new exercise
       setCurrentExerciseIndex(updatedExercises.length - 1);
 
-      // Close modal
+      // Close the add-exercise modal, then offer a superset suggestion if one applies.
+      // triggerRefresh() causes the parent view to briefly unmount this component (it
+      // gates on a loading flag), which would wipe the suggestion before it can render —
+      // so it's deferred until the suggestion is resolved (see the confirm/dismiss handlers).
       setShowAddCustomExercise(false);
-
-      // Trigger a refresh to update any other views
-      console.log('[WorkoutRunner] Triggering refresh for other views');
-      triggerRefresh();
+      if (partner) {
+        setSupersetSuggestion({
+          newExerciseId: newExercise.id,
+          newExerciseName: newExercise.name,
+          partnerId: partner.id,
+          partnerName: partner.name,
+        });
+      } else {
+        console.log('[WorkoutRunner] Triggering refresh for other views');
+        triggerRefresh();
+      }
     } catch (error) {
       console.error('Error adding custom exercise:', error);
       alert('Failed to add custom exercise. Please try again.');
     }
+  };
+
+  // Pairs `movingId` with `partnerId` as a superset, relocating `movingId` to sit right
+  // after the partner's group so the members are contiguous — superset navigation (and
+  // the plain exercise order) only runs back-to-back on adjacent exercises. Shared by the
+  // add-exercise suggestion modal and the inline "pairs with X" hints in the overview list.
+  const pairAsSuperset = async (movingId: string, partnerId: string) => {
+    try {
+      const viewedExerciseId = currentExercise?.id;
+      const { order, group } = reorderForSuperset(exercises, movingId, partnerId);
+
+      await Promise.all(
+        order.map((ex, i) =>
+          db.exerciseInstances.update(ex.id, {
+            orderIndex: i,
+            ...(ex.id === movingId || ex.id === partnerId ? { supersetGroup: group } : {}),
+          })
+        )
+      );
+
+      const updatedExercises = await db.exerciseInstances
+        .where('workoutId')
+        .equals(workout.id)
+        .sortBy('orderIndex');
+      setExercises(updatedExercises);
+
+      // Reordering shifts array positions, so re-find whatever exercise was on screen
+      // rather than assuming currentExerciseIndex still points at the same one.
+      const preservedIndex = viewedExerciseId
+        ? updatedExercises.findIndex((ex) => ex.id === viewedExerciseId)
+        : -1;
+      if (preservedIndex !== -1) setCurrentExerciseIndex(preservedIndex);
+
+      triggerRefresh();
+    } catch (error) {
+      console.error('Error pairing superset:', error);
+      alert('Failed to pair the superset. Please try again.');
+    }
+  };
+
+  const handleConfirmSupersetSuggestion = async () => {
+    if (!supersetSuggestion) return;
+    await pairAsSuperset(supersetSuggestion.newExerciseId, supersetSuggestion.partnerId);
+    setSupersetSuggestion(null);
+  };
+
+  const handleDismissSupersetSuggestion = () => {
+    setSupersetSuggestion(null);
+    triggerRefresh();
   };
 
   if (!currentExercise) {
@@ -684,6 +813,8 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
           targetSets={currentExercise.targetSets}
           onShowSubstitutions={() => setShowSubstitutions(!showSubstitutions)}
           isSubstituting={isSubstituting}
+          supersetLabel={getSupersetLabel(exercises, currentExerciseIndex)}
+          supersetSize={getSupersetMemberIndices(exercises, currentExerciseIndex).length || undefined}
         />
 
         <StickyRestTimerHeader
@@ -786,6 +917,7 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
           exercisesWithSets={allExercisesWithSets}
           currentIndex={currentExerciseIndex}
           onSelectExercise={setCurrentExerciseIndex}
+          onPairSuperset={pairAsSuperset}
         />
         
         {showAddCustomExercise && (
@@ -793,6 +925,15 @@ export function WorkoutRunner({ workout }: WorkoutRunnerProps) {
             onConfirm={handleAddCustomExercise}
             onCancel={() => setShowAddCustomExercise(false)}
             suggestions={exerciseSuggestions}
+          />
+        )}
+
+        {supersetSuggestion && (
+          <SupersetSuggestionModal
+            exerciseName={supersetSuggestion.newExerciseName}
+            partnerName={supersetSuggestion.partnerName}
+            onConfirm={handleConfirmSupersetSuggestion}
+            onDismiss={handleDismissSupersetSuggestion}
           />
         )}
       </div>

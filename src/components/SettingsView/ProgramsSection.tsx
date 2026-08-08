@@ -149,6 +149,14 @@ export function ProgramsSection({
           <span>Upper/Lower (4-Day)</span>
         </button>
 
+        <button
+          onClick={() => onCreateProgram('superset-express')}
+          className="w-full flex items-center gap-3 px-5 py-3 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/50 text-primary-700 dark:text-primary-400 rounded-xl transition-all font-bold shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+        >
+          <Plus className="w-5 h-5" />
+          <span>Superset Express</span>
+        </button>
+
         <div className="border-t-2 border-gray-200 dark:border-slate-700 my-4"></div>
 
         <button

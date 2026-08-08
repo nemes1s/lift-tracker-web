@@ -21,6 +21,7 @@ export interface CSVExerciseData {
   orderIndex: number;
   isMyoreps?: boolean;
   isLengthenedPartials?: boolean;
+  supersetGroup?: number;
 }
 
 export interface CSVParseResult {

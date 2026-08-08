@@ -125,6 +125,7 @@ export async function instantiateWorkout(
       notes: et.notes,
       isMyoreps: et.isMyoreps,
       isLengthenedPartials: et.isLengthenedPartials,
+      supersetGroup: et.supersetGroup,
     };
     await db.exerciseInstances.add(ex);
   }
@@ -459,6 +460,7 @@ export async function updateTemplateFromWorkout(
         workoutTemplateId: template.id,
         isMyoreps: instance.isMyoreps,
         isLengthenedPartials: instance.isLengthenedPartials,
+        supersetGroup: instance.supersetGroup,
       };
 
       await db.exerciseTemplates.add(exerciseTemplate);

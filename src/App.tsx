@@ -105,6 +105,8 @@ function App() {
         settings = {
           id: uuidv4(),
           useEpley: true,
+          restTimerDuration: 90,
+          supersetRestDuration: 10,
         };
         await db.settings.add(settings);
       }
@@ -137,6 +139,8 @@ function App() {
         settings = {
           id: uuidv4(),
           useEpley: true,
+          restTimerDuration: 90,
+          supersetRestDuration: 10,
         };
         await db.settings.add(settings);
       }

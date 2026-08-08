@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.0] - 2026-07-28
+
+### Features
+- **Supersets**. Exercises can now be grouped so they're performed back-to-back. Logging a set auto-advances to the next exercise in the group, so the set you log next is always recorded against the exercise you're actually doing — no manual tapping between movements. Rest is short (10s by default) while you move through a round, and switches to your normal full rest once the round wraps back to the start of the group. When every exercise in the group has hit its target sets, the runner drops you out to the next exercise after the group.
+- **Per-exercise input memory**. Weight, reps and RPE are now remembered per exercise instead of carrying over from whichever exercise you were on last. Returning to an exercise restores your own numbers for it, and a first visit prefills from that exercise's last set in the current workout — which makes the second round of a superset a single tap.
+- **Superset rest setting**. A new "Superset Rest" control in Settings → Workout Behavior sets the rest used between exercises inside a group (5–60s, default 10s), independent of the normal rest timer duration.
+- **Five new built-in programs**:
+  - **Beginner Foundation** — 3 days/week full body, no supersets, built around learning the main lifts.
+  - **Push / Pull / Legs (6 Day)** — six sessions a week, each muscle group trained twice.
+  - **Bodyweight Only** — 4 days/week with no equipment beyond a bar to hang from, progressing to harder leverages.
+  - **Cardio Pulse** — circuit conditioning where every exercise runs inside a circuit, light loads and minimal rest.
+  - **Superset Express** — three paired supersets per session for days when time is short.
+- **Superset support in CSV import**. Both CSV formats accept an optional `superset_group` column. Exercises sharing a number within a day are supersetted.
+
+### Fixes
+- **CSV import dropped technique flags**. Myoreps and lengthened-partials markers in an imported CSV were parsed but never written to the created program. Both import paths now persist them.
+
+### Technical
+- Superset grouping and navigation live in `src/utils/supersets.ts`, separate from the runner, and are covered by unit and integration tests.
+- New built-in programs are declared as plain data in `src/data/builtInPrograms.ts` and built by shared helpers, rather than duplicating each program's day arrays across a creator and a preview generator. A test asserts every program's exercise names resolve against the bundled exercise library.
+- Database version 11 adds `supersetGroup` to exercise templates/instances and `supersetRestDuration` to settings.
+
 ## [0.24.0] - 2026-07-27
 
 ### Improvements

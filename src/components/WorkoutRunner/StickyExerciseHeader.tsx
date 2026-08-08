@@ -1,4 +1,4 @@
-import { Check, RefreshCw } from 'lucide-react';
+import { Check, RefreshCw, Link2 } from 'lucide-react';
 
 interface StickyExerciseHeaderProps {
   name: string;
@@ -8,6 +8,8 @@ interface StickyExerciseHeaderProps {
   targetSets: number;
   onShowSubstitutions: () => void;
   isSubstituting: boolean;
+  supersetLabel?: string | null;
+  supersetSize?: number;
 }
 
 export function StickyExerciseHeader({
@@ -18,6 +20,8 @@ export function StickyExerciseHeader({
   targetSets,
   onShowSubstitutions,
   isSubstituting,
+  supersetLabel,
+  supersetSize,
 }: StickyExerciseHeaderProps) {
   const targetMet = targetSets > 0 && setsLogged >= targetSets;
   const progress = targetSets > 0 ? Math.min(setsLogged / targetSets, 1) : 0;
@@ -25,8 +29,17 @@ export function StickyExerciseHeader({
   return (
     <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 shadow-sm">
       <div className="pl-4 pr-2 pt-1.5 flex items-center justify-between gap-2">
-        <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
-          Exercise {currentIndex + 1}/{totalExercises}
+        <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
+          {supersetLabel && (
+            <span className="flex items-center gap-1 text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/40 px-1.5 py-0.5 rounded">
+              <Link2 className="w-3 h-3" />
+              Superset {supersetLabel}
+              {supersetSize ? `/${supersetSize}` : ''}
+            </span>
+          )}
+          <span>
+            Exercise {currentIndex + 1}/{totalExercises}
+          </span>
         </p>
         <div className="shrink-0 flex items-center gap-1.5">
           <span

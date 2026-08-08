@@ -5,6 +5,7 @@ import { db } from '../db/database';
 import { saveProgramPreviewData, type ProgramPreviewData } from '../utils/programTemplates';
 import type { WorkoutTemplate, ExerciseTemplate } from '../types/models';
 import { useAppStore } from '../store/appStore';
+import { getSupersetLabel } from '../utils/supersets';
 
 interface LocationState {
   mode: 'preview' | 'view';
@@ -360,6 +361,7 @@ export function ProgramPreviewView() {
                 {(isEditMode ? reorderedWorkouts.get(workout.template.id) || workout.exercises : workout.exercises).map((exercise, exerciseIndex) => {
                   const flags = isEditMode ? editedExercises.get(exercise.id) : { isMyoreps: exercise.isMyoreps, isLengthenedPartials: exercise.isLengthenedPartials };
                   const exercisesArray = isEditMode ? reorderedWorkouts.get(workout.template.id) || workout.exercises : workout.exercises;
+                  const supersetLabel = getSupersetLabel(exercisesArray, exerciseIndex);
 
                   return (
                     <div
@@ -421,8 +423,13 @@ export function ProgramPreviewView() {
                             </label>
                           </div>
                         )}
-                        {!isEditMode && (flags?.isMyoreps || flags?.isLengthenedPartials) && (
+                        {!isEditMode && (supersetLabel || flags?.isMyoreps || flags?.isLengthenedPartials) && (
                           <div className="flex flex-wrap gap-2 mt-2">
+                            {supersetLabel && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 text-xs font-bold rounded-full">
+                                SUPERSET {supersetLabel}
+                              </span>
+                            )}
                             {flags?.isMyoreps && (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 text-xs font-bold rounded-full">
                                 <Zap className="w-3 h-3" />
