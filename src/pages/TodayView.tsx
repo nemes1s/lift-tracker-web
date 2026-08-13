@@ -183,11 +183,12 @@ export function TodayView() {
 
   // Check if program cycle is complete
   useEffect(() => {
-    if (activeProgram && isProgramCycleComplete(activeProgram)) {
-      setShowCompletionBanner(true);
-    } else {
-      setShowCompletionBanner(false);
-    }
+    const checkCompletion = async () => {
+      const complete = activeProgram ? await isProgramCycleComplete(activeProgram) : false;
+      setShowCompletionBanner(complete);
+    };
+
+    checkCompletion();
   }, [activeProgram, weekNumber]);
 
   // Auto-hide success message after 10 seconds

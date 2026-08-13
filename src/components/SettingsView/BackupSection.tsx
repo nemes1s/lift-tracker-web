@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Download, Upload, AlertTriangle } from 'lucide-react';
 import { exportBackup, parseBackupFile, getBackupStats, importBackup } from '../../utils/backup';
 import type { BackupData, BackupStats } from '../../utils/backup';
@@ -95,7 +96,7 @@ export function BackupSection({ onImportComplete }: Props) {
         />
       </div>
 
-      {pending && pendingStats && (
+      {pending && pendingStats && createPortal(
         <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm">
             <div className="p-5 border-b border-gray-200 dark:border-slate-700">
@@ -145,7 +146,8 @@ export function BackupSection({ onImportComplete }: Props) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
