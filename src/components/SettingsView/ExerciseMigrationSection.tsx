@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { CheckCircle, ChevronDown, ChevronRight, Search } from 'lucide-react';
 import { getAllDefinitionNames } from '../../utils/exerciseLibrary';
 import type { SettingsModel } from '../../types/models';
@@ -126,7 +127,7 @@ export function ExerciseMigrationSection({ settings, onMigrationComplete }: Prop
         </button>
       </div>
 
-      {showModal && (
+      {showModal && createPortal(
         <div className="fixed inset-0 bg-black/60 flex items-end sm:items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[85dvh] flex flex-col">
             {/* Header */}
@@ -219,7 +220,8 @@ export function ExerciseMigrationSection({ settings, onMigrationComplete }: Prop
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

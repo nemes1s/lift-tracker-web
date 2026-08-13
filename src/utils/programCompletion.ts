@@ -121,9 +121,10 @@ export async function getProgramCompletionsByProgram(programId: string): Promise
 }
 
 /**
- * Check if the current program cycle is complete (at or past total weeks)
+ * Check if the current program cycle is complete (at or past total weeks,
+ * with at least one completed workout logged since it started)
  */
-export function isProgramCycleComplete(program: Program): boolean {
+export async function isProgramCycleComplete(program: Program): Promise<boolean> {
   if (!program.startDate) return false;
 
   const now = new Date();
@@ -132,6 +133,16 @@ export function isProgramCycleComplete(program: Program): boolean {
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   const weekNum = Math.floor(diffDays / 7) + 1;
 
-  // Program is complete if we've reached or passed the total weeks
-  return weekNum >= program.totalWeeks;
+  if (weekNum < program.totalWeeks) return false;
+
+  // A program that was started but never actually trained (e.g. the user
+  // walked away for months) shouldn't be flagged complete just because the
+  // calendar ran out - require at least one logged workout in this cycle.
+  const hasLoggedWorkout = await db.workouts
+    .where('programId')
+    .equals(program.id)
+    .filter((w) => !!w.endedAt && new Date(w.startedAt) >= start)
+    .first();
+
+  return !!hasLoggedWorkout;
 }
