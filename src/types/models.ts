@@ -104,6 +104,7 @@ export interface SettingsModel {
   // Migration tracking
   programIdMigrationComplete?: boolean; // Whether programId migration has been run
   exerciseMigrationComplete?: boolean; // Whether exercise name migration to exercise library has been run
+  dateRepairMigrationComplete?: boolean; // Whether the ISO-string -> Date repair for restored backups has been run
   // Workout behavior settings
   autoAdvanceOnTargetSets?: boolean; // Auto-advance to next exercise once target sets are hit (default: false)
 }
