@@ -21,6 +21,39 @@ export interface BackupStats {
   personalRecords: number;
 }
 
+/**
+ * Date fields per table. JSON.stringify() serializes Date objects to ISO
+ * strings, so a round-tripped backup contains strings where the models
+ * declare `Date`. Anything downstream that calls `.getTime()` on them
+ * (e.g. calculateDuration in workoutStats.ts) throws, and IndexedDB also
+ * sorts string keys after real dates, corrupting `orderBy('startedAt')`.
+ * These maps let us revive the strings back into Dates on import.
+ */
+export const DATE_FIELDS = {
+  programs: ['createdAt', 'updatedAt', 'startDate'],
+  workouts: ['startedAt', 'endedAt'],
+  setRecords: ['timestamp'],
+  personalRecords: ['occurredAt'],
+  programCompletions: ['startDate', 'completionDate'],
+} as const;
+
+/** Revive ISO date strings into Date objects on a copy of each row. */
+export function reviveDates<T>(rows: unknown[], fields: readonly string[]): T[] {
+  return rows.map((row) => {
+    if (typeof row !== 'object' || row === null) return row as T;
+    const out = { ...(row as Record<string, unknown>) };
+    for (const field of fields) {
+      const value = out[field];
+      if (typeof value === 'string') {
+        const parsed = new Date(value);
+        // Leave unparseable values alone rather than writing Invalid Date.
+        if (!Number.isNaN(parsed.getTime())) out[field] = parsed;
+      }
+    }
+    return out as T;
+  });
+}
+
 export async function exportBackup(): Promise<void> {
   const data: BackupData = {
     version: BACKUP_VERSION,
@@ -84,13 +117,13 @@ export async function importBackup(data: BackupData): Promise<void> {
       await db.setRecords.clear();
       await db.personalRecords.clear();
 
-      if (data.programs.length) await db.programs.bulkAdd(data.programs as never[]);
+      if (data.programs.length) await db.programs.bulkAdd(reviveDates(data.programs, DATE_FIELDS.programs) as never[]);
       if (data.workoutTemplates.length) await db.workoutTemplates.bulkAdd(data.workoutTemplates as never[]);
       if (data.exerciseTemplates.length) await db.exerciseTemplates.bulkAdd(data.exerciseTemplates as never[]);
-      if (data.workouts.length) await db.workouts.bulkAdd(data.workouts as never[]);
+      if (data.workouts.length) await db.workouts.bulkAdd(reviveDates(data.workouts, DATE_FIELDS.workouts) as never[]);
       if (data.exerciseInstances.length) await db.exerciseInstances.bulkAdd(data.exerciseInstances as never[]);
-      if (data.setRecords.length) await db.setRecords.bulkAdd(data.setRecords as never[]);
-      if (data.personalRecords.length) await db.personalRecords.bulkAdd(data.personalRecords as never[]);
+      if (data.setRecords.length) await db.setRecords.bulkAdd(reviveDates(data.setRecords, DATE_FIELDS.setRecords) as never[]);
+      if (data.personalRecords.length) await db.personalRecords.bulkAdd(reviveDates(data.personalRecords, DATE_FIELDS.personalRecords) as never[]);
     }
   );
 }

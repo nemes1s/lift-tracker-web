@@ -1,4 +1,6 @@
+import type { Table } from 'dexie';
 import { db } from '../db/database';
+import { DATE_FIELDS, reviveDates } from './backup';
 
 /**
  * Find the best matching program for a workout by name
@@ -144,7 +146,56 @@ export async function runMigrations(): Promise<void> {
     if (settings) {
       await db.settings.update(settings.id, { programIdMigrationComplete: true });
     }
-  } else {
-    console.log('[Migrations] All migrations already completed');
   }
+
+  if (!settings?.dateRepairMigrationComplete) {
+    console.log('[Migrations] Running serialized-date repair...');
+    await migrateSerializedDates();
+
+    if (settings) {
+      await db.settings.update(settings.id, { dateRepairMigrationComplete: true });
+    }
+  }
+
+  console.log('[Migrations] Done');
+}
+
+/**
+ * Migration: Repair Date fields stored as ISO strings
+ *
+ * Backups created before the import fix round-tripped Date objects through
+ * JSON, so `importBackup` wrote plain strings into IndexedDB. Any restored
+ * record then crashed views that call `.getTime()` on those fields (opening
+ * a restored workout from the calendar, for example) and sorted after real
+ * Dates in date indexes. This rewrites the affected rows as real Dates.
+ */
+export async function migrateSerializedDates(): Promise<void> {
+  const tables: Array<{ table: Table<Record<string, unknown>, string>; name: string; fields: readonly string[] }> = [
+    { table: db.programs as never, name: 'programs', fields: DATE_FIELDS.programs },
+    { table: db.workouts as never, name: 'workouts', fields: DATE_FIELDS.workouts },
+    { table: db.setRecords as never, name: 'setRecords', fields: DATE_FIELDS.setRecords },
+    { table: db.personalRecords as never, name: 'personalRecords', fields: DATE_FIELDS.personalRecords },
+    { table: db.programCompletions as never, name: 'programCompletions', fields: DATE_FIELDS.programCompletions },
+  ];
+
+  let totalRepaired = 0;
+
+  for (const { table, name, fields } of tables) {
+    const rows = await table.toArray();
+    const needsRepair = rows.filter(row =>
+      fields.some(field => typeof row[field] === 'string')
+    );
+
+    if (needsRepair.length === 0) continue;
+
+    await table.bulkPut(reviveDates<Record<string, unknown>>(needsRepair, fields));
+    totalRepaired += needsRepair.length;
+    console.log(`[Migration] Repaired ${needsRepair.length} string dates in ${name}`);
+  }
+
+  console.log(
+    totalRepaired === 0
+      ? '[Migration] No string dates found'
+      : `[Migration] Date repair complete: ${totalRepaired} records`
+  );
 }
