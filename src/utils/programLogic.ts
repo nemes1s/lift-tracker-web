@@ -52,6 +52,24 @@ export async function selectTemplate(
   return validTemplates[0];
 }
 
+// Get every template variant defined for a given day across all weeks of the program,
+// sorted by weekNumber. A program can define a different workout for the same dayIndex
+// in different weeks (e.g. periodization, or a cyclic multi-week rotation like
+// "Legs" in week 1 / "Shoulders" in week 2 of a 2-week program). selectTemplate() only
+// ever returns the single variant appropriate for the program's current computed week,
+// so UI that wants to let the user see/choose among all of a day's variants (rather than
+// being locked to whichever one the current week resolves to) should use this instead.
+export async function getTemplateVariantsForDay(
+  programId: string,
+  dayIndex: number
+): Promise<WorkoutTemplate[]> {
+  const templates = await db.workoutTemplates
+    .where({ programId, dayIndex })
+    .toArray();
+
+  return templates.sort((a, b) => a.weekNumber - b.weekNumber);
+}
+
 // Get recommended day based on last workout
 export async function recommendedDay(program: Program): Promise<number> {
   const lastWorkout = await db.workouts

@@ -7,6 +7,7 @@ import {
   currentWeek,
   recommendedDay,
   selectTemplate,
+  getTemplateVariantsForDay,
   instantiateWorkout,
   findActiveWorkoutForToday,
 } from '../utils/programLogic';
@@ -35,6 +36,8 @@ export function TodayView() {
   } = useAppStore();
 
   const [template, setTemplate] = useState<WorkoutTemplate | null>(null);
+  const [dayVariants, setDayVariants] = useState<WorkoutTemplate[]>([]);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const [maxDayIndex, setMaxDayIndex] = useState(4);
   const [isLoading, setIsLoading] = useState(true);
   const [showCompletionBanner, setShowCompletionBanner] = useState(false);
@@ -126,19 +129,47 @@ export function TodayView() {
 
         console.log('[TodayView] Found matching template for active workout:', workoutTemplate ? { id: workoutTemplate.id, name: workoutTemplate.name, dayIndex: workoutTemplate.dayIndex } : 'NONE');
         setTemplate(workoutTemplate);
+        setDayVariants([]);
 
         // NEVER clear an active workout based on day selection
         return;
       }
 
+      // Load every variant defined for this day across all weeks (e.g. a program can
+      // define "Legs" for day 2 in week 1 and "Shoulders" for day 2 in week 2). The
+      // user should be able to pick any of them, not just whichever one the program's
+      // current computed week happens to resolve to.
+      const variants = await getTemplateVariantsForDay(activeProgram.id, selectedDayIndex);
+      setDayVariants(variants);
+
       // Only load template based on selectedDayIndex if there's NO active workout
-      const tmpl = await selectTemplate(activeProgram.id, weekNumber, selectedDayIndex);
-      console.log('[TodayView] Selected template for day:', selectedDayIndex, ':', tmpl ? { id: tmpl.id, name: tmpl.name, dayIndex: tmpl.dayIndex } : 'NONE');
-      setTemplate(tmpl || null);
+      const recommended = await selectTemplate(activeProgram.id, weekNumber, selectedDayIndex);
+      console.log('[TodayView] Selected template for day:', selectedDayIndex, ':', recommended ? { id: recommended.id, name: recommended.name, dayIndex: recommended.dayIndex } : 'NONE');
+
+      // If the user had explicitly picked a variant for this day, keep honoring that
+      // choice as long as it's still one of the valid variants; otherwise fall back to
+      // the recommended (current-week) variant.
+      const stillValid = selectedVariantId
+        ? variants.find((v) => v.id === selectedVariantId)
+        : undefined;
+      const resolved = stillValid || recommended || null;
+      setTemplate(resolved);
+      setSelectedVariantId(resolved?.id ?? null);
     };
 
     loadTemplate();
+    // selectedVariantId intentionally omitted: it's set as an outcome of this effect too,
+    // and user-driven changes to it are applied directly via handleSelectVariant.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProgram, weekNumber, selectedDayIndex, activeWorkout, setActiveWorkout]);
+
+  // Let the user explicitly switch to a different week's variant of the current day
+  // (e.g. do "Shoulders" instead of "Legs" even though the program currently considers
+  // this the Legs week).
+  const handleSelectVariant = (variant: WorkoutTemplate) => {
+    setSelectedVariantId(variant.id);
+    setTemplate(variant);
+  };
 
   const handleStartWorkout = async (isQuickWorkout: boolean = false) => {
     if (!template || !activeProgram) return;
@@ -262,10 +293,37 @@ export function TodayView() {
 
           {/* Recommended Today */}
           <div className="mb-5">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 dark:text-gray-400">Recommended Today</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 dark:text-gray-400">
+              {dayVariants.length > 1 ? 'Workout' : 'Recommended Today'}
+            </p>
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {template?.name || `Day ${selectedDayIndex + 1}`}
             </p>
+
+            {/* Week Variant Picker - shown when this day has more than one DISTINCT
+                workout defined across the program's weeks (e.g. "Legs" in week 1 vs
+                "Shoulders" in week 2), so the user isn't locked to whichever one
+                the program's current week happens to resolve to. Days where every
+                week uses the same workout name don't need a picker. */}
+            {new Set(dayVariants.map((v) => v.name)).size > 1 && (
+              <div className="mt-3 flex flex-wrap gap-2" data-tour="select-variant">
+                {dayVariants.map((variant) => (
+                  <button
+                    key={variant.id}
+                    onClick={() => handleSelectVariant(variant)}
+                    className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                      template?.id === variant.id
+                        ? 'bg-primary-600 text-white shadow-md'
+                        : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                    }`}
+                    title={`Week ${variant.weekNumber} variant`}
+                  >
+                    {variant.name}
+                    <span className="ml-1.5 opacity-70 font-normal">(Wk {variant.weekNumber})</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Day Picker */}
