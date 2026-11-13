@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import {
   currentWeek,
   selectTemplate,
+  getTemplateVariantsForDay,
   recommendedDay,
   instantiateWorkout,
   getProgressiveOverloadSuggestion,
@@ -177,6 +178,78 @@ describe('programLogic', () => {
 
       const template = await selectTemplate('prog-1', 1, 1);
       expect(template?.id).toBe('template-day1');
+    });
+  });
+
+  describe('getTemplateVariantsForDay', () => {
+    beforeEach(async () => {
+      const program = createMockProgram({ id: 'prog-1' });
+      await db.programs.add(program);
+    });
+
+    it('returns every variant for a day across weeks, sorted by weekNumber', async () => {
+      // A 2-week cyclic program where day 2 is "Legs" in week 1 but "Shoulders" in
+      // week 2 - the scenario this helper exists to support.
+      await db.workoutTemplates.add(
+        createMockWorkoutTemplate({
+          id: 'template-legs',
+          programId: 'prog-1',
+          dayIndex: 2,
+          weekNumber: 1,
+          name: 'Legs',
+        })
+      );
+      await db.workoutTemplates.add(
+        createMockWorkoutTemplate({
+          id: 'template-shoulders',
+          programId: 'prog-1',
+          dayIndex: 2,
+          weekNumber: 2,
+          name: 'Shoulders',
+        })
+      );
+
+      const variants = await getTemplateVariantsForDay('prog-1', 2);
+
+      expect(variants.map((v) => v.name)).toEqual(['Legs', 'Shoulders']);
+      expect(variants.map((v) => v.weekNumber)).toEqual([1, 2]);
+    });
+
+    it('returns an empty array when the day has no templates', async () => {
+      const variants = await getTemplateVariantsForDay('prog-1', 6);
+      expect(variants).toEqual([]);
+    });
+
+    it('does not include templates from other days or programs', async () => {
+      await db.programs.add(createMockProgram({ id: 'prog-2' }));
+      await db.workoutTemplates.add(
+        createMockWorkoutTemplate({
+          id: 'template-other-day',
+          programId: 'prog-1',
+          dayIndex: 3,
+          weekNumber: 1,
+        })
+      );
+      await db.workoutTemplates.add(
+        createMockWorkoutTemplate({
+          id: 'template-other-program',
+          programId: 'prog-2',
+          dayIndex: 2,
+          weekNumber: 1,
+        })
+      );
+      await db.workoutTemplates.add(
+        createMockWorkoutTemplate({
+          id: 'template-match',
+          programId: 'prog-1',
+          dayIndex: 2,
+          weekNumber: 1,
+        })
+      );
+
+      const variants = await getTemplateVariantsForDay('prog-1', 2);
+
+      expect(variants.map((v) => v.id)).toEqual(['template-match']);
     });
   });
 
